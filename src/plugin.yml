@@ -1,0 +1,26 @@
+name: BookShop
+version: 2.1
+description: Shop for books.
+author: ibhh
+website: http://ibhh.de/BookShop.jar
+softdepend: [Vault]
+
+main: me.ibhh.BookShop.BookShop
+
+commands:
+  BookShop:
+    description: help of BookShop
+    usage: /BookShop
+permissions:
+  BookShop.*:
+    description: Gives access to all BookShop commands
+    children:
+      BookShop.buy: false
+      BookShop.create: false
+    default: false
+  BookShop.buy:
+    description: Allows you to buy xp.
+    default: false
+  BookShop.create:
+    description: Allows you to buy xp.
+    default: false

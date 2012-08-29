@@ -1,0 +1,223 @@
+#Here is the configfile of BookShop:
+#Read the comments please!
+#This choose the language.
+language: en
+#Disable this if you dont want that the plugin updates itself.
+autodownload: true
+installondownload: false
+internet: true
+senderrorreport: true
+#Enable this if you want debug info of a command or if you have an error and want to post it to the Developer (ibhh)
+debug: false
+debugfile: true
+LEFT_CLICK_buy: true
+UsePrefix: true
+PrefixColor: b
+TextColor: 6
+usedbtomanageXP: false
+TaskRepeat: 30
+DelayTimeTask: 30
+BookBaseCost: 0
+useBookandQuill: true
+ShopCreateMessage: true
+tax: 0
+#This is the language config: edit these if you add an new language, or you want other sentences, but never delete parts beginning with "%"!
+command:
+  error:
+    notenoughmoney:
+      de: Du hast nicht genuegend Geld!
+      en: Not enough money!
+    else:
+      de: Unbekannter Error!
+      en: Error!
+    noint:
+      de: Falsche Eingabe!
+      en: Wrong command!
+    noargs0:
+      de: Kein buy oder sell vorhanden!
+      en: No buy or sell found!
+    toomanyarguments:
+      de: Dieser Befehl hat eine falsche Syntax!
+      en: This command has an invalid syntax!
+    fewargs:
+      de: Zu wenig Argumente!
+      en: Few arguments!
+    noplayer:
+      de: Du bist kein Player!
+      en: You are no player!
+  success:
+permissions:
+  error:
+    de: Wir haben ein Problem! Dies darfst Du nicht machen!
+    en: we have a problem! You musnt do this!
+  notfound:
+    de: PermissionsEx plugin nicht gefunden!
+    en: PermissionsEx not found!
+iConomy:
+  error:
+    de: Kein iConomy5 oder 6 oder Register gefunden!
+    en: No iConomy5 or 6 or Register found!
+Shop:
+  success:
+    create:
+      de: Shop erfolgreich erstellt.
+      en: Shop created successfully.
+    tax:
+      de: Auf jedes Buch entfallen %1$d Prozent Steuern!
+      en: Per book there are %1$d percent taxes!
+    buy:
+      de: Du hast das Buch '%1$s' von %2$s fuer %3$s gekauft.
+      en: You bought the book '%1$s' from %2$s for %3$s.
+    sellerbuy:
+      de: Player %2$s hat von Dir das Buch '%1$s' fuer %3$s gekauft.
+      en: Player %2$s has bought the book '%1$s' from you for %3$s.
+    books:
+      de: Du kannst Buecher in die Kiste legen um den Kaeufern das mitbringen von Buechern zu ersparen.
+      en: You can place books in the chest, so players neednt to take a book with them if they want to purchase a book.
+  error:
+    basecost:
+      de: Der Mindestpreis ist %1$s!
+      en: The lowest price is %1$s!
+    notenoughmoneyconsumer:
+      de: Du hast nicht genug Geld!
+      en: You havent got enough money!
+    notyourshop:
+      de: Du hast keinen Zugriff auf diesen Shop!
+      en: You are NOT allowed to open this shop!
+    nochest:
+      de: Der Shop benoetigt eine leere Kiste unterhalb des Schildes!
+      en: The shop needs a empty chest under the sign!
+    nochest2:
+      de: Der Shop benoetigt eine Kiste unterhalb des Schildes!
+      en: The shop needs a chest under the sign!
+    nobook:
+      de: Kein Buch im Shop gefunden!
+      en: No book found in the shop!
+    onebook:
+      de: Es darf nur EIN Buch im Shop sein!
+      en: Only ONE book is allowed per shop!
+    wrongPrice:
+      de: Falscher Preis!
+      en: Wrong price!
+    wrongItem:
+      de: Es duerfen nur fertige Buecher in die Kiste gelegt werden!
+      en: You are only allowed to place finished books in the chest!
+    takeBookandQuill:
+      de: Bitte nehm ein Buch mit Feder in die Hand um ein Buch zu kaufen!
+      en: Please take one Book and Quill in the hand to purchase a book!
+playernotonline:
+  de: war noch nicht hier!
+  en: wasnt online before!
+playerwasntonline:
+  de: war noch nicht hier!
+  en: wasnt online before!
+dbnotused:
+  de: Du benutzt keine Datenbank!
+  en: You dont use a DB!
+help:
+  commands:
+    reload:
+      name: reload
+      permission: BookShop.reload
+      description: 
+        de: Laedt das Plugin neu.
+        en: Reloads plugin.
+      usage: /BookShop reload
+    configconfirm:
+      name: configconfirm
+      permission: BookShop.config
+      description: 
+        de: Bestaetigt das editieren der config.yml
+        en: Confirms the editing of the config.yml
+      usage: /BookShop configcancel
+    configcancel:
+      name: configcancel
+      permission: BookShop.config
+      description: 
+        de: Bricht das Aendern der config ab.
+        en: Cancels the editing of the configfile.
+      usage: /BookShop configcancel
+    reload:
+      name: reload
+      permission: BookShop.reload
+      description: 
+        de: Reloaded das Plugin
+        en: Reloads plugin
+      usage: /BookShop reload
+    debugfile:
+      name: debugfile
+      permission: BookShop.debugfile
+      description:
+        de: Schaltet den debugfile aus und ein.
+        en: turns debugfile on and off.
+      usage: /BookShop debugfile
+    internet:
+      name: internet
+      permission: BookShop.internet
+      description:
+        de: Schaltet die erlaubnis sich mit Internet verbinden zu duerfen ein und aus.
+        en: Toggles permission to connect to the internet
+      usage: /BookShop internet
+    version:
+      name: version
+      permission: BookShop.version
+      description:
+        de: Gibt die aktuelle Version zurueck.
+        en: returns installed version.
+      usage: /BookShop version
+    update:
+      name: update
+      permission: BookShop.admin
+      description:
+        de: Updated das plugin.
+        en: Updates the plugin.
+      usage: /BookShop update
+    deletedebug:
+      name: deletedebug
+      permission: BookShop.admin
+      description:
+        de: Loescht den debuglog des plugins.
+        en: deletes the debuglog of the plugin.
+      usage: /BookShop deletedebug
+    log:
+      name: log
+      permission: BookShop.admin
+      description:
+        de: zeigt die aktuelle Groesse des debuglogs an.
+        en: returns the debuglog size.
+      usage: /BookShop log
+    toggle:
+      name: toggle
+      permission: BookShop.admin
+      description:
+        de: Schalted BookShop an und aus.
+        en: Turns BookShop on and off.
+      usage: /BookShop toggle
+    language:
+      name: language
+      permission: BookShop.admin
+      description:
+        de: Setzt die Sprache des Plugins
+        en: sets the language of the plugin
+      usage: /BookShop language <language>
+    help:
+      name: help
+      permission: BookShop.help
+      description:
+        de: Hilfe
+        en: Help
+      usage: /BookShop help
+    showdebug:
+      name: showdebug
+      permission: BookShop.showdebug
+      description:
+        de: Zeigt alle BookShop meldungen
+        en: Shows every message.
+      usage: /BookShop showdebug
+    report:
+      name: report
+      permission: BookShop.report
+      description:
+        de: Ermoeglicht das senden eines Bug Reports.
+        en: Sends a bug report to the author.
+      usage: /BookShop report amessagewithoutanyspecialthings
