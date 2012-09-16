@@ -187,7 +187,11 @@ public class SignHandler {
             if (!playername.equalsIgnoreCase(line[1])) {
                 if (player.getInventory().firstEmpty() != -1) {
                     if (line[1].equalsIgnoreCase("AdminShop")) {
-                        Chest chest = (Chest) s.getBlock().getRelative(BlockFace.DOWN).getState();
+                        Chest chest = null;
+                        try {
+                            chest = (Chest) s.getBlock().getRelative(BlockFace.DOWN).getState();
+                        } catch (Exception e) {
+                        }
                         if (chest != null) {
                             if (chest.getInventory().contains(Material.WRITTEN_BOOK)) {
                                 int Slot = chest.getInventory().first(Material.WRITTEN_BOOK);
@@ -228,7 +232,11 @@ public class SignHandler {
                     } else {
                         Player empfaenger = plugin.getmyOfflinePlayer(line, 1);
                         if (empfaenger != null) {
-                            Chest chest = (Chest) s.getBlock().getRelative(BlockFace.DOWN).getState();
+                            Chest chest = null;
+                            try {
+                                chest = (Chest) s.getBlock().getRelative(BlockFace.DOWN).getState();
+                            } catch (Exception e) {
+                            }
                             if (chest != null) {
                                 if (chest.getInventory().contains(Material.WRITTEN_BOOK)) {
                                     int Slot = chest.getInventory().first(Material.WRITTEN_BOOK);

@@ -480,15 +480,14 @@ public class Utilities {
     public void noPerms(CommandSender sender) {
         sender.sendMessage(red + "You do not have permission for that command...");
     }
-    
+
     /**
-* Retrieves a precise and short error message returing only where something
-* went wrong.
-*
-* @param e
-* Throwable exception
-* @return String Name of class where something went wrong.
-*/
+     * Retrieves a precise and short error message returing only where something
+     * went wrong.
+     *     
+* @param e Throwable exception
+     * @return String Name of class where something went wrong.
+     */
     public static String getExceptionMessage(final Throwable e) {
         if (e.getCause() != null) {
             String msg = getExceptionMessage(e.getCause());
@@ -509,16 +508,13 @@ public class Utilities {
     }
 
     /**
-* Unloads a plugin by name.
-*
-* @param pluginName
-* The name of the plugin to unload.
-* @throws NoSuchFieldException
-* Unknown field for
-* plugins/lookupNames/commandMap/knownCommands.
-* @throws IllegalAccessException
-* Unable to access plugin field(s).
-*/
+     * Unloads a plugin by name.
+     *     
+* @param pluginName The name of the plugin to unload.
+     * @throws NoSuchFieldException Unknown field for
+     * plugins/lookupNames/commandMap/knownCommands.
+     * @throws IllegalAccessException Unable to access plugin field(s).
+     */
     @SuppressWarnings("unchecked")
     public void unloadPlugin(final String pluginName)
             throws NoSuchFieldException, IllegalAccessException {
@@ -597,26 +593,21 @@ public class Utilities {
     }
 
     /**
-* Loads a plugin by name.
-*
-* @param pluginName
-* The name of the plugin to load.
-* @throws InvalidPluginException
-* Not a plugin.
-* @throws InvalidDescriptionException
-* Invalid description.
-* @since 1.0.0
-*/
+     * Loads a plugin by name.
+     *     
+* @param pluginName The name of the plugin to load.
+     * @throws InvalidPluginException Not a plugin.
+     * @throws InvalidDescriptionException Invalid description.
+     * @since 1.0.0
+     */
     public void loadPlugin(final String pluginName)
             throws InvalidPluginException, InvalidDescriptionException {
         PluginManager manager = plugin.getServer().getPluginManager();
-        Plugin plugin = manager.loadPlugin(new File("plugins", pluginName + ".jar"));
-
+        String path = plugin.getDataFolder().toPath().getParent().toString();
+        Plugin plugin = manager.loadPlugin(new File(path, pluginName + ".jar"));
         if (plugin == null) {
             return;
         }
-
         manager.enablePlugin(plugin);
     }
-
 }

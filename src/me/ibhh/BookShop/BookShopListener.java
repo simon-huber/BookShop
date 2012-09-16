@@ -73,11 +73,13 @@ public class BookShopListener implements Listener {
                                     if (bookInChest != null) {
                                         plugin.Logger("Book != null", "Debug");
                                         BookHandler loadedBook = BookLoader.load(plugin, bookInChest.getAuthor(), bookInChest.getTitle());
-                                        if (!loadedBook.getAuthor().equals(bookInChest.getAuthor()) || !loadedBook.getTitle().equals(bookInChest.getTitle())) {
-                                            BookLoader.save(plugin, bookInChest);
+                                        if (loadedBook != null) {
+                                            if (!loadedBook.getAuthor().equals(bookInChest.getAuthor()) || !loadedBook.getTitle().equals(bookInChest.getTitle())) {
+                                                BookLoader.save(plugin, bookInChest);
+                                            }
+                                            sign.setLine(2, bookInChest.getTitle());
+                                            sign.update();
                                         }
-                                        sign.setLine(2, bookInChest.getTitle());
-                                        sign.update();
                                     }
                                 }
                             }
@@ -494,9 +496,13 @@ public class BookShopListener implements Listener {
         try {
             temp = Double.parseDouble(lines[3]);
         } catch (Exception e) {
-            String[] a1 = lines[3].split(":");
-            b[0] = Double.parseDouble(a1[0]);
-            b[1] = Double.parseDouble(a1[1]);
+            try {
+                String[] a1 = lines[3].split(":");
+                b[0] = Double.parseDouble(a1[0]);
+                b[1] = Double.parseDouble(a1[1]);
+            } catch (Exception e1) {
+                return false;
+            }
         }
         if (temp >= 0 || (b[0] >= 0 && b[1] >= 0 && b[0] >= b[1])) {
             plugin.Logger("amount greater than 0", "Debug");
@@ -511,20 +517,24 @@ public class BookShopListener implements Listener {
         boolean a = false;
         plugin.Logger("Checking if block is valid!", "Debug");
         double temp = 0;
+        double[] b = new double[2];
         try {
             temp = Double.parseDouble(sign.getLine(3));
-            plugin.Logger("Line 3 is: " + sign.getLine(3), "Debug");
         } catch (Exception e) {
-            plugin.Logger("Contains no amount ", "Debug");
-            return false;
+            try {
+                String[] a1 = sign.getLine(3).split(":");
+                b[0] = Double.parseDouble(a1[0]);
+                b[1] = Double.parseDouble(a1[1]);
+            } catch (Exception e1) {
+                return false;
+            }
         }
-        if (temp >= 0) {
+        if (temp >= 0 || (b[0] >= 0 && b[1] >= 0 && b[0] >= b[1])) {
             plugin.Logger("amount greater than 0", "Debug");
             a = true;
         } else {
             plugin.Logger("amount is smaller than 0! ", "Debug");
         }
-
         return a;
     }
 
