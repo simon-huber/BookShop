@@ -50,6 +50,8 @@ public class ConfigHandler {
     }
 
     public void updatetonew77() {
+        plugin.getConfig().set("Shop.success.books.en", "You can place book and quill in the chest, so players neednt to take a book with them if they want to purchase a book.");
+        plugin.getConfig().set("Shop.success.books.de", "Du kannst beschreibare Buecher in die Kiste legen um den Kaeufern das mitbringen von Buechern zu ersparen.");
         if (plugin.getConfig().contains("help.buy.de")) {
             plugin.Logger("Converting config.yml!", "Warning");
             plugin.Logger("Please delete marked rows!", "Warning");

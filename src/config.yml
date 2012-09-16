@@ -24,6 +24,9 @@ tax: 0
 #This is the language config: edit these if you add an new language, or you want other sentences, but never delete parts beginning with "%"!
 command:
   error:
+    takeBookInHand:
+      de: Zum Speichern musst du ein Buch in der Hand halten.
+      en: To save a book, you have to hold it in the hand.
     notenoughmoney:
       de: Du hast nicht genuegend Geld!
       en: Not enough money!
@@ -59,6 +62,15 @@ iConomy:
     en: No iConomy5 or 6 or Register found!
 Shop:
   success:
+    bookselled:
+      de: Infos zum Buch '%1$s' von '%2$s'
+      en: Info for the book '%1$s' by '%2$s'
+    bookselled2:
+      de: Verkauft %1$d mal.
+      en: Was selled %1$d times.
+    bookselled3:
+      de: Es hat %1$d Seiten.
+      en: It has %1$d pages.
     create:
       de: Shop erfolgreich erstellt.
       en: Shop created successfully.
@@ -72,9 +84,15 @@ Shop:
       de: Player %2$s hat von Dir das Buch '%1$s' fuer %3$s gekauft.
       en: Player %2$s has bought the book '%1$s' from you for %3$s.
     books:
-      de: Du kannst Buecher in die Kiste legen um den Kaeufern das mitbringen von Buechern zu ersparen.
-      en: You can place books in the chest, so players neednt to take a book with them if they want to purchase a book.
+      de: Du kannst beschreibare Buecher in die Kiste legen um den Kaeufern das mitbringen von Buechern zu ersparen.
+      en: You can place book and quill in the chest, so players neednt to take a book with them if they want to purchase a book.
   error:
+    onlyyourbooks:
+      de: Du darfst nur eigene Buecher verkaufen. Du hast die Permission BookShop.sell.other nicht!
+      en: You are only allowed to sell your own books. You havent got the Permission BookShop.sell.other!
+    inventoryfull:
+      de: Dein Inventar ist voll! Bitte leere es um hier kaufen zu koennen.
+      en: Your inventory is full! Please clear some slots to purchase here.
     basecost:
       de: Der Mindestpreis ist %1$s!
       en: The lowest price is %1$s!
@@ -221,3 +239,17 @@ help:
         de: Ermoeglicht das senden eines Bug Reports.
         en: Sends a bug report to the author.
       usage: /BookShop report amessagewithoutanyspecialthings
+    backupbook:
+      name: backupbook
+      permission: BookShop.backupbook
+      description:
+        de: Ermoeglicht das speichern eines Buchs.
+        en: Saves a book to a file.
+      usage: /BookShop backupbook
+    loadbook:
+      name: loadbook
+      permission: BookShop.loadbook
+      description:
+        de: Gibt das Buch dem Spieler
+        en: Gives the book to the player
+      usage: /BookShop loadbook author name of the book

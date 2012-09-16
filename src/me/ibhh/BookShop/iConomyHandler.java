@@ -79,7 +79,7 @@ public class iConomyHandler {
                 }
             } catch (Exception E) {
                 E.printStackTrace();
-                plugin.report.report(3334, "Error on searching EconomyPlugin", E.getMessage(), "iConomyHandler", E.getCause());
+                plugin.report.report(3334, "Error on searching EconomyPlugin", E.getMessage(), "iConomyHandler", E);
                 iConomyversion = 0;
             }
             return iConomyversion;

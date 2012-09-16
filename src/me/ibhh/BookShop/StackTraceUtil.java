@@ -14,6 +14,12 @@ public final class StackTraceUtil {
         return result.toString();
     }
 
+    public static String getStackTrace(Exception stack) {
+        StringWriter sw = new StringWriter();
+        stack.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
+    }
+
     /**
      * Defines a custom format for the stack trace as String.
      */
@@ -22,7 +28,7 @@ public final class StackTraceUtil {
             //add the class name and any message passed to constructor
             final StringBuilder result = new StringBuilder("");
             result.append(aThrowable.toString());
-            final String NEW_LINE = System.getProperty("<br>");
+            final String NEW_LINE = "<br>";
             result.append(NEW_LINE);
 
             //add each element of the stack trace

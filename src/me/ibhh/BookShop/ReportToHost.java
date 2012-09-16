@@ -7,8 +7,10 @@ package me.ibhh.BookShop;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
 
 /**
  *
@@ -22,42 +24,46 @@ public class ReportToHost {
         plugin = pl;
     }
 
-    public String report(int line, String other, String message, String classfile, Throwable stack) {
+    public String report(int line, String other, String message, String classfile, Exception stack) {
         if (plugin.getConfig().getBoolean("senderrorreport")) {
-            String ret = "Error";
-            other = other.replace(" ", "%20");
-            message = message.replace(" ", "%20");
-            String stacktrace = StackTraceUtil.getCustomStackTrace(stack);
-            stacktrace = stacktrace.replace(" ", "%20");
-            String url = "http://ibhh.de/report/index.php?"
-                    + "plugin=" + plugin.getName()
-                    + "&version=" + plugin.getDescription().getVersion()
-                    + "&line=" + line
-                    + "&gameversion=" + plugin.getServer().getBukkitVersion()
-                    + "&message=" + message
-                    + "&class=" + classfile
-                    + "&stacktrace=" + stacktrace
-                    + "&other=" + other;
-            try {
-                System.out.print("[" + plugin.getName() + "] Sending issue report to ibhh.de!");
-                System.out.print("[" + plugin.getName() + "] -------------------------");
-                System.out.print("[" + plugin.getName() + "] Version: " + plugin.getDescription().getVersion());
-                System.out.print("[" + plugin.getName() + "] ErrorID: " + line);
-                System.out.print("[" + plugin.getName() + "] Gameversion: " + plugin.getServer().getBukkitVersion());
-                System.out.print("[" + plugin.getName() + "] Other: " + other);
-                System.out.print("[" + plugin.getName() + "] Message: " + message);
-                System.out.print("[" + plugin.getName() + "] Class: " + classfile);
-                System.out.print("[" + plugin.getName() + "] -------------------------");
-                ret = readAll(url);
-                System.out.print("[" + plugin.getName() + "] Message of Server: " + ret);
-                System.out.print("[" + plugin.getName() + "] -------------------------");
-            } catch (Exception ex) {
-                System.out.print("[" + plugin.getName() + "] Couldnt send error report to ibhh.de!");
-                if(plugin.getConfig().getBoolean("debug")){
-                    ex.printStackTrace();
-                }
+//            if (other == null) {
+//                other = "none";
+//            }
+//            other = other.replace(" ", "%20");
+//            if (message == null) {
+//                message = "none";
+//            }
+//            message = message.replace(" ", "%20");
+            String stacktrace = StackTraceUtil.getStackTrace(stack);
+//            if (stacktrace == null) {
+//                stacktrace = "none";
+//            }
+//            stacktrace = stacktrace.replace(" ", "%20");
+            return send(line + "", message, classfile, stacktrace, other);
+        } else {
+            return "internet not enabled in the config.yml";
+        }
+    }
+
+    public String report(int line, String other, String message, String classfile, String stacktrace) {
+        if (plugin.getConfig().getBoolean("senderrorreport")) {
+            if (plugin.getConfig().getBoolean("senderrorreport")) {
+                //            if (other == null) {
+//                other = "none";
+//            }
+//            other = other.replace(" ", "%20");
+//            if (message == null) {
+//                message = "none";
+//            }
+//            message = message.replace(" ", "%20");
+//            if (stacktrace == null) {
+//                stacktrace = "none";
+//            }
+//            stacktrace = stacktrace.replace(" ", "%20");
+                return send(line + "", message, classfile, stacktrace, other);
+            } else {
+                return "internet not enabled in the config.yml";
             }
-            return ret;
         } else {
             return "internet not enabled in the config.yml";
         }
@@ -81,5 +87,88 @@ public class ReportToHost {
             return "Exception on reading message!";
         }
         return zeile;
+    }
+
+    public String send(String line, String message, String classfile, String stacktrace, String other) {
+        String ret = "Error";
+        try {
+            stacktrace = URLEncoder.encode(stacktrace, "UTF-8");
+        } catch (UnsupportedEncodingException ex) {
+            stacktrace = "exceptiononencoding";
+        }
+        try {
+            message = URLEncoder.encode(message, "UTF-8");
+        } catch (UnsupportedEncodingException ex) {
+            message = "exceptiononencoding";
+        }
+        try {
+            classfile = URLEncoder.encode(classfile, "UTF-8");
+        } catch (UnsupportedEncodingException ex) {
+            classfile = "exceptiononencoding";
+        }
+        try {
+            other = URLEncoder.encode(other, "UTF-8");
+        } catch (UnsupportedEncodingException ex) {
+            other = "exceptiononencoding";
+        }
+        String url = "http://ibhh.de/report/index.php?"
+                + "plugin=" + plugin.getName()
+                + "&version=" + plugin.getDescription().getVersion()
+                + "&line=" + line
+                + "&gameversion=" + plugin.getServer().getBukkitVersion()
+                + "&message=" + message
+                + "&class=" + classfile
+                + "&stacktrace=" + stacktrace
+                + "&other=" + other;
+        try {
+            String temp = "[" + plugin.getName() + "] Sending issue report to ibhh.de!";
+            System.out.print(temp);
+            plugin.Loggerclass.log(temp);
+            temp = "[" + plugin.getName() + "] -------------------------";
+            System.out.print(temp);
+            plugin.Loggerclass.log(temp);
+            temp = "[" + plugin.getName() + "] Version: " + plugin.getDescription().getVersion();
+            System.out.print(temp);
+            plugin.Loggerclass.log(temp);
+            System.out.print("[" + plugin.getName() + "] ErrorID: " + line);
+            temp = "[" + plugin.getName() + "] Version: " + plugin.getDescription().getVersion();
+            System.out.print(temp);
+            plugin.Loggerclass.log(temp);
+            temp = "[" + plugin.getName() + "] Gameversion: " + plugin.getServer().getBukkitVersion();
+            System.out.print(temp);
+            plugin.Loggerclass.log(temp);
+            temp = "[" + plugin.getName() + "] Other: " + other;
+            System.out.print(temp);
+            plugin.Loggerclass.log(temp);
+            temp = "[" + plugin.getName() + "] Message: " + message;
+            System.out.print(temp);
+            plugin.Loggerclass.log(temp);
+            if (plugin.getConfig().getBoolean("debug")) {
+                temp = "[" + plugin.getName() + "] Stacktrace: " + stacktrace;
+                System.out.print(temp);
+                plugin.Loggerclass.log(temp);
+            }
+            temp = "[" + plugin.getName() + "] Class: " + classfile;
+            System.out.print(temp);
+            plugin.Loggerclass.log(temp);
+            temp = "[" + plugin.getName() + "] -------------------------";
+            System.out.print(temp);
+            plugin.Loggerclass.log(temp);
+            ret = readAll(url);
+            temp = "[" + plugin.getName() + "] Message of Server: " + ret;
+            System.out.print(temp);
+            plugin.Loggerclass.log(temp);
+            temp = "[" + plugin.getName() + "] -------------------------";
+            System.out.print(temp);
+            plugin.Loggerclass.log(temp);
+        } catch (Exception ex) {
+            String temp = "[" + plugin.getName() + "] Couldnt send error report to ibhh.de!";
+            System.out.print(temp);
+            plugin.Loggerclass.log(temp);
+            if (plugin.getConfig().getBoolean("debug")) {
+                ex.printStackTrace();
+            }
+        }
+        return ret;
     }
 }

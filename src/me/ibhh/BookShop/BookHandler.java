@@ -19,15 +19,17 @@ import org.bukkit.inventory.ItemStack;
 public class BookHandler {
 
     private NBTTagCompound tag;
+    private int selled = 0;
 // private String title;
 // private String author;
 // private ArrayList<String> pages;
 
-    public BookHandler(String title, String author, List<String> pages) throws InvalidBookException {
+    public BookHandler(String title, String author, List<String> pages, int selled) throws InvalidBookException {
         tag = new NBTTagCompound();
         setTitle(title);
         setAuthor(author);
         setPages(pages);
+        setSelled(selled);
 // this.title = title;
 // this.author = author;
 // this.pages = pages;
@@ -147,5 +149,21 @@ public class BookHandler {
         item.getHandle().tag = tag;
 
         return item;
+    }
+    
+    public int selled(){
+        return selled;
+    }
+    
+    public int getSelled(){
+        return selled;
+    }
+    
+    public int increaseSelled(){
+        return ++selled;
+    }
+    
+    public void setSelled(int i){
+        selled = i;
     }
 }
