@@ -2,6 +2,7 @@ package me.ibhh.BookShop;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.HashSet;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -151,6 +152,73 @@ public class BookShopListener implements Listener {
     public void invClick(InventoryClickEvent event) {
         try {
             final Player player = (Player) event.getWhoClicked();
+            int maxDistance = 15;// whatever you need
+            Block chestblock = player.getTargetBlock(null, maxDistance);
+            if (chestblock != null) {
+                plugin.Logger("Block at eyelocation!", "Debug");
+                if (chestblock.getType().equals(Material.CHEST)) {
+                    plugin.Logger("is chest!", "Debug");
+                    Block signblock = chestblock.getRelative(BlockFace.UP);
+                    if (signblock != null) {
+                        plugin.Logger("Block Relative UP!", "Debug");
+                        if (isSign(signblock)) {
+                            plugin.Logger("Block is sign!", "Debug");
+                            Sign sign = (Sign) signblock.getState();
+                            plugin.Logger("Line 0: " + sign.getLine(0), "Debug");
+                            plugin.Logger("Line 1: " + sign.getLine(1), "Debug");
+                            if (sign.getLine(0).equalsIgnoreCase(plugin.SHOP_configuration.getString("FirstLineOfEveryShop"))) {
+                                plugin.Logger("Is bookshop!", "Debug");
+                                if (sign.getLine(1).equalsIgnoreCase(plugin.SHOP_configuration.getString("Newspapers"))) {
+                                    plugin.Logger("Line 1: newspapers!", "Debug");
+                                    if (ChestViewers.containsKey(player)) {
+                                        plugin.Logger("Slot: " + event.getSlot(), "Debug");
+                                        plugin.Logger("Player " + player.getName() + " clicked on " + event.getInventory().getType().name() + "!", "Debug");
+                                        if (event.getInventory().getType().equals(InventoryType.CHEST)) {
+                                            if (event.getCurrentItem() == null) {
+                                                return;
+                                            }
+                                            BookHandler book = null;
+                                            try {
+                                                book = new BookHandler(event.getCurrentItem());
+                                            } catch (InvalidBookException ex) {
+                                            }
+                                            if (book != null) {
+                                                if (!book.getAuthor().equalsIgnoreCase(player.getName())) {
+                                                    if (!plugin.PermissionsHandler.checkpermissionssilent(player, "BookShop.sell.other")) {
+                                                        plugin.PlayerLogger(player, plugin.getConfig().getString("Shop.error.onlyyourbooks." + plugin.getConfig().getString("language")), "Error");
+                                                        event.setCancelled(true);
+                                                        return;
+                                                    }
+                                                }
+                                            }
+                                            if (!event.getCurrentItem().getType().equals(Material.WRITTEN_BOOK) && !event.getCurrentItem().getType().equals(Material.AIR)) {
+                                                if (plugin.getConfig().getBoolean("useBookandQuill")) {
+                                                    if (!event.getCurrentItem().getType().equals(Material.BOOK_AND_QUILL)) {
+                                                        plugin.Logger("Item is " + event.getCurrentItem().getType().name(), "Debug");
+                                                        plugin.PlayerLogger(player, plugin.getConfig().getString("Shop.error.wrongItem." + plugin.config.language), "Error");
+                                                        event.setCancelled(true);
+                                                    }
+                                                } else {
+                                                    plugin.Logger("Item is " + event.getCurrentItem().getType().name(), "Debug");
+                                                    plugin.PlayerLogger(player, plugin.getConfig().getString("Shop.error.wrongItem." + plugin.config.language), "Error");
+                                                    event.setCancelled(true);
+                                                }
+                                            }
+                                        } else {
+                                            plugin.Logger("Player " + player.getName() + " clicked on own Inventory!", "Debug");
+                                        }
+                                        return;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    plugin.Logger("Block is " + chestblock.getType().name(), "Debug");
+                }
+            } else {
+                plugin.Logger("eyelocation == null: " + player.getName(), "Debug");
+            }
             if (ChestViewers.containsKey(player)) {
                 plugin.Logger("Slot: " + event.getSlot(), "Debug");
                 plugin.Logger("Player " + player.getName() + " clicked on " + event.getInventory().getType().name() + "!", "Debug");
@@ -229,11 +297,12 @@ public class BookShopListener implements Listener {
                             plugin.PlayerLogger(event.getPlayer(), "Please edit the config.yml if you wish that the plugin updates itself atomatically!", "Warning");
                         }
                     }
-                    File file = new File("plugins" + File.separator + "BookShop" + File.separator + "debug.txt");
-                    if (file.exists()) {
-                        if (file.length() > 100000000) {
-                            plugin.PlayerLogger(event.getPlayer(), "debug.txt is " + file.length() + "Byte big!", "Warning");
-                            plugin.PlayerLogger(event.getPlayer(), "Type /BookShop deletedebug to delete the debug.txt!", "Warning");
+                }
+                if (!plugin.getServer().getOfflinePlayer(event.getPlayer().getName()).hasPlayedBefore()) {
+                    if (plugin.getConfig().getBoolean("GiveBookToNewPlayers")) {
+                        BookHandler book = BookLoader.load(plugin, plugin.getConfig().getString("Book"));
+                        if (event.getPlayer().getInventory().firstEmpty() != -1) {
+                            event.getPlayer().getInventory().addItem(book.toItemStack(1));
                         }
                     }
                 }
@@ -266,7 +335,7 @@ public class BookShopListener implements Listener {
             if (plugin.config.debug) {
                 plugin.Logger("First Line " + event.getLine(0), "Debug");
             }
-            if (event.getLine(0).equalsIgnoreCase("[BookShop]")) {
+            if (event.getLine(0).equalsIgnoreCase(plugin.SHOP_configuration.getString("FirstLineOfEveryShop"))) {
                 createHandler.CreateBookShop(event);
             }
         }
@@ -308,7 +377,7 @@ public class BookShopListener implements Listener {
                     }
                     org.bukkit.block.Sign sign = findSignBook(event.getBlock());
                     if (isCorrectSign(sign, event.getBlock())) {
-                        if (sign.getLine(0).equalsIgnoreCase("[BookShop]")) {
+                        if (sign.getLine(0).equalsIgnoreCase(plugin.SHOP_configuration.getString("FirstLineOfEveryShop"))) {
                             String[] line = sign.getLines();
                             if (blockIsValid(sign)) {
                                 if (line[1].equalsIgnoreCase(p.getName()) && plugin.PermissionsHandler.checkpermissions(p, "BookShop.create")) {
@@ -370,7 +439,7 @@ public class BookShopListener implements Listener {
                     String[] line = s.getLines();
                     plugin.Logger("Line 0: " + line[0], "Debug");
                     plugin.Logger("Sign dedected", "Debug");
-                    if (line[0].equalsIgnoreCase("[BookShop]")) {
+                    if (line[0].equalsIgnoreCase(plugin.SHOP_configuration.getString("FirstLineOfEveryShop"))) {
                         if (this.blockIsValid(line, "break", p)) {
                             if (s.getLine(1).equalsIgnoreCase(p.getName()) && plugin.PermissionsHandler.checkpermissions(p, "BookShop.create")) {
                                 plugin.PlayerLogger(p, "Destroying BookShop!", "");

@@ -97,7 +97,7 @@ public class InteractHandler {
             if (plugin.config.debug) {
                 plugin.Logger("Checking first line!", "Debug");
             }
-            if (line[0].equalsIgnoreCase("[BookShop]")) {
+            if (line[0].equalsIgnoreCase(plugin.SHOP_configuration.getString("FirstLineOfEveryShop"))) {
                 signHandler.LinksKlick(event, line, p, s);
             }
         } else if (p.isSneaking() && (event.getClickedBlock().getState() instanceof Sign)) {
@@ -106,7 +106,7 @@ public class InteractHandler {
             if (plugin.config.debug) {
                 plugin.Logger("Checking first line!", "Debug");
             }
-            if (line[0].equalsIgnoreCase("[BookShop]")) {
+            if (line[0].equalsIgnoreCase(plugin.SHOP_configuration.getString("FirstLineOfEveryShop"))) {
                 Chest chest = null;
                 try{
                 chest = (Chest) s.getBlock().getRelative(BlockFace.DOWN).getState();

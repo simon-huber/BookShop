@@ -32,17 +32,22 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
+import java.util.UUID;
 import java.util.logging.Level;
+import me.ibhh.xpShop.Repair;
 import net.minecraft.server.EntityPlayer;
 import net.minecraft.server.ItemInWorldManager;
 import net.minecraft.server.MinecraftServer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.InvalidDescriptionException;
 import org.bukkit.plugin.InvalidPluginException;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -72,6 +77,9 @@ public class BookShop extends JavaPlugin {
     public MetricsHandler metricshandler;
     public PlayerManager playerManager;
     public ReportToHost report;
+    private static String SHOP_CONFIG_FILE;
+    public YamlConfiguration SHOP_configuration;
+    private File configurationFile;
     public HashMap<Player, Boolean> commandexec = new HashMap<Player, Boolean>();
     public HashMap<String, Boolean> DebugMsg = new HashMap<String, Boolean>();
     private HashMap<Player, String> Config = new HashMap<Player, String>();
@@ -90,10 +98,11 @@ public class BookShop extends JavaPlugin {
         "language",
         "report",
         "backupbook",
-        "loadbook"};
-
-    public BookShop() {
-    }
+        "loadbook",
+        "giveall",
+        "give",
+        "setwelcomebook",
+        "removewelcomebook"};
 
     /**
      * Called by Bukkit on stopping the server
@@ -125,6 +134,22 @@ public class BookShop extends JavaPlugin {
                 config = new ConfigHandler(this);
                 config.loadConfigonStart();
                 Logger("Version: " + aktuelleVersion(), "Debug");
+            } catch (Exception e1) {
+                report.report(332, "Config loading failed", e1.getMessage(), "BookShop", e1);
+                Logger("Error on loading config: " + e1.getMessage(), "Error");
+                e1.printStackTrace();
+                Logger("Version: " + Version + " failed to enable!", "Error");
+            }
+            try {
+                // load the config
+                SHOP_CONFIG_FILE = getDataFolder().toString() + File.separator + "Shopconfig.yml";
+                configurationFile = new File(SHOP_CONFIG_FILE);
+                SHOP_configuration = YamlConfiguration.loadConfiguration(configurationFile);
+                SHOP_configuration.addDefault("FirstLineOfEveryShop", "[BookShop]");
+                SHOP_configuration.addDefault("AdminShop", "AdminShop");
+                SHOP_configuration.addDefault("Newspapers", "Newspapers");
+                SHOP_configuration.options().copyDefaults(true);
+                SHOP_configuration.save(configurationFile);
             } catch (Exception e1) {
                 report.report(332, "Config loading failed", e1.getMessage(), "BookShop", e1);
                 Logger("Error on loading config: " + e1.getMessage(), "Error");
@@ -441,6 +466,59 @@ public class BookShop extends JavaPlugin {
         return player;
     }
 
+    /**
+     * Return player
+     *
+     * @param args
+     * @param index which field is playername
+     * @return player objekt (do player.saveData() after editing players data)
+     */
+    public Player getmyOfflinePlayer(String playername) {
+        Logger("Empfaenger: " + playername, "Debug");
+        Player player = getServer().getPlayerExact(playername);
+        try {
+            if (player == null) {
+                player = getServer().getPlayer(playername);
+            }
+            if (player == null) {
+                for (OfflinePlayer p : Bukkit.getServer().getOfflinePlayers()) {
+                    OfflinePlayer offp = p;
+                    if (offp.getName().toLowerCase().equals(playername.toLowerCase())) {
+                        Logger("Player has same name: " + offp.getName(), "Debug");
+                        if (offp != null) {
+                            if (offp.hasPlayedBefore()) {
+                                player = (Player) offp.getPlayer();
+                                Logger("Player has Played before: " + offp.getName(), "Debug");
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+            if (player == null) {
+                MinecraftServer server = ((CraftServer) this.getServer()).getServer();
+                EntityPlayer entity = new EntityPlayer(server, server.getWorldServer(0), playername, new ItemInWorldManager(server.getWorldServer(0)));
+                player = entity == null ? null : (Player) entity.getBukkitEntity();
+                if (player != null) {
+                    player.loadData();
+                    return player;
+                }
+            }
+            if (player != null) {
+                Logger("Empfaengername after getting Player: " + player.getName(), "Debug");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Logger("Uncatched Exeption!", "Error");
+            report.report(3312, "Uncatched Exeption on getting offlineplayer", e.getMessage(), "BookShop", e);
+            try {
+                metricshandler.Error++;
+            } catch (Exception e1) {
+            }
+        }
+        return player;
+    }
+
     public void install() {
         try {
             if (config.Internet) {
@@ -545,14 +623,69 @@ public class BookShop extends JavaPlugin {
                                         PlayerLogger(player, "Reloaded!", "");
                                     }
                                     return true;
+                                } else if (args[0].equalsIgnoreCase("setwelcomebook")) {
+                                    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionBookShop.toLowerCase() + ".permission"))) {
+                                        if (player.getItemInHand().getType().equals(Material.WRITTEN_BOOK)) {
+                                            BookHandler bookInHand = new BookHandler(player.getItemInHand());
+                                            BookHandler loadedBook = BookLoader.load(this, bookInHand.getAuthor(), bookInHand.getTitle());
+                                            if (loadedBook != null) {
+                                                bookInHand.setSelled(loadedBook.getSelled());
+                                                BookLoader.delete(this, loadedBook);
+                                            }
+                                            BookLoader.save(this, bookInHand);
+                                            getConfig().set("GiveBookToNewPlayers", true);
+                                            getConfig().set("Book", bookInHand.getAuthor() + " - " + bookInHand.getTitle() + ".txt");
+                                            PlayerLogger(player, "Successfully set a welcome book!", "");
+                                        } else {
+                                            PlayerLogger(player, getConfig().getString("command.error.takeBookInHand." + config.language), "Error");
+                                        }
+                                    }
+                                    return true;
+                                } else if (args[0].equalsIgnoreCase("removewelcomebook")) {
+                                    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionBookShop.toLowerCase() + ".permission"))) {
+                                        getConfig().set("GiveBookToNewPlayers", false);
+                                        PlayerLogger(player, "Successfully unset a welcome book!", "");
+                                    }
+                                    return true;
                                 } else if (args[0].equalsIgnoreCase("backupbook")) {
                                     if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionBookShop.toLowerCase() + ".permission"))) {
-                                        BookHandler bookInHand = new BookHandler(player.getItemInHand());
-                                        BookHandler loadedBook = BookLoader.load(this, bookInHand.getAuthor(), bookInHand.getTitle());
-                                        bookInHand.setSelled(loadedBook.getSelled());
-                                        BookLoader.delete(this, loadedBook);
-                                        BookLoader.save(this, bookInHand);
-                                        PlayerLogger(player, "Saved!", "");
+                                        if (player.getItemInHand().getType().equals(Material.WRITTEN_BOOK)) {
+                                            BookHandler bookInHand = new BookHandler(player.getItemInHand());
+                                            BookHandler loadedBook = BookLoader.load(this, bookInHand.getAuthor(), bookInHand.getTitle());
+                                            bookInHand.setSelled(loadedBook.getSelled());
+                                            BookLoader.delete(this, loadedBook);
+                                            BookLoader.save(this, bookInHand);
+                                            PlayerLogger(player, "Saved!", "");
+                                        } else {
+                                            PlayerLogger(player, getConfig().getString("command.error.takeBookInHand." + config.language), "Error");
+                                        }
+                                    }
+                                    return true;
+                                } else if (args[0].equalsIgnoreCase("giveall")) {
+                                    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionBookShop.toLowerCase() + ".permission"))) {
+                                        final Player player_final = player;
+                                        this.getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                if (player_final.getItemInHand().getType().equals(Material.WRITTEN_BOOK)) {
+                                                    ItemStack item = player_final.getItemInHand();
+                                                    PlayerLogger(player_final, "Giving book to every player!", "");
+                                                    PlayerLogger(player_final, "Please wait ....", "");
+                                                    for (OfflinePlayer off : getServer().getOfflinePlayers()) {
+                                                        Player empfaenger = getmyOfflinePlayer(off.getName());
+                                                        if (empfaenger.getInventory().firstEmpty() != -1) {
+                                                            empfaenger.getInventory().addItem(item);
+                                                            PlayerLogger(empfaenger, "You were given a book by an admin!", "");
+                                                        } else {
+                                                            PlayerLogger(player_final, "Inventory of " + off.getName() + " is full! Can not give him this book!", "Error");
+                                                        }
+                                                    }
+                                                    PlayerLogger(player_final, "Done!", "");
+                                                } else {
+                                                    PlayerLogger(player_final, "Please take the book in the hand which you want to give to every player!", "Error");
+                                                }
+                                            }
+                                        }, 1);
                                     }
                                     return true;
                                 } else if (args[0].equalsIgnoreCase("showdebug")) {
@@ -694,6 +827,28 @@ public class BookShop extends JavaPlugin {
                                         Logger("Config reloaded!", "Debug");
                                         return true;
                                     }
+                                } else if (args[0].equalsIgnoreCase("give")) {
+                                    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionBookShop.toLowerCase() + ".permission"))) {
+                                        if (player.getItemInHand().getType().equals(Material.WRITTEN_BOOK)) {
+                                            ItemStack item = player.getItemInHand();
+                                            PlayerLogger(player, "Giving book to " + args[1] + "!", "");
+                                            Player empfaenger = getmyOfflinePlayer(args[1]);
+                                            if (empfaenger.hasPlayedBefore()) {
+                                                if (empfaenger.getInventory().firstEmpty() != -1) {
+                                                    empfaenger.getInventory().addItem(item);
+                                                    PlayerLogger(empfaenger, "You were given a book by an admin!", "");
+                                                } else {
+                                                    PlayerLogger(player, "Inventory of " + args[1] + " is full! Can not give him this book!", "Error");
+                                                }
+                                                PlayerLogger(player, "Done!", "");
+                                            } else {
+                                                PlayerLogger(player, "Player wanst online before!", "Error");
+                                            }
+                                        } else {
+                                            PlayerLogger(player, "Please take the book in the hand which you want to give to every player!", "Error");
+                                        }
+                                    }
+                                    return true;
                                 } else if (ActionBookShop.equalsIgnoreCase("help")) {
                                     if (PermissionsHandler.checkpermissions(player, "BookShop.help")) {
                                         if (!Tools.isInteger(args[1])) {

@@ -35,10 +35,14 @@ class Update {
             return (float) -1;
         }
         plugin.Logger("link: " + link, "Debug");
+        try{
         String newVersion = link.substring(link.lastIndexOf(search), link.lastIndexOf("/")).replace("-", ".");
         newVersion = newVersion.substring(search.length());
         plugin.Logger("current version: " + newVersion, "Debug");
         return Float.parseFloat(newVersion);
+        } catch (Exception e){
+            return plugin.aktuelleVersion();
+        }
     }
 
     public String getLink() {

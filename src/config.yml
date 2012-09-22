@@ -20,6 +20,8 @@ DelayTimeTask: 30
 BookBaseCost: 0
 useBookandQuill: true
 ShopCreateMessage: true
+GiveBookToNewPlayers: false
+Book: User - The example rules.txt
 tax: 0
 #This is the language config: edit these if you add an new language, or you want other sentences, but never delete parts beginning with "%"!
 command:
@@ -253,3 +255,31 @@ help:
         de: Gibt das Buch dem Spieler
         en: Gives the book to the player
       usage: /BookShop loadbook author name of the book
+    giveall:
+      name: giveall
+      permission: BookShop.giveall
+      description:
+        de: Gibt das Buch an alle Spieler die jemals online waren.
+        en: Gives the book to every player who joined the server before.
+      usage: /BookShop giveall
+    give:
+      name: give
+      permission: BookShop.give
+      description:
+        de: Gibt das Buch dem Spieler der angegeben wird.
+        en: Gives the book to the player in the command.
+      usage: /BookShop give <player>
+    setwelcomebook:
+      name: setwelcomebook
+      permission: BookShop.setwelcomebook
+      description:
+        de: Legt ein Buch fest, dass einem neuen Spieler gegeben wird.
+        en: Sets a welcome book
+      usage: /BookShop setwelcomebook
+    removewelcomebook:
+      name: removewelcomebook
+      permission: BookShop.removewelcomebook
+      description:
+        de: Loescht das aktuelle Buch, dass einem neuen Spieler gegeben wird.
+        en: Unsets a welcome book.
+      usage: /BookShop removewelcomebook

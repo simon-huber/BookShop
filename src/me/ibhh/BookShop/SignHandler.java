@@ -4,6 +4,8 @@
  */
 package me.ibhh.BookShop;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -54,7 +56,13 @@ public class SignHandler {
                     return;
                 }
                 plugin.Logger("First line != null", "Debug");
-                if (event.getLine(1).equalsIgnoreCase("AdminShop")) {
+                if (event.getLine(1).equalsIgnoreCase(plugin.SHOP_configuration.getString("AdminShop"))) {
+                    if (!plugin.PermissionsHandler.checkpermissions(p, "BookShop.create.admin")) {
+                        plugin.PlayerLogger(event.getPlayer(), "BookShop creation failed!", "Error");
+                        event.setCancelled(true);
+                        return;
+                    }
+                } else if (event.getLine(1).equalsIgnoreCase(plugin.SHOP_configuration.getString("Newspapers"))) {
                     if (!plugin.PermissionsHandler.checkpermissions(p, "BookShop.create.admin")) {
                         plugin.PlayerLogger(event.getPlayer(), "BookShop creation failed!", "Error");
                         event.setCancelled(true);
@@ -66,7 +74,11 @@ public class SignHandler {
                         event.setCancelled(true);
                         return;
                     }
-                    event.setLine(1, event.getPlayer().getName());
+                    if (event.getLine(1).equalsIgnoreCase(event.getPlayer().getName()) || event.getLine(1).equalsIgnoreCase("")) {
+                        event.setLine(1, event.getPlayer().getName());
+                    } else if (!plugin.PermissionsHandler.checkpermissions(p, "BookShop.create.other")) {
+                        plugin.PlayerLogger(event.getPlayer(), "BookShop creation failed!", "Error");
+                    }
                 }
                 if (!isChest(event.getBlock().getRelative(BlockFace.DOWN))) {
                     plugin.PlayerLogger(p, plugin.getConfig().getString("Shop.error.nochest." + plugin.config.language), "Error");
@@ -80,27 +92,29 @@ public class SignHandler {
                     event.setCancelled(true);
                     return;
                 }
-                if (plugin.ListenerShop.getPrice(event.getLine(3), event.getPlayer(), false) < plugin.getConfig().getDouble("BookBaseCost")) {
-                    if (!event.getLine(1).equalsIgnoreCase("AdminShop")) {
-                        boolean a = false;
-                        String[] c = new String[2];
-                        try {
-                            double b = Double.parseDouble(event.getLine(3));
-                            a = true;
-                        } catch (Exception e) {
-                            c = event.getLine(3).split(":");
-                        }
-                        if (!a) {
-                            if (plugin.getConfig().getBoolean("useBookandQuill")) {
-                                event.setLine(3, plugin.getConfig().getString("BookBaseCost") + ":" + ((int) (plugin.getConfig().getDouble("BookBaseCost") - (plugin.getConfig().getDouble("BookBaseCost") * 0.3))));
-                            } else {
-                                event.setLine(3, plugin.getConfig().getString("BookBaseCost"));
+                if (!event.getLine(1).equalsIgnoreCase(plugin.SHOP_configuration.getString("Newspapers")) && event.getLine(1).equalsIgnoreCase(plugin.SHOP_configuration.getString("AdminShop"))) {
+                    if (plugin.ListenerShop.getPrice(event.getLine(3), event.getPlayer(), false) < plugin.getConfig().getDouble("BookBaseCost")) {
+                        if (!event.getLine(1).equalsIgnoreCase(plugin.SHOP_configuration.getString("AdminShop")) || !event.getLine(1).equalsIgnoreCase(plugin.SHOP_configuration.getString("Newspapers"))) {
+                            boolean a = false;
+                            String[] c = new String[2];
+                            try {
+                                double b = Double.parseDouble(event.getLine(3));
+                                a = true;
+                            } catch (Exception e) {
+                                c = event.getLine(3).split(":");
                             }
+                            if (plugin.getConfig().getBoolean("useBookandQuill")) {
+                                if (!a) {
+                                    event.setLine(3, plugin.getConfig().getString("BookBaseCost") + ":" + ((int) (plugin.getConfig().getDouble("BookBaseCost") - (plugin.getConfig().getDouble("BookBaseCost") * 0.3))));
+                                } else {
+                                    event.setLine(3, plugin.getConfig().getString("BookBaseCost"));
+                                }
+                            }
+                            plugin.PlayerLogger(p, String.format(plugin.getConfig().getString("Shop.error.basecost." + plugin.config.language), plugin.getConfig().getString("BookBaseCost")), "Warning");
                         }
-                        plugin.PlayerLogger(p, String.format(plugin.getConfig().getString("Shop.error.basecost." + plugin.config.language), plugin.getConfig().getString("BookBaseCost")), "Warning");
                     }
                 }
-                if (line[1].equalsIgnoreCase("AdminShop")) {
+                if (line[1].equalsIgnoreCase(plugin.SHOP_configuration.getString("AdminShop"))) {
                     MTLocation loc = MTLocation.getMTLocationFromLocation(event.getBlock().getLocation());
                     if (!plugin.metricshandler.AdminShop.containsKey(loc)) {
                         plugin.metricshandler.AdminShop.put(loc, event.getPlayer().getName());
@@ -155,7 +169,7 @@ public class SignHandler {
                 plugin.Logger(" Block is valid!", "Debug");
                 Player player = event.getPlayer();
                 MTLocation loc = MTLocation.getMTLocationFromLocation(event.getClickedBlock().getLocation());
-                if (line[1].equalsIgnoreCase("AdminShop")) {
+                if (line[1].equalsIgnoreCase(plugin.SHOP_configuration.getString("AdminShop"))) {
                     if (!plugin.metricshandler.AdminShop.containsKey(loc)) {
                         plugin.metricshandler.AdminShop.put(loc, event.getPlayer().getName());
                         plugin.Logger("Added AdminShop to list!", "Debug");
@@ -186,7 +200,7 @@ public class SignHandler {
         try {
             if (!playername.equalsIgnoreCase(line[1])) {
                 if (player.getInventory().firstEmpty() != -1) {
-                    if (line[1].equalsIgnoreCase("AdminShop")) {
+                    if (line[1].equalsIgnoreCase(plugin.SHOP_configuration.getString("AdminShop"))) {
                         Chest chest = null;
                         try {
                             chest = (Chest) s.getBlock().getRelative(BlockFace.DOWN).getState();
@@ -225,6 +239,50 @@ public class SignHandler {
                                 }
                             } else {
                                 plugin.PlayerLogger(player, plugin.getConfig().getString("Shop.error.nobook." + plugin.config.language), "Error");
+                            }
+                        } else {
+                            plugin.PlayerLogger(player, plugin.getConfig().getString("Shop.error.nobook." + plugin.config.language), "Error");
+                        }
+                    } else if (line[1].equalsIgnoreCase(plugin.SHOP_configuration.getString("Newspapers"))) {
+                        Chest chest = null;
+                        try {
+                            chest = (Chest) s.getBlock().getRelative(BlockFace.DOWN).getState();
+                        } catch (Exception e) {
+                        }
+                        if (chest != null) {
+                            if (chest.getInventory().contains(Material.WRITTEN_BOOK)) {
+                                double price = 0;
+                                price = plugin.ListenerShop.getPrice(s, player, false);
+                                if (price >= 0) {
+                                    if ((plugin.MoneyHandler.getBalance(player) - price) >= 0) {
+                                        for (ItemStack item : chest.getInventory().getContents()) {
+                                            if (item != null) {
+                                                if (item.getType().equals(Material.WRITTEN_BOOK)) {
+                                                    BookHandler bookInChest = new BookHandler(item);
+                                                    BookHandler loadedBook = BookLoader.load(plugin, bookInChest.getAuthor(), bookInChest.getTitle());
+                                                    if (loadedBook != null) {
+                                                        loadedBook.increaseSelled();
+                                                        BookLoader.save(plugin, loadedBook);
+                                                    } else {
+                                                        bookInChest.increaseSelled();
+                                                        BookLoader.save(plugin, bookInChest);
+                                                    }
+                                                    player.getInventory().addItem(item.clone());
+                                                    plugin.PlayerLogger(player, String.format(plugin.config.Shopsuccessbuy, bookInChest.getTitle(), bookInChest.getAuthor(), 0), "");
+                                                }
+                                            }
+                                        }
+                                        plugin.MoneyHandler.substract(price, player);
+                                        plugin.PlayerLogger(player, "You purchased the collection for " + price, "");
+                                        player.updateInventory();
+                                        player.saveData();
+                                        plugin.metricshandler.BookShopAdminSignBuy++;
+                                    } else {
+                                        plugin.PlayerLogger(player, plugin.config.Shoperrornotenoughmoneyconsumer, "Error");
+                                    }
+                                } else {
+                                    plugin.PlayerLogger(player, plugin.getConfig().getString("Shop.error.wrongPrice." + plugin.config.language), "Error");
+                                }
                             }
                         } else {
                             plugin.PlayerLogger(player, plugin.getConfig().getString("Shop.error.nobook." + plugin.config.language), "Error");
@@ -331,8 +389,10 @@ public class SignHandler {
             } else {
                 plugin.PlayerLogger(player, "That is your Shop", "Error");
             }
-        } catch (Exception e) {
-            plugin.report.report(3338, "Error BookShopSignBuy", e.getMessage(), "SignHandler", e);
+        } catch (InvalidBookException ex) {
+            Logger.getLogger(SignHandler.class.getName()).log(Level.SEVERE, null, ex);
+            plugin.PlayerLogger(player, "Something is wrong with this book!", "Error");
+            plugin.report.report(3338, "Error BookShopSignBuy", ex.getMessage(), "SignHandler", ex);
         }
     }
 

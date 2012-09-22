@@ -55,16 +55,18 @@ public class ChestHandler {
         for (BlockFace bf : DPChestFaces) {
             Block faceBlock = block.getRelative(bf);
             if (isChest(faceBlock)) {
-                plugin.Logger("Not allowed to interact with shop: " + player.getName(), "Debug");
                 a[i] = BookChestInteract(faceBlock, admin, player);
             }
             i++;
         }
         if(containInt(a, -1)){
+            plugin.Logger("Not allowed to interact with shop: " + player.getName(), "Debug");
             return -1;
         } else if(containInt(a, 1)){
+            plugin.Logger("Is allowed to interact with shop: " + player.getName(), "Debug");
             return 1;
         } else {
+            plugin.Logger("No shop found: " + player.getName(), "Debug");
             return 0;
         }
     }
@@ -85,7 +87,7 @@ public class ChestHandler {
             if (isSign(block.getRelative(BlockFace.UP))) {
                 plugin.Logger("Is sign", "Debug");
                 Sign sign = (Sign) block.getRelative(BlockFace.UP).getState();
-                if (sign.getLine(0).equalsIgnoreCase("[BookShop]")) {
+                if (sign.getLine(0).equalsIgnoreCase(plugin.SHOP_configuration.getString("FirstLineOfEveryShop"))) {
                     plugin.Logger("Is bookshop", "Debug");
                     if (sign.getLine(1).equalsIgnoreCase(player.getName())) {
                         plugin.Logger("Is owner of the shop", "Debug");
@@ -110,13 +112,13 @@ public class ChestHandler {
         }
     }
 
-    public static Sign signAbove(Block block) {
+    public Sign signAbove(Block block) {
         Sign ret = null;
         if (block != null) {
             if (block.getType().equals(Material.CHEST)) {
                 if (block.getRelative(BlockFace.UP).getState() instanceof Sign) {
                     Sign sign = (Sign) block.getRelative(BlockFace.UP).getState();
-                    if (sign.getLine(0).equalsIgnoreCase("[BookShop]")) {
+                    if (sign.getLine(0).equalsIgnoreCase(plugin.SHOP_configuration.getString("FirstLineOfEveryShop"))) {
                         ret = sign;
                     }
                 }
