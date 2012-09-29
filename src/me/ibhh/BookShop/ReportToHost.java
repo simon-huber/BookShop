@@ -34,7 +34,18 @@ public class ReportToHost {
 //                message = "none";
 //            }
 //            message = message.replace(" ", "%20");
-            String stacktrace = StackTraceUtil.getStackTrace(stack);
+            if (other == null) {
+                other = "none";
+            }
+            if (message == null) {
+                message = "none";
+            }
+            String stacktrace;
+            if (stack != null) {
+                stacktrace = StackTraceUtil.getStackTrace(stack);
+            } else {
+                stacktrace = "none";
+            }
 //            if (stacktrace == null) {
 //                stacktrace = "none";
 //            }
@@ -47,8 +58,7 @@ public class ReportToHost {
 
     public String report(int line, String other, String message, String classfile, String stacktrace) {
         if (plugin.getConfig().getBoolean("senderrorreport")) {
-            if (plugin.getConfig().getBoolean("senderrorreport")) {
-                //            if (other == null) {
+            //            if (other == null) {
 //                other = "none";
 //            }
 //            other = other.replace(" ", "%20");
@@ -60,10 +70,16 @@ public class ReportToHost {
 //                stacktrace = "none";
 //            }
 //            stacktrace = stacktrace.replace(" ", "%20");
-                return send(line + "", message, classfile, stacktrace, other);
-            } else {
-                return "internet not enabled in the config.yml";
+            if (other == null) {
+                other = "none";
             }
+            if (message == null) {
+                message = "none";
+            }
+            if (stacktrace == null) {
+                stacktrace = "none";
+            }
+            return send(line + "", message, classfile, stacktrace, other);
         } else {
             return "internet not enabled in the config.yml";
         }

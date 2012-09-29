@@ -32,9 +32,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
-import java.util.UUID;
 import java.util.logging.Level;
-import me.ibhh.xpShop.Repair;
 import net.minecraft.server.EntityPlayer;
 import net.minecraft.server.ItemInWorldManager;
 import net.minecraft.server.MinecraftServer;
@@ -883,7 +881,7 @@ public class BookShop extends JavaPlugin {
                                             Config.put(player, args[1]);
                                             String Configtext = args[2];
                                             for (int i = 3; i < args.length; i++) {
-                                                Configtext.concat(args[i]);
+                                                Configtext = Configtext.concat(args[i]);
                                             }
                                             Set.put(player, Configtext);
                                             PlayerLogger(player, "Do you want to edit " + args[1] + " from " + getConfig().getString(args[1]) + " to " + Configtext + " ?", "Warning");
@@ -906,6 +904,21 @@ public class BookShop extends JavaPlugin {
                                             PlayerLogger(player, "Please confirm or cancel your last command first!", "Error");
                                             return true;
                                         }
+                                    }
+                                } else if (ActionBookShop.equalsIgnoreCase("report")) {
+                                    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionBookShop.toLowerCase() + ".permission"))) {
+                                        if (!Tools.isInteger(args[1])) {
+                                            String text = "";
+                                            for (int i = 1; i < args.length; i++) {
+                                                text = text.concat(args[i]);
+                                            }
+                                            PlayerLogger(player, report.report(331, "Reported issue", args[1], "BookShop", "No stacktrace because of command"), "");
+                                            temptime = (System.nanoTime() - temptime) / 1000000;
+                                            Logger("Command: " + cmd.getName() + " " + args.toString() + " executed in " + temptime + "ms", "Debug");
+                                            return true;
+                                        }
+                                        PlayerLogger(player, config.commanderrornoint, "Error");
+                                        return false;
                                     }
                                 } else if (args[0].equalsIgnoreCase("loadbook")) {
                                     if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionBookShop.toLowerCase() + ".permission"))) {

@@ -302,14 +302,19 @@ public class BookShopListener implements Listener {
                     if (plugin.getConfig().getBoolean("GiveBookToNewPlayers")) {
                         BookHandler book = BookLoader.load(plugin, plugin.getConfig().getString("Book"));
                         if (event.getPlayer().getInventory().firstEmpty() != -1) {
-                            event.getPlayer().getInventory().addItem(book.toItemStack(1));
+                            if (book != null) {
+                                event.getPlayer().getInventory().addItem(book.toItemStack(1));
+                            } else {
+                                plugin.Logger("Book wasnt found, so the new player gets no book!", "Error");
+                                plugin.Logger("Please check your config.yml or type with a book in the hand '/bookshop setwelcomebook'!", "Error");
+                            }
                         }
                     }
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("[BookShop] Error: Uncatch Exeption!");
+            System.out.println("[BookShop] Error: Uncatched Exeption!");
             plugin.report.report(3321, "Player join throws error", e.getMessage(), "BookShopListener", e);
             try {
                 plugin.metricshandler.Error++;
