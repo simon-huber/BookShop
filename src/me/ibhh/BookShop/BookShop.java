@@ -1,34 +1,8 @@
-/*
- * Copyright 2012 ibhh. All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without modification, are
- * permitted provided that the following conditions are met:
- *
- * 1. Redistributions of source code must retain the above copyright notice, this list of
- * conditions and the following disclaimer.
- *
- * 2. Redistributions in binary form must reproduce the above copyright notice, this list
- * of conditions and the following disclaimer in the documentation and/or other materials
- * provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ''AS IS'' AND ANY EXPRESS OR IMPLIED
- * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
- * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHOR OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
- * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * The views and conclusions contained in the software and documentation are those of the
- * authors and contributors and should not be interpreted as representing official policies,
- * either expressed or implied, of anybody else.
- */
 package me.ibhh.BookShop;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
@@ -40,23 +14,29 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.Server;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.configuration.file.YamlConfigurationOptions;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.InvalidDescriptionException;
 import org.bukkit.plugin.InvalidPluginException;
+import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitScheduler;
 
 public class BookShop extends JavaPlugin {
 
     private String ActionBookShop;
     public double getmoney;
     public int SubstractedXP;
-    public float Version = 0;
-    public float newversion = 0;
+    public float Version = 0.0F;
+    public float newversion = 0.0F;
     int rounds1 = 0;
     int rounds = 0;
     public Utilities plugman;
@@ -75,154 +55,146 @@ public class BookShop extends JavaPlugin {
     public MetricsHandler metricshandler;
     public PlayerManager playerManager;
     public ReportToHost report;
+    private PrepareLibrary lib;
     private static String SHOP_CONFIG_FILE;
     public YamlConfiguration SHOP_configuration;
     private File configurationFile;
-    public HashMap<Player, Boolean> commandexec = new HashMap<Player, Boolean>();
-    public HashMap<String, Boolean> DebugMsg = new HashMap<String, Boolean>();
-    private HashMap<Player, String> Config = new HashMap<Player, String>();
-    private HashMap<Player, String> Set = new HashMap<Player, String>();
-    public String[] commands = {
-        "help",
-        "showdebug",
-        "debugfile",
-        "internet",
-        "version",
-        "update",
-        "reload",
-        "deletedebug",
-        "log",
-        "toggle",
-        "language",
-        "report",
-        "backupbook",
-        "loadbook",
-        "giveall",
-        "give",
-        "setwelcomebook",
-        "removewelcomebook"};
+    public HashMap<Player, Boolean> commandexec = new HashMap();
+    public HashMap<String, Boolean> DebugMsg = new HashMap();
+    private HashMap<Player, String> Config = new HashMap();
+    private HashMap<Player, String> Set = new HashMap();
+    public String[] commands = {"help", "showdebug", "debugfile", "internet", "version", "update", "reload", "deletedebug", "log", "toggle", "language", "report", "backupbook", "loadbook", "giveall", "give", "setwelcomebook", "removewelcomebook"};
 
-    /**
-     * Called by Bukkit on stopping the server
-     */
-    @Override
     public void onDisable() {
-        toggle = true;
+        this.toggle = true;
         long timetemp = System.currentTimeMillis();
-        if (config.Internet) {
-            UpdateAvailable(Version);
+        if (this.config.Internet) {
+            UpdateAvailable(this.Version);
         }
-        metricshandler.saveStatsFiles();
+        this.metricshandler.saveStatsFiles();
         forceUpdate();
         timetemp = System.currentTimeMillis() - timetemp;
         Logger("disabled in " + timetemp + "ms", "");
     }
 
-    /**
-     * Called by Bukkit on starting the server
-     *
-     */
+    public PrepareLibrary getLib() {
+        return this.lib;
+    }
+
     @Override
     public void onEnable() {
         try {
             long timetemp1 = System.nanoTime();
-            Loggerclass = new Logger(this);
-            report = new ReportToHost(this);
+            this.Loggerclass = new Logger(this);
+            Exception ex1 = null;
             try {
-                config = new ConfigHandler(this);
-                config.loadConfigonStart();
+                this.config = new ConfigHandler(this);
+                this.config.loadConfigonStart();
                 Logger("Version: " + aktuelleVersion(), "Debug");
             } catch (Exception e1) {
-                report.report(332, "Config loading failed", e1.getMessage(), "BookShop", e1);
+                ex1 = e1;
                 Logger("Error on loading config: " + e1.getMessage(), "Error");
                 e1.printStackTrace();
-                Logger("Version: " + Version + " failed to enable!", "Error");
+                Logger("Version: " + this.Version + " failed to enable!", "Error");
+            }
+            this.lib = new PrepareLibrary();
+            PrepareLibrary.setPlugin(this);
+            PrepareLibrary.copy();
+            if (PrepareLibrary.loaded()) {
+                Logger("Librarys exist and loaded!", "Debug");
+            } else {
+                Logger("Librarys exist but not loaded!", "Debug");
+            }
+
+            this.report = new ReportToHost(this);
+            if (ex1 != null) {
+                this.report.report(332, "Config loading failed", ex1.getMessage(), "BookShop", ex1);
             }
             try {
-                // load the config
                 SHOP_CONFIG_FILE = getDataFolder().toString() + File.separator + "Shopconfig.yml";
-                configurationFile = new File(SHOP_CONFIG_FILE);
-                SHOP_configuration = YamlConfiguration.loadConfiguration(configurationFile);
-                SHOP_configuration.addDefault("FirstLineOfEveryShop", "[BookShop]");
-                SHOP_configuration.addDefault("AdminShop", "AdminShop");
-                SHOP_configuration.addDefault("Newspapers", "Newspapers");
-                SHOP_configuration.options().copyDefaults(true);
-                SHOP_configuration.save(configurationFile);
+                this.configurationFile = new File(SHOP_CONFIG_FILE);
+                this.SHOP_configuration = YamlConfiguration.loadConfiguration(this.configurationFile);
+                this.SHOP_configuration.addDefault("FirstLineOfEveryShop", "[BookShop]");
+                this.SHOP_configuration.addDefault("AdminShop", "AdminShop");
+                this.SHOP_configuration.addDefault("Newspapers", "Newspapers");
+                this.SHOP_configuration.options().copyDefaults(true);
+                this.SHOP_configuration.save(this.configurationFile);
             } catch (Exception e1) {
-                report.report(332, "Config loading failed", e1.getMessage(), "BookShop", e1);
+                this.report.report(332, "Config loading failed", e1.getMessage(), "BookShop", e1);
                 Logger("Error on loading config: " + e1.getMessage(), "Error");
                 e1.printStackTrace();
-                Logger("Version: " + Version + " failed to enable!", "Error");
+                Logger("Version: " + this.Version + " failed to enable!", "Error");
             }
             try {
-                upd = new Update(this);
+                this.upd = new Update(this);
             } catch (IllegalAccessError e) {
                 Logger("Cant access Class \"Update\": " + e.getMessage(), "Error");
                 e.printStackTrace();
                 StringWriter sw = new StringWriter();
                 e.printStackTrace(new PrintWriter(sw));
-                report.report(333, "New Update failed", e.getMessage(), "BookShop", sw.toString());
+                this.report.report(333, "New Update failed", e.getMessage(), "BookShop", sw.toString());
                 setEnabled(false);
             }
             try {
-                playerManager = new PlayerManager(this);
-                plugman = new Utilities(this);
-                Help = new Help(this);
-                MoneyHandler = new iConomyHandler(this);
-                PermissionsHandler = new PermissionsChecker(this, "BookShop");
-                ListenerShop = new BookShopListener(this);
+                this.playerManager = new PlayerManager(this);
+                this.plugman = new Utilities(this);
+                this.Help = new Help(this);
+                this.MoneyHandler = new iConomyHandler(this);
+                this.PermissionsHandler = new PermissionsChecker(this, "BookShop");
+                this.ListenerShop = new BookShopListener(this);
             } catch (Exception e1) {
                 Logger("Error on enabling: " + e1.getMessage(), "Error");
-                report.report(334, "Error on enabling", e1.getMessage(), "BookShop", e1);
+                this.report.report(334, "Error on enabling", e1.getMessage(), "BookShop", e1);
                 e1.printStackTrace();
-                Logger("Version: " + Version + " failed to enable!", "Error");
+                Logger("Version: " + this.Version + " failed to enable!", "Error");
                 try {
-                    plugman.unloadPlugin("BookShop");
+                    this.plugman.unloadPlugin("BookShop");
                 } catch (NoSuchFieldException ex) {
                     java.util.logging.Logger.getLogger(BookShop.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (IllegalAccessException ex) {
                     java.util.logging.Logger.getLogger(BookShop.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-            this.getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable() {
+            getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable() {
                 @Override
                 public void run() {
-                    if (config.Internet) {
+                    if (BookShop.this.config.Internet) {
                         try {
-                            Logger("Searching update for BookShop!", "Debug");
-                            aktuelleVersion();
-                            newversion = upd.checkUpdate();
-                            if (newversion == -1) {
-                                newversion = aktuelleVersion();
+                            BookShop.this.Logger("Searching update for BookShop!", "Debug");
+                            BookShop.this.aktuelleVersion();
+                            BookShop.this.newversion = BookShop.this.upd.checkUpdate().floatValue();
+                            if (BookShop.this.newversion == -1.0F) {
+                                BookShop.this.newversion = BookShop.this.aktuelleVersion();
                             }
-                            Logger("installed BookShop version: " + Version + ", latest version: " + newversion, "Debug");
-                            if (newversion > Version) {
-                                Logger("New version: " + newversion + " found!", "Warning");
-                                Logger("******************************************", "Warning");
-                                Logger("*********** Please update!!!! ************", "Warning");
-                                Logger("* http://ibhh.de/BookShop.jar *", "Warning");
-                                Logger("******************************************", "Warning");
+                            BookShop.this.Logger("installed BookShop version: " + BookShop.this.Version + ", latest version: " + BookShop.this.newversion, "Debug");
+                            if (BookShop.this.newversion > BookShop.this.Version) {
+                                BookShop.this.Logger("New version: " + BookShop.this.newversion + " found!", "Warning");
+                                BookShop.this.Logger("******************************************", "Warning");
+                                BookShop.this.Logger("*********** Please update!!!! ************", "Warning");
+                                BookShop.this.Logger("* http://ibhh.de/BookShop.jar *", "Warning");
+                                BookShop.this.Logger("******************************************", "Warning");
                                 BookShop.updateaviable = true;
-                                if (getConfig().getBoolean("installondownload")) {
-                                    install();
+                                if (BookShop.this.getConfig().getBoolean("installondownload")) {
+                                    BookShop.this.install();
                                 }
                             } else {
-                                Logger("No update found!", "Debug");
+                                BookShop.this.Logger("No update found!", "Debug");
                             }
                         } catch (Exception e) {
-                            Logger("Error on doing update check! Message: " + e.getMessage(), "Error");
-                            Logger("may the mainserver is down!", "Error");
-                            report.report(335, "Checking for update failed", e.getMessage(), "BookShop", e);
+                            BookShop.this.Logger("Error on doing update check! Message: " + e.getMessage(), "Error");
+                            BookShop.this.Logger("may the mainserver is down!", "Error");
+                            BookShop.this.report.report(335, "Checking for update failed", e.getMessage(), "BookShop", e);
                         }
                     }
                 }
             }, 400L, 50000L);
-            if (config.Internet) {
+
+            if (this.config.Internet) {
                 try {
                     aktuelleVersion();
-                    UpdateAvailable(Version);
+                    UpdateAvailable(this.Version);
                     if (updateaviable) {
-                        Logger("New version: " + newversion + " found!", "Warning");
+                        Logger("New version: " + this.newversion + " found!", "Warning");
                         Logger("******************************************", "Warning");
                         Logger("*********** Please update!!!! ************", "Warning");
                         Logger("* http://ibhh.de/BookShop.jar *", "Warning");
@@ -231,60 +203,51 @@ public class BookShop extends JavaPlugin {
                 } catch (Exception e) {
                     Logger("Error on doing update check! Message: " + e.getMessage(), "Error");
                     Logger("may the mainserver is down!", "Error");
-                    report.report(336, "Checking for update failed", e.getMessage(), "BookShop", e);
+                    this.report.report(336, "Checking for update failed", e.getMessage(), "BookShop", e);
                 }
             }
-            metricshandler = new MetricsHandler(this);
-            metricshandler.loadStatsFiles();
-            this.getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable() {
-                @Override
+            this.metricshandler = new MetricsHandler(this);
+            this.metricshandler.loadStatsFiles();
+            getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable() {
                 public void run() {
-                    metricshandler.saveStatsFiles();
+                    BookShop.this.metricshandler.saveStatsFiles();
                 }
             }, 200L, 50000L);
-            metricshandler = new MetricsHandler(this);
-            metricshandler.loadStatsFiles();
-            this.getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
-                @Override
+
+            this.metricshandler = new MetricsHandler(this);
+            this.metricshandler.loadStatsFiles();
+            getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
                 public void run() {
-                    toggle = false;
-                    metricshandler.onStart();
+                    BookShop.this.toggle = false;
+                    BookShop.this.metricshandler.onStart();
                 }
-            }, 20);
-            timetemp1 = (System.nanoTime() - timetemp1) / 1000000;
+            }, 20L);
+
+            timetemp1 = (System.nanoTime() - timetemp1) / 1000000L;
             Logger("Enabled in " + timetemp1 + "ms", "");
         } catch (Exception ex) {
             ex.printStackTrace();
             Logger("Uncatched Exeption! Disabling!", "Error");
-            this.setEnabled(false);
-            report.report(337, "Uncatched Exeption on loading", ex.getMessage(), "BookShop", ex);
+            setEnabled(false);
+            this.report.report(337, "Uncatched Exeption on loading", ex.getMessage(), "BookShop", ex);
             try {
-                metricshandler.Error++;
+                MetricsHandler.Error += 1;
             } catch (Exception e) {
             }
         }
     }
 
-    /**
-     * Delete an download new version of BookShop in the Update folder.
-     *
-     * @param url
-     * @param path
-     * @param name
-     * @param type
-     * @return true if successfully downloaded BookShop
-     */
-    public boolean autoUpdate(final String path) {
-        if (config.Internet) {
+    public boolean autoUpdate(String path) {
+        if (this.config.Internet) {
             try {
-                upd.download(path);
+                this.upd.download(path);
             } catch (Exception e) {
                 Logger("Error on doing update! Message: " + e.getMessage(), "Error");
                 Logger("may the mainserver is down!", "Error");
                 Logger("Uncatched Exeption!", "Error");
-                report.report(338, "Error on doing update", e.getMessage(), "BookShop", e);
+                this.report.report(338, "Error on doing update", e.getMessage(), "BookShop", e);
                 try {
-                    metricshandler.Error++;
+                    MetricsHandler.Error += 1;
                 } catch (Exception e1) {
                 }
             }
@@ -292,24 +255,21 @@ public class BookShop extends JavaPlugin {
         return true;
     }
 
-    /**
-     * On disable checks if new version aviable and downloads if activatet
-     */
     public void forceUpdate() {
-        if (config.Internet) {
+        if (this.config.Internet) {
             try {
                 if (updateaviable) {
-                    newversion = upd.checkUpdate();
-                    Logger("New version: " + newversion + " found!", "Warning");
+                    this.newversion = this.upd.checkUpdate().floatValue();
+                    Logger("New version: " + this.newversion + " found!", "Warning");
                     Logger("******************************************", "Warning");
                     Logger("*********** Please update!!!! ************", "Warning");
                     Logger("* http://ibhh.de/BookShop.jar *", "Warning");
                     Logger("******************************************", "Warning");
-                    if (getConfig().getBoolean("autodownload") || getConfig().getBoolean("installondownload")) {
+                    if ((getConfig().getBoolean("autodownload")) || (getConfig().getBoolean("installondownload"))) {
                         if (getConfig().getBoolean("autodownload")) {
                             try {
                                 String path = "plugins" + File.separator + "BookShop" + File.separator;
-                                if (upd.download(path)) {
+                                if (this.upd.download(path)) {
                                     Logger("Downloaded new Version!", "Warning");
                                 } else {
                                     Logger(" Cant download new Version!", "Warning");
@@ -319,7 +279,7 @@ public class BookShop extends JavaPlugin {
                                 e.printStackTrace();
                                 Logger("Uncatched Exeption!", "Error");
                                 try {
-                                    metricshandler.Error++;
+                                    MetricsHandler.Error += 1;
                                 } catch (Exception e1) {
                                 }
                             }
@@ -327,7 +287,7 @@ public class BookShop extends JavaPlugin {
                         if (getConfig().getBoolean("installondownload")) {
                             try {
                                 String path = "plugins" + File.separator;
-                                if (upd.download(path)) {
+                                if (this.upd.download(path)) {
                                     Logger("Downloaded new Version!", "Warning");
                                     Logger("BookShop will be updated on the next restart!", "Warning");
                                 } else {
@@ -338,7 +298,7 @@ public class BookShop extends JavaPlugin {
                                 e.printStackTrace();
                                 Logger("Uncatched Exeption!", "Error");
                                 try {
-                                    metricshandler.Error++;
+                                    MetricsHandler.Error += 1;
                                 } catch (Exception e1) {
                                 }
                             }
@@ -351,46 +311,36 @@ public class BookShop extends JavaPlugin {
                 Logger("Error on doing update check or update! Message: " + e.getMessage(), "Error");
                 Logger("may the mainserver is down!", "Error");
                 Logger("Uncatched Exeption!", "Error");
-                report.report(339, "Error on doing update check or update", e.getMessage(), "BookShop", e);
+                this.report.report(339, "Error on doing update check or update", e.getMessage(), "BookShop", e);
                 try {
-                    metricshandler.Error++;
+                    MetricsHandler.Error += 1;
                 } catch (Exception e1) {
                 }
             }
         }
     }
 
-    /**
-     * Gets version.
-     *
-     * @return float: Version of the installed plugin.
-     */
     public float aktuelleVersion() {
         try {
-            Version = Float.parseFloat(getDescription().getVersion());
+            this.Version = Float.parseFloat(getDescription().getVersion());
         } catch (Exception e) {
             Logger("Could not parse version in float", "");
             Logger("Error getting version of BookShop! Message: " + e.getMessage(), "Error");
-            report.report(3310, "Error getting version of BookShop", e.getMessage(), "BookShop", e);
+            this.report.report(3310, "Error getting version of BookShop", e.getMessage(), "BookShop", e);
             Logger("Uncatched Exeption!", "Error");
             try {
-                metricshandler.Error++;
+                MetricsHandler.Error += 1;
             } catch (Exception e1) {
             }
         }
-        return Version;
+        return this.Version;
     }
 
-    /**
-     * Compares Version to newVersion
-     *
-     * @param url from newVersion file + currentVersion
-     */
-    public void UpdateAvailable(final float currVersion) {
-        if (config.Internet) {
+    public void UpdateAvailable(float currVersion) {
+        if (this.config.Internet) {
             try {
-                if (upd.checkUpdate() > currVersion) {
-                    BookShop.updateaviable = true;
+                if (this.upd.checkUpdate().floatValue() > currVersion) {
+                    updateaviable = true;
                 }
                 if (updateaviable) {
                     updateaviable = true;
@@ -399,24 +349,17 @@ public class BookShop extends JavaPlugin {
                 }
             } catch (Exception e) {
                 Logger("Error checking for new version! Message: " + e.getMessage(), "Error");
-                report.report(3311, "Error checking for new version", e.getMessage(), "BookShop", e);
+                this.report.report(3311, "Error checking for new version", e.getMessage(), "BookShop", e);
                 Logger("May the mainserver is down!", "Error");
                 Logger("Uncatched Exeption!", "Error");
                 try {
-                    metricshandler.Error++;
+                    MetricsHandler.Error += 1;
                 } catch (Exception e1) {
                 }
             }
         }
     }
 
-    /**
-     * Return player
-     *
-     * @param args
-     * @param index which field is playername
-     * @return player objekt (do player.saveData() after editing players data)
-     */
     public Player getmyOfflinePlayer(String[] args, int index) {
         String playername = args[index];
         Logger("Empfaenger: " + playername, "Debug");
@@ -464,13 +407,6 @@ public class BookShop extends JavaPlugin {
         return player;
     }
 
-    /**
-     * Return player
-     *
-     * @param args
-     * @param index which field is playername
-     * @return player objekt (do player.saveData() after editing players data)
-     */
     public Player getmyOfflinePlayer(String playername) {
         Logger("Empfaenger: " + playername, "Debug");
         Player player = getServer().getPlayerExact(playername);
@@ -519,10 +455,10 @@ public class BookShop extends JavaPlugin {
 
     public void install() {
         try {
-            if (config.Internet) {
+            if (this.config.Internet) {
                 try {
                     String path = "plugins" + File.separator;
-                    if (upd.download(path)) {
+                    if (this.upd.download(path)) {
                         Logger("Downloaded new Version!", "Warning");
                         Logger("BookShop will be updated on the next restart!", "Warning");
                     } else {
@@ -530,453 +466,473 @@ public class BookShop extends JavaPlugin {
                     }
                 } catch (Exception e) {
                     Logger("Error on downloading new Version!", "Error");
-                    report.report(3313, "Error on downloading new Version", e.getMessage(), "BookShop", e);
+                    this.report.report(3313, "Error on downloading new Version", e.getMessage(), "BookShop", e);
                     e.printStackTrace();
                     Logger("Uncatched Exeption!", "Error");
                     try {
-                        metricshandler.Error++;
+                        MetricsHandler.Error += 1;
                     } catch (Exception e1) {
                     }
                 }
             }
             if (getConfig().getBoolean("installondownload")) {
                 Logger("Found Update! Installing now because of 'installondownload = true', please wait!", "Warning");
-                playerManager.BroadcastMsg("BookShop.update", "Found Update! Installing now because of 'installondownload = true', please wait!");
+                this.playerManager.BroadcastMsg("BookShop.update", "Found Update! Installing now because of 'installondownload = true', please wait!");
             }
             try {
-                plugman.unloadPlugin("BookShop");
+                this.plugman.unloadPlugin("BookShop");
             } catch (NoSuchFieldException ex) {
                 Logger("Error on installing! Please check the log!", "Error");
-                playerManager.BroadcastMsg("BookShop.update", "Error on installing! Please check the log!");
+                this.playerManager.BroadcastMsg("BookShop.update", "Error on installing! Please check the log!");
                 java.util.logging.Logger.getLogger(BookShop.class.getName()).log(Level.SEVERE, null, ex);
             } catch (IllegalAccessException ex) {
                 Logger("Error on installing! Please check the log!", "Error");
-                playerManager.BroadcastMsg("BookShop.update", "Error on installing! Please check the log!");
+                this.playerManager.BroadcastMsg("BookShop.update", "Error on installing! Please check the log!");
                 java.util.logging.Logger.getLogger(BookShop.class.getName()).log(Level.SEVERE, null, ex);
             }
             try {
-                plugman.loadPlugin("BookShop");
+                this.plugman.loadPlugin("BookShop");
             } catch (InvalidPluginException ex) {
                 Logger("Error on loading after installing! Please check the log!", "Error");
-                playerManager.BroadcastMsg("BookShop.update", "Error on loading after installing! Please check the log!");
+                this.playerManager.BroadcastMsg("BookShop.update", "Error on loading after installing! Please check the log!");
                 java.util.logging.Logger.getLogger(BookShop.class.getName()).log(Level.SEVERE, null, ex);
             } catch (InvalidDescriptionException ex) {
                 Logger("Error on loading after installing! Please check the log!", "Error");
-                playerManager.BroadcastMsg("BookShop.update", "Error on loading after installing! Please check the log!");
+                this.playerManager.BroadcastMsg("BookShop.update", "Error on loading after installing! Please check the log!");
                 java.util.logging.Logger.getLogger(BookShop.class.getName()).log(Level.SEVERE, null, ex);
             }
             Logger("Installing finished!", "");
-            playerManager.BroadcastMsg("BookShop.update", "Installing finished!");
+            this.playerManager.BroadcastMsg("BookShop.update", "Installing finished!");
         } catch (Exception w) {
             w.printStackTrace();
             Logger("Uncatched Exeption!", "Error");
-            report.report(3314, "Uncatched Exeption on installing", w.getMessage(), "BookShop", w);
+            this.report.report(3314, "Uncatched Exeption on installing", w.getMessage(), "BookShop", w);
             try {
-                metricshandler.Error++;
+                MetricsHandler.Error += 1;
             } catch (Exception e1) {
             }
         }
     }
 
-    /**
-     * Called by Bukkit on reloading the server
-     *
-     */
     public void onReload() {
         onDisable();
         onEnable();
     }
 
-    /**
-     * Called by Bukkit if player posts a command
-     *
-     * @param sender
-     * @param cmd
-     * @param label
-     * @param args
-     * @return true if no errors happened else return false to Bukkit, then
-     * Bukkit prints /BookShop buy <xp|money>
-     */
-    @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (!toggle) {
-            try {
-                if (sender instanceof Player) {
+        try {
+            if (!this.toggle) {
+                if ((sender instanceof Player)) {
                     Player player = (Player) sender;
                     if (cmd.getName().equalsIgnoreCase("BookShop")) {
-                        long temptime = 0;
+                        long temptime = 0L;
                         temptime = System.nanoTime();
                         switch (args.length) {
                             case 1:
-                                ActionBookShop = args[0];
+                                this.ActionBookShop = args[0];
                                 if (args[0].equalsIgnoreCase("help")) {
-                                    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionBookShop.toLowerCase() + ".permission"))) {
-                                        Help.help(sender, args);
+                                    if (!this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
+                                        break;
                                     }
-                                } else if (args[0].equalsIgnoreCase("reload")) {
-                                    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionBookShop.toLowerCase() + ".permission"))) {
-                                        PlayerLogger(player, "Please wait: Reloading this plugin!", "Warning");
-                                        plugman.unloadPlugin("BookShop");
-                                        plugman.loadPlugin("BookShop");
-                                        PlayerLogger(player, "Reloaded!", "");
-                                    }
-                                    return true;
-                                } else if (args[0].equalsIgnoreCase("setwelcomebook")) {
-                                    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionBookShop.toLowerCase() + ".permission"))) {
-                                        if (player.getItemInHand().getType().equals(Material.WRITTEN_BOOK)) {
-                                            BookHandler bookInHand = new BookHandler(player.getItemInHand());
-                                            BookHandler loadedBook = BookLoader.load(this, bookInHand.getAuthor(), bookInHand.getTitle());
-                                            if (loadedBook != null) {
-                                                bookInHand.setSelled(loadedBook.getSelled());
-                                                BookLoader.delete(this, loadedBook);
-                                            }
-                                            BookLoader.save(this, bookInHand);
-                                            getConfig().set("GiveBookToNewPlayers", true);
-                                            getConfig().set("Book", bookInHand.getAuthor() + " - " + bookInHand.getTitle() + ".txt");
-                                            PlayerLogger(player, "Successfully set a welcome book!", "");
-                                        } else {
-                                            PlayerLogger(player, getConfig().getString("command.error.takeBookInHand." + config.language), "Error");
-                                        }
-                                    }
-                                    return true;
-                                } else if (args[0].equalsIgnoreCase("removewelcomebook")) {
-                                    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionBookShop.toLowerCase() + ".permission"))) {
-                                        getConfig().set("GiveBookToNewPlayers", false);
-                                        PlayerLogger(player, "Successfully unset a welcome book!", "");
-                                    }
-                                    return true;
-                                } else if (args[0].equalsIgnoreCase("backupbook")) {
-                                    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionBookShop.toLowerCase() + ".permission"))) {
-                                        if (player.getItemInHand().getType().equals(Material.WRITTEN_BOOK)) {
-                                            BookHandler bookInHand = new BookHandler(player.getItemInHand());
-                                            BookHandler loadedBook = BookLoader.load(this, bookInHand.getAuthor(), bookInHand.getTitle());
-                                            bookInHand.setSelled(loadedBook.getSelled());
-                                            BookLoader.delete(this, loadedBook);
-                                            BookLoader.save(this, bookInHand);
-                                            PlayerLogger(player, "Saved!", "");
-                                        } else {
-                                            PlayerLogger(player, getConfig().getString("command.error.takeBookInHand." + config.language), "Error");
-                                        }
-                                    }
-                                    return true;
-                                } else if (args[0].equalsIgnoreCase("giveall")) {
-                                    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionBookShop.toLowerCase() + ".permission"))) {
-                                        final Player player_final = player;
-                                        this.getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                if (player_final.getItemInHand().getType().equals(Material.WRITTEN_BOOK)) {
-                                                    ItemStack item = player_final.getItemInHand();
-                                                    PlayerLogger(player_final, "Giving book to every player!", "");
-                                                    PlayerLogger(player_final, "Please wait ....", "");
-                                                    for (OfflinePlayer off : getServer().getOfflinePlayers()) {
-                                                        Player empfaenger = getmyOfflinePlayer(off.getName());
-                                                        if (empfaenger.getInventory().firstEmpty() != -1) {
-                                                            empfaenger.getInventory().addItem(item);
-                                                            PlayerLogger(empfaenger, "You were given a book by an admin!", "");
-                                                        } else {
-                                                            PlayerLogger(player_final, "Inventory of " + off.getName() + " is full! Can not give him this book!", "Error");
-                                                        }
-                                                    }
-                                                    PlayerLogger(player_final, "Done!", "");
-                                                } else {
-                                                    PlayerLogger(player_final, "Please take the book in the hand which you want to give to every player!", "Error");
-                                                }
-                                            }
-                                        }, 1);
-                                    }
-                                    return true;
-                                } else if (args[0].equalsIgnoreCase("showdebug")) {
-                                    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionBookShop.toLowerCase() + ".permission"))) {
-                                        if (DebugMsg.containsKey(player.getName())) {
-                                            DebugMsg.remove(player.getName());
-                                        } else {
-                                            DebugMsg.put(player.getName(), true);
+                                    this.Help.help(sender, args);
+                                } else {
+                                    if (args[0].equalsIgnoreCase("reload")) {
+                                        if (this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
+                                            PlayerLogger(player, "Please wait: Reloading this plugin!", "Warning");
+                                            this.plugman.unloadPlugin("BookShop");
+                                            this.plugman.loadPlugin("BookShop");
+                                            PlayerLogger(player, "Reloaded!", "");
                                         }
                                         return true;
                                     }
-                                } else if (args[0].equalsIgnoreCase("debugfile")) {
-                                    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionBookShop.toLowerCase() + ".permission"))) {
-                                        getConfig().set("debugfile", !getConfig().getBoolean("debugfile"));
+                                    if (args[0].equalsIgnoreCase("setwelcomebook")) {
+                                        if (this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
+                                            if (player.getItemInHand().getType().equals(Material.WRITTEN_BOOK)) {
+                                                BookHandler bookInHand = new BookHandler(player.getItemInHand());
+                                                BookHandler loadedBook = BookLoader.load(this, bookInHand.getAuthor(), bookInHand.getTitle());
+                                                if (loadedBook != null) {
+                                                    bookInHand.setSelled(loadedBook.getSelled());
+                                                    BookLoader.delete(this, loadedBook);
+                                                }
+                                                if (bookInHand != null) {
+                                                    BookLoader.save(this, bookInHand);
+                                                    getConfig().set("GiveBookToNewPlayers", Boolean.valueOf(true));
+                                                    getConfig().set("Book", bookInHand.getAuthor() + " - " + bookInHand.getTitle() + ".txt");
+                                                    PlayerLogger(player, "Successfully set a welcome book!", "");
+                                                } else {
+                                                    PlayerLogger(player, "unknown error", "Error");
+                                                }
+                                            } else {
+                                                PlayerLogger(player, getConfig().getString("command.error.takeBookInHand." + this.config.language), "Error");
+                                            }
+                                        }
+                                        return true;
+                                    }
+                                    if (args[0].equalsIgnoreCase("removewelcomebook")) {
+                                        if (this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
+                                            getConfig().set("GiveBookToNewPlayers", Boolean.valueOf(false));
+                                            PlayerLogger(player, "Successfully unset a welcome book!", "");
+                                        }
+                                        return true;
+                                    }
+                                    if (args[0].equalsIgnoreCase("backupbook")) {
+                                        if (this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
+                                            if (player.getItemInHand().getType().equals(Material.WRITTEN_BOOK)) {
+                                                BookHandler bookInHand = new BookHandler(player.getItemInHand());
+                                                BookHandler loadedBook = BookLoader.load(this, bookInHand.getAuthor(), bookInHand.getTitle());
+                                                if (bookInHand != null) {
+                                                    bookInHand.setSelled(loadedBook.getSelled());
+                                                    BookLoader.delete(this, loadedBook);
+                                                    BookLoader.save(this, bookInHand);
+                                                    PlayerLogger(player, "Saved!", "");
+                                                } else {
+                                                    PlayerLogger(player, getConfig().getString("command.error.takeBookInHand." + this.config.language), "Error");
+                                                }
+                                            } else {
+                                                PlayerLogger(player, getConfig().getString("command.error.takeBookInHand." + this.config.language), "Error");
+                                            }
+                                            return true;
+                                        }
+                                    }
+                                    if (args[0].equalsIgnoreCase("giveall")) {
+                                        if (this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
+                                            final Player player_final = player;
+                                            getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
+                                                public void run() {
+                                                    if (player_final.getItemInHand().getType().equals(Material.WRITTEN_BOOK)) {
+                                                        ItemStack item = player_final.getItemInHand();
+                                                        BookShop.this.PlayerLogger(player_final, "Giving book to every player!", "");
+                                                        BookShop.this.PlayerLogger(player_final, "Please wait ....", "");
+                                                        for (OfflinePlayer off : BookShop.this.getServer().getOfflinePlayers()) {
+                                                            Player empfaenger = BookShop.this.getmyOfflinePlayer(off.getName());
+                                                            if (empfaenger.getInventory().firstEmpty() != -1) {
+                                                                empfaenger.getInventory().addItem(new ItemStack[]{item});
+                                                                BookShop.this.PlayerLogger(empfaenger, "You were given a book by an admin!", "");
+                                                            } else {
+                                                                BookShop.this.PlayerLogger(player_final, "Inventory of " + off.getName() + " is full! Can not give him this book!", "Error");
+                                                            }
+                                                        }
+                                                        BookShop.this.PlayerLogger(player_final, "Done!", "");
+                                                    } else {
+                                                        BookShop.this.PlayerLogger(player_final, "Please take the book in the hand which you want to give to every player!", "Error");
+                                                    }
+                                                }
+                                            }, 1L);
+                                        }
+
+                                        return true;
+                                    }
+                                    if (args[0].equalsIgnoreCase("showdebug")) {
+                                        if (!this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
+                                            break;
+                                        }
+                                        if (this.DebugMsg.containsKey(player.getName())) {
+                                            this.DebugMsg.remove(player.getName());
+                                        } else {
+                                            this.DebugMsg.put(player.getName(), Boolean.valueOf(true));
+                                        }
+                                        return true;
+                                    } else if (args[0].equalsIgnoreCase("debugfile")) {
+                                        if (!this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
+                                            break;
+                                        }
+                                        getConfig().set("debugfile", Boolean.valueOf(!getConfig().getBoolean("debugfile")));
                                         PlayerLogger(player, "debugfile: " + getConfig().getBoolean("debugfile"), "");
                                         saveConfig();
                                         reloadConfig();
-                                        config.reload();
+                                        this.config.reload();
                                         return true;
-                                    }
-                                } else if (args[0].equalsIgnoreCase("internet")) {
-                                    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionBookShop.toLowerCase() + ".permission"))) {
-                                        getConfig().set("internet", !getConfig().getBoolean("internet"));
+                                    } else if (args[0].equalsIgnoreCase("internet")) {
+                                        if (!this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
+                                            break;
+                                        }
+                                        getConfig().set("internet", Boolean.valueOf(!getConfig().getBoolean("internet")));
                                         PlayerLogger(player, "internet: " + getConfig().getBoolean("internet"), "");
                                         saveConfig();
                                         reloadConfig();
-                                        config.reload();
+                                        this.config.reload();
                                         return true;
-                                    }
-                                } else if (ActionBookShop.equalsIgnoreCase("version")) {
-                                    PlayerLogger(player, "Version: " + getDescription().getVersion(), "");
-                                    temptime = (System.nanoTime() - temptime) / 1000000;
-                                    Logger("Command: " + cmd.getName() + " " + args.toString() + " executed in " + temptime + "ms", "Debug");
-                                    return true;
-                                } else if (ActionBookShop.equalsIgnoreCase("update")) {
-                                    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionBookShop.toLowerCase() + ".permission"))) {
-                                        install();
-                                        return true;
-                                    }
-                                } else if (ActionBookShop.equalsIgnoreCase("deletedebug")) {
-                                    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionBookShop.toLowerCase() + ".permission"))) {
-                                        File file = new File("plugins" + File.separator + "BookShop" + File.separator + "debug.txt");
-                                        if (file.exists()) {
-                                            if (file.delete()) {
-                                                PlayerLogger(player, "file deleted!", "Warning");
-                                                try {
-                                                    file.createNewFile();
-
-
-                                                } catch (IOException ex) {
-                                                    java.util.logging.Logger.getLogger(BookShop.class.getName()).log(Level.SEVERE, null, ex);
+                                    } else {
+                                        if (this.ActionBookShop.equalsIgnoreCase("version")) {
+                                            PlayerLogger(player, "Version: " + getDescription().getVersion(), "");
+                                            temptime = (System.nanoTime() - temptime) / 1000000L;
+                                            Logger("Command: " + cmd.getName() + " " + args.toString() + " executed in " + temptime + "ms", "Debug");
+                                            return true;
+                                        }
+                                        if (this.ActionBookShop.equalsIgnoreCase("update")) {
+                                            if (!this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
+                                                break;
+                                            }
+                                            install();
+                                            return true;
+                                        } else if (this.ActionBookShop.equalsIgnoreCase("deletedebug")) {
+                                            if (!this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
+                                                break;
+                                            }
+                                            File file = new File("plugins" + File.separator + "BookShop" + File.separator + "debug.txt");
+                                            if (file.exists()) {
+                                                if (file.delete()) {
+                                                    PlayerLogger(player, "file deleted!", "Warning");
+                                                    try {
+                                                        file.createNewFile();
+                                                    } catch (IOException ex) {
+                                                        java.util.logging.Logger.getLogger(BookShop.class.getName()).log(Level.SEVERE, null, ex);
+                                                    }
+                                                } else {
+                                                    PlayerLogger(player, "Error on deleting file!", "Error");
                                                 }
+                                            }
+                                            return true;
+                                        } else if (this.ActionBookShop.equalsIgnoreCase("log")) {
+                                            if (!this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
+                                                break;
+                                            }
+                                            File file = new File("plugins" + File.separator + "BookShop" + File.separator + "debug.txt");
+                                            if (file.exists()) {
+                                                PlayerLogger(player, "debug.txt is " + file.length() + " Byte big!", "Warning");
+                                                PlayerLogger(player, "Type /BookShop deletedebug to delete the debug.txt!", "Warning");
+                                            }
+                                            return true;
+                                        } else if (this.ActionBookShop.equalsIgnoreCase("toggle")) {
+                                            if (!this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
+                                                break;
+                                            }
+                                            if (this.toggle) {
+                                                this.toggle = false;
                                             } else {
-                                                PlayerLogger(player, "Error on deleting file!", "Error");
+                                                this.toggle = true;
                                             }
-                                        }
-                                        return true;
-                                    }
-                                } else if (ActionBookShop.equalsIgnoreCase("log")) {
-                                    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionBookShop.toLowerCase() + ".permission"))) {
-                                        File file = new File("plugins" + File.separator + "BookShop" + File.separator + "debug.txt");
-                                        if (file.exists()) {
-                                            PlayerLogger(player, "debug.txt is " + file.length() + " Byte big!", "Warning");
-                                            PlayerLogger(player, "Type /BookShop deletedebug to delete the debug.txt!", "Warning");
-                                        }
-                                        return true;
-                                    }
-                                } else if (ActionBookShop.equalsIgnoreCase("toggle")) {
-                                    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionBookShop.toLowerCase() + ".permission"))) {
-                                        if (toggle) {
-                                            toggle = false;
-                                        } else {
-                                            toggle = true;
-                                        }
-                                        PlayerLogger(player, "BookShop offline: " + toggle, "");
-                                        return true;
-                                    }
-                                } else if (args[0].equalsIgnoreCase("configconfirm")) {
-                                    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionBookShop.toLowerCase() + ".permission"))) {
-                                        if (Config.containsKey(player)) {
-                                            String temp = getConfig().getString(Config.get(player));
-                                            Logger("Temp: " + temp, "Debug");
-                                            boolean isboolean = false;
-                                            if (temp.equalsIgnoreCase("true") || temp.equalsIgnoreCase("false")) {
-                                                isboolean = true;
-                                                Logger("Config is boolean!", "Debug");
+                                            PlayerLogger(player, "BookShop offline: " + this.toggle, "");
+                                            return true;
+                                        } else if (args[0].equalsIgnoreCase("configconfirm")) {
+                                            if (!this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
+                                                break;
                                             }
-                                            boolean istTrue = false;
-                                            if (isboolean) {
-                                                if (Set.get(player).equalsIgnoreCase("true")) {
+                                            if (this.Config.containsKey(player)) {
+                                                String temp = getConfig().getString((String) this.Config.get(player));
+                                                Logger("Temp: " + temp, "Debug");
+                                                boolean isboolean = false;
+                                                if ((temp.equalsIgnoreCase("true")) || (temp.equalsIgnoreCase("false"))) {
+                                                    isboolean = true;
+                                                    Logger("Config is boolean!", "Debug");
+                                                }
+                                                boolean istTrue = false;
+                                                if ((isboolean)
+                                                        && (((String) this.Set.get(player)).equalsIgnoreCase("true"))) {
                                                     istTrue = true;
                                                     Logger("Config is true!", "Debug");
                                                 }
-                                            }
-                                            if (!isboolean) {
-                                                getConfig().set(Config.get(player), Set.get(player));
+
+                                                if (!isboolean) {
+                                                    getConfig().set((String) this.Config.get(player), this.Set.get(player));
+                                                } else {
+                                                    getConfig().set((String) this.Config.get(player), Boolean.valueOf(istTrue));
+                                                    Logger("Set boolean", "Debug");
+                                                }
+                                                saveConfig();
+                                                reloadConfig();
+                                                this.config.reload();
+                                                PlayerLogger(player, "You set  " + (String) this.Config.get(player) + " from " + temp + " to " + getConfig().getString((String) this.Config.get(player)) + " !", "Warning");
+                                                this.Set.remove(player);
+                                                this.Config.remove(player);
                                             } else {
-                                                getConfig().set(Config.get(player), istTrue);
-                                                Logger("Set boolean", "Debug");
+                                                PlayerLogger(player, "Please enter a command first!", "Error");
                                             }
-                                            saveConfig();
-                                            reloadConfig();
-                                            config.reload();
-                                            PlayerLogger(player, "You set  " + Config.get(player) + " from " + temp + " to " + getConfig().getString(Config.get(player)) + " !", "Warning");
-                                            Set.remove(player);
-                                            Config.remove(player);
+                                            return true;
+                                        } else if (args[0].equalsIgnoreCase("configcancel")) {
+                                            if (!this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
+                                                break;
+                                            }
+                                            if (this.Config.containsKey(player)) {
+                                                PlayerLogger(player, "Command canceled!", "Warning");
+                                                this.Set.remove(player);
+                                                this.Config.remove(player);
+                                            } else {
+                                                PlayerLogger(player, "Please enter a command first!", "Error");
+                                            }
+                                            return true;
                                         } else {
-                                            PlayerLogger(player, "Please enter a command first!", "Error");
+                                            this.Help.help(sender, args);
                                         }
-                                        return true;
                                     }
-                                } else if (args[0].equalsIgnoreCase("configcancel")) {
-                                    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionBookShop.toLowerCase() + ".permission"))) {
-                                        if (Config.containsKey(player)) {
-                                            PlayerLogger(player, "Command canceled!", "Warning");
-                                            Set.remove(player);
-                                            Config.remove(player);
-                                        } else {
-                                            PlayerLogger(player, "Please enter a command first!", "Error");
-                                        }
-                                        return true;
-                                    }
-                                } else {
-                                    Help.help(sender, args);
                                 }
                                 break;
+
+
                             case 2:
-                                ActionBookShop = args[0];
+                                this.ActionBookShop = args[0];
                                 if (args[0].equalsIgnoreCase("language")) {
-                                    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionBookShop.toLowerCase() + ".permission"))) {
-                                        getConfig().set("language", args[1]);
-                                        PlayerLogger(player, "language set to: " + args[1], "");
-                                        saveConfig();
-                                        Logger("Config saved!", "Debug");
-                                        reloadConfig();
-                                        Logger("Config reloaded!", "Debug");
-                                        Logger("debug reloaded!", "Debug");
-                                        config.reload();
-                                        Logger("Config reloaded!", "Debug");
+                                    if (!this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
+                                        break;
+                                    }
+                                    getConfig().set("language", args[1]);
+                                    PlayerLogger(player, "language set to: " + args[1], "");
+                                    saveConfig();
+                                    Logger("Config saved!", "Debug");
+                                    reloadConfig();
+                                    Logger("Config reloaded!", "Debug");
+                                    Logger("debug reloaded!", "Debug");
+                                    this.config.reload();
+                                    Logger("Config reloaded!", "Debug");
+                                    return true;
+                                } else {
+                                    if (args[0].equalsIgnoreCase("give")) {
+                                        if (this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
+                                            if (player.getItemInHand().getType().equals(Material.WRITTEN_BOOK)) {
+                                                ItemStack item = player.getItemInHand();
+                                                PlayerLogger(player, "Giving book to " + args[1] + "!", "");
+                                                Player empfaenger = getmyOfflinePlayer(args[1]);
+                                                if (empfaenger.hasPlayedBefore()) {
+                                                    if (empfaenger.getInventory().firstEmpty() != -1) {
+                                                        empfaenger.getInventory().addItem(new ItemStack[]{item});
+                                                        PlayerLogger(empfaenger, "You were given a book by an admin!", "");
+                                                    } else {
+                                                        PlayerLogger(player, "Inventory of " + args[1] + " is full! Can not give him this book!", "Error");
+                                                    }
+                                                    PlayerLogger(player, "Done!", "");
+                                                } else {
+                                                    PlayerLogger(player, "Player wanst online before!", "Error");
+                                                }
+                                            } else {
+                                                PlayerLogger(player, "Please take the book in the hand which you want to give to every player!", "Error");
+                                            }
+                                        }
                                         return true;
                                     }
-                                } else if (args[0].equalsIgnoreCase("give")) {
-                                    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionBookShop.toLowerCase() + ".permission"))) {
-                                        if (player.getItemInHand().getType().equals(Material.WRITTEN_BOOK)) {
-                                            ItemStack item = player.getItemInHand();
-                                            PlayerLogger(player, "Giving book to " + args[1] + "!", "");
-                                            Player empfaenger = getmyOfflinePlayer(args[1]);
-                                            if (empfaenger.hasPlayedBefore()) {
-                                                if (empfaenger.getInventory().firstEmpty() != -1) {
-                                                    empfaenger.getInventory().addItem(item);
-                                                    PlayerLogger(empfaenger, "You were given a book by an admin!", "");
-                                                } else {
-                                                    PlayerLogger(player, "Inventory of " + args[1] + " is full! Can not give him this book!", "Error");
-                                                }
-                                                PlayerLogger(player, "Done!", "");
-                                            } else {
-                                                PlayerLogger(player, "Player wanst online before!", "Error");
-                                            }
-                                        } else {
-                                            PlayerLogger(player, "Please take the book in the hand which you want to give to every player!", "Error");
+                                    if (this.ActionBookShop.equalsIgnoreCase("help")) {
+                                        if (!this.PermissionsHandler.checkpermissions(player, "BookShop.help")) {
+                                            break;
                                         }
-                                    }
-                                    return true;
-                                } else if (ActionBookShop.equalsIgnoreCase("help")) {
-                                    if (PermissionsHandler.checkpermissions(player, "BookShop.help")) {
                                         if (!Tools.isInteger(args[1])) {
-                                            Help.help(player, args);
-                                            temptime = (System.nanoTime() - temptime) / 1000000;
+                                            this.Help.help(player, args);
+                                            temptime = (System.nanoTime() - temptime) / 1000000L;
                                             Logger("Command: " + cmd.getName() + " " + args.toString() + " executed in " + temptime + "ms", "Debug");
                                             return true;
                                         }
-                                        PlayerLogger(player, config.commanderrornoint, "Error");
+                                        PlayerLogger(player, this.config.commanderrornoint, "Error");
                                         return false;
-                                    }
-                                } else if (ActionBookShop.equalsIgnoreCase("report")) {
-                                    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionBookShop.toLowerCase() + ".permission"))) {
+                                    } else if (this.ActionBookShop.equalsIgnoreCase("report")) {
+                                        if (!this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
+                                            break;
+                                        }
                                         if (!Tools.isInteger(args[1])) {
-                                            PlayerLogger(player, report.report(331, "Reported issue", args[1], "BookShop", "No stacktrace because of command"), "");
-                                            temptime = (System.nanoTime() - temptime) / 1000000;
+                                            PlayerLogger(player, this.report.report(331, "Reported issue", args[1], "BookShop", "No stacktrace because of command"), "");
+                                            temptime = (System.nanoTime() - temptime) / 1000000L;
                                             Logger("Command: " + cmd.getName() + " " + args.toString() + " executed in " + temptime + "ms", "Debug");
                                             return true;
                                         }
-                                        PlayerLogger(player, config.commanderrornoint, "Error");
+                                        PlayerLogger(player, this.config.commanderrornoint, "Error");
                                         return false;
+                                    } else {
+                                        this.Help.help(sender, args);
                                     }
-                                } else {
-                                    Help.help(sender, args);
                                 }
                                 break;
                             case 3:
-                                ActionBookShop = args[0];
+                                this.ActionBookShop = args[0];
                                 if (args[0].equalsIgnoreCase("config")) {
-                                    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionBookShop.toLowerCase() + ".permission"))) {
-                                        if (!Config.containsKey(player)) {
-                                            Config.put(player, args[1]);
-                                            String Configtext = args[2];
-                                            for (int i = 3; i < args.length; i++) {
-                                                Configtext = Configtext.concat(args[i]);
-                                            }
-                                            Set.put(player, Configtext);
-                                            PlayerLogger(player, "Do you want to edit " + args[1] + " from " + getConfig().getString(args[1]) + " to " + Configtext + " ?", "Warning");
-                                            PlayerLogger(player, String.format("Please confirm within %1$d sec!", getConfig().getInt("Cooldownoftp")), "Warning");
-                                            PlayerLogger(player, "Please confirm with \"/BookShop configconfirm\" !", "Warning");
-                                            PlayerLogger(player, "Please cancel with \"/BookShop configcancel\" !", "Warning");
-                                            final Player player1 = player;
-                                            getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    if (Config.containsKey(player1)) {
-                                                        Config.remove(player1);
-                                                        Set.remove(player1);
-                                                        PlayerLogger(player1, String.format("You havent confirmed within %1$d sec!", getConfig().getInt("Cooldownoftp")), "Warning");
-                                                    }
+                                    if (!this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
+                                        break;
+                                    }
+                                    if (!this.Config.containsKey(player)) {
+                                        this.Config.put(player, args[1]);
+                                        String Configtext = args[2];
+                                        for (int i = 3; i < args.length; i++) {
+                                            Configtext = Configtext.concat(args[i]);
+                                        }
+                                        this.Set.put(player, Configtext);
+                                        PlayerLogger(player, "Do you want to edit " + args[1] + " from " + getConfig().getString(args[1]) + " to " + Configtext + " ?", "Warning");
+                                        PlayerLogger(player, String.format("Please confirm within %1$d sec!", new Object[]{Integer.valueOf(getConfig().getInt("Cooldownoftp"))}), "Warning");
+                                        PlayerLogger(player, "Please confirm with \"/BookShop configconfirm\" !", "Warning");
+                                        PlayerLogger(player, "Please cancel with \"/BookShop configcancel\" !", "Warning");
+                                        final Player player1 = player;
+                                        getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
+                                            public void run() {
+                                                if (BookShop.this.Config.containsKey(player1)) {
+                                                    BookShop.this.Config.remove(player1);
+                                                    BookShop.this.Set.remove(player1);
+                                                    BookShop.this.PlayerLogger(player1, String.format("You havent confirmed within %1$d sec!", new Object[]{Integer.valueOf(BookShop.this.getConfig().getInt("Cooldownoftp"))}), "Warning");
                                                 }
-                                            }, getConfig().getInt("Cooldownoftp") * 20);
-                                            return true;
-                                        } else {
-                                            PlayerLogger(player, "Please confirm or cancel your last command first!", "Error");
-                                            return true;
-                                        }
-                                    }
-                                } else if (ActionBookShop.equalsIgnoreCase("report")) {
-                                    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionBookShop.toLowerCase() + ".permission"))) {
-                                        if (!Tools.isInteger(args[1])) {
-                                            String text = "";
-                                            for (int i = 1; i < args.length; i++) {
-                                                text = text.concat(args[i]);
                                             }
-                                            PlayerLogger(player, report.report(331, "Reported issue", args[1], "BookShop", "No stacktrace because of command"), "");
-                                            temptime = (System.nanoTime() - temptime) / 1000000;
-                                            Logger("Command: " + cmd.getName() + " " + args.toString() + " executed in " + temptime + "ms", "Debug");
-                                            return true;
-                                        }
-                                        PlayerLogger(player, config.commanderrornoint, "Error");
-                                        return false;
-                                    }
-                                } else if (args[0].equalsIgnoreCase("loadbook")) {
-                                    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionBookShop.toLowerCase() + ".permission"))) {
-                                        int slot = player.getInventory().firstEmpty();
-                                        if (slot != -1) {
-                                            String author = args[1];
-                                            String title = "";
-                                            for (int i = 2; i < args.length; i++) {
-                                                title = title.concat(args[i]);
-                                            }
-                                            String filename = author + " - " + title + ".txt";
-                                            BookHandler book = BookLoader.load(this, filename);
-                                            player.getInventory().addItem(book.toItemStack(1));
-                                            Logger("Book loaded!", "Debug");
-                                        } else {
-                                            PlayerLogger(player, getConfig().getString("Shop.error.inventoryfull." + config.language), "Error");
-                                        }
+                                        }, getConfig().getInt("Cooldownoftp") * 20);
+
                                         return true;
                                     }
+                                    PlayerLogger(player, "Please confirm or cancel your last command first!", "Error");
+                                    return true;
+                                } else if (this.ActionBookShop.equalsIgnoreCase("report")) {
+                                    if (!this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
+                                        break;
+                                    }
+                                    if (!Tools.isInteger(args[1])) {
+                                        String text = "";
+                                        for (int i = 1; i < args.length; i++) {
+                                            text = text.concat(" " + args[i]);
+                                        }
+                                        PlayerLogger(player, this.report.report(331, "Reported issue", text, "BookShop", "No stacktrace because of command"), "");
+                                        temptime = (System.nanoTime() - temptime) / 1000000L;
+                                        Logger("Command: " + cmd.getName() + " " + args.toString() + " executed in " + temptime + "ms", "Debug");
+                                        return true;
+                                    }
+                                    PlayerLogger(player, this.config.commanderrornoint, "Error");
+                                    return false;
+                                } else if (args[0].equalsIgnoreCase("loadbook")) {
+                                    if (!this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
+                                        break;
+                                    }
+                                    int slot = player.getInventory().firstEmpty();
+                                    if (slot != -1) {
+                                        String author = args[1];
+                                        String title = "";
+                                        for (int i = 2; i < args.length; i++) {
+                                            title = title.concat(args[i]);
+                                        }
+                                        String filename = author + " - " + title + ".txt";
+                                        BookHandler book = BookLoader.load(this, filename);
+                                        player.getInventory().addItem(new ItemStack[]{book.toItemStack(1)});
+                                        Logger("Book loaded!", "Debug");
+                                    } else {
+                                        PlayerLogger(player, getConfig().getString("Shop.error.inventoryfull." + this.config.language), "Error");
+                                    }
+                                    return true;
                                 } else {
-                                    Help.help(sender, args);
+                                    this.Help.help(sender, args);
                                 }
                                 break;
                             default:
                                 if (args.length > 3) {
-                                    ActionBookShop = args[0];
+                                    this.ActionBookShop = args[0];
                                     if (args[0].equalsIgnoreCase("config")) {
-                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionBookShop.toLowerCase() + ".permission"))) {
-                                            if (!Config.containsKey(player)) {
-                                                Config.put(player, args[1]);
+                                        if (this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
+                                            if (!this.Config.containsKey(player)) {
+                                                this.Config.put(player, args[1]);
                                                 String Configtext = args[2];
                                                 for (int i = 3; i < args.length; i++) {
                                                     Configtext = Configtext.concat(args[i] + " ");
                                                 }
-                                                Set.put(player, Configtext);
+                                                this.Set.put(player, Configtext);
                                                 PlayerLogger(player, "Do you want to edit " + args[1] + " from " + getConfig().getString(args[1]) + " to " + Configtext + " ?", "Warning");
-                                                PlayerLogger(player, String.format("Please confirm within %1$d sec!", getConfig().getInt("Cooldownoftp")), "Warning");
+                                                PlayerLogger(player, String.format("Please confirm within %1$d sec!", new Object[]{Integer.valueOf(getConfig().getInt("Cooldownoftp"))}), "Warning");
                                                 PlayerLogger(player, "Please confirm with \"/BookShop configconfirm\" !", "Warning");
                                                 PlayerLogger(player, "Please cancel with \"/BookShop configcancel\" !", "Warning");
                                                 final Player player1 = player;
                                                 getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
-                                                    @Override
                                                     public void run() {
-                                                        if (Config.containsKey(player1)) {
-                                                            Config.remove(player1);
-                                                            Set.remove(player1);
-                                                            PlayerLogger(player1, String.format("You havent confirmed within %1$d sec!", getConfig().getInt("Cooldownoftp")), "Warning");
+                                                        if (BookShop.this.Config.containsKey(player1)) {
+                                                            BookShop.this.Config.remove(player1);
+                                                            BookShop.this.Set.remove(player1);
+                                                            BookShop.this.PlayerLogger(player1, String.format("You havent confirmed within %1$d sec!", new Object[]{Integer.valueOf(BookShop.this.getConfig().getInt("Cooldownoftp"))}), "Warning");
                                                         }
                                                     }
                                                 }, getConfig().getInt("Cooldownoftp") * 20);
-                                                return true;
-                                            } else {
-                                                PlayerLogger(player, "Please confirm or cancel your last command first!", "Error");
+
                                                 return true;
                                             }
+                                            PlayerLogger(player, "Please confirm or cancel your last command first!", "Error");
+                                            return true;
                                         }
                                     } else if (args[0].equalsIgnoreCase("loadbook")) {
-                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionBookShop.toLowerCase() + ".permission"))) {
+                                        if (this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
                                             int slot = player.getInventory().firstEmpty();
                                             if (slot != -1) {
                                                 String author = args[1];
@@ -987,19 +943,34 @@ public class BookShop extends JavaPlugin {
                                                 String filename = author + " -" + title + ".txt";
                                                 try {
                                                     BookHandler book = BookLoader.load(this, filename);
-                                                    player.getInventory().addItem(book.toItemStack(1));
+                                                    player.getInventory().addItem(new ItemStack[]{book.toItemStack(1)});
                                                     PlayerLogger(player, "Book loaded!", "");
                                                 } catch (Exception e) {
                                                     PlayerLogger(player, "Book not found, sorry!", "Error");
                                                 }
                                             } else {
-                                                PlayerLogger(player, getConfig().getString("Shop.error.inventoryfull." + config.language), "Error");
+                                                PlayerLogger(player, getConfig().getString("Shop.error.inventoryfull." + this.config.language), "Error");
                                             }
                                             return true;
                                         }
+                                    } else if ((this.ActionBookShop.equalsIgnoreCase("report"))
+                                            && (this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission")))) {
+                                        if (!Tools.isInteger(args[1])) {
+                                            String text = "";
+                                            for (int i = 1; i < args.length; i++) {
+                                                text = text.concat(" " + args[i]);
+                                            }
+                                            PlayerLogger(player, this.report.report(331, "Reported issue", text, "BookShop", "No stacktrace because of command"), "");
+                                            temptime = (System.nanoTime() - temptime) / 1000000L;
+                                            Logger("Command: " + cmd.getName() + " " + args.toString() + " executed in " + temptime + "ms", "Debug");
+                                            return true;
+                                        }
+                                        PlayerLogger(player, this.config.commanderrornoint, "Error");
+                                        return false;
                                     }
                                 }
-                                Help.help(player, args);
+
+                                this.Help.help(player, args);
                                 return false;
                         }
                     }
@@ -1007,58 +978,64 @@ public class BookShop extends JavaPlugin {
                     if (args.length == 1) {
                         if (args[0].equalsIgnoreCase("download")) {
                             String path = "plugins" + File.separator;
-                            upd.download(path);
+                            this.upd.download(path);
                             Logger("Downloaded new Version!", "Warning");
                             Logger("BookShop will be updated on the next restart!", "Warning");
                             return true;
-                        } else if (args[0].equalsIgnoreCase("reload")) {
+                        }
+                        if (args[0].equalsIgnoreCase("reload")) {
                             Logger("Please wait: Reloading this plugin!", "Warning");
-                            plugman.unloadPlugin("BookShop");
-                            plugman.loadPlugin("BookShop");
+                            this.plugman.unloadPlugin("BookShop");
+                            this.plugman.loadPlugin("BookShop");
                             Logger("Reloaded!", "");
                             return true;
-                        } else if (args[0].equalsIgnoreCase("debug")) {
-                            getConfig().set("debug", !getConfig().getBoolean("debug"));
+                        }
+                        if (args[0].equalsIgnoreCase("debug")) {
+                            getConfig().set("debug", Boolean.valueOf(!getConfig().getBoolean("debug")));
                             Logger("debug set to: " + getConfig().getBoolean("debug"), "");
                             saveConfig();
                             Logger("Config saved!", "Debug");
                             reloadConfig();
                             Logger("Config reloaded!", "Debug");
                             Logger("debug reloaded!", "Debug");
-                            config.reload();
+                            this.config.reload();
                             Logger("Config reloaded!", "Debug");
                             return true;
-                        } else if (args[0].equalsIgnoreCase("debugfile")) {
-                            getConfig().set("debugfile", !getConfig().getBoolean("debugfile"));
+                        }
+                        if (args[0].equalsIgnoreCase("debugfile")) {
+                            getConfig().set("debugfile", Boolean.valueOf(!getConfig().getBoolean("debugfile")));
                             Logger("debugfile set to: " + getConfig().getBoolean("debugfile"), "");
                             saveConfig();
                             Logger("Config saved!", "Debug");
                             reloadConfig();
                             Logger("Config reloaded!", "Debug");
                             Logger("debugfile reloaded!", "Debug");
-                            config.reload();
+                            this.config.reload();
                             Logger("Config reloaded!", "Debug");
                             return true;
-                        } else if (args[0].equalsIgnoreCase("toggle")) {
-                            if (toggle) {
-                                toggle = false;
+                        }
+                        if (args[0].equalsIgnoreCase("toggle")) {
+                            if (this.toggle) {
+                                this.toggle = false;
                             } else {
-                                toggle = true;
+                                this.toggle = true;
                             }
-                            Logger("BookShop offline: " + toggle, "");
+                            Logger("BookShop offline: " + this.toggle, "");
                             return true;
-                        } else if (args[0].equalsIgnoreCase("autodownload")) {
-                            getConfig().set("autodownload", !getConfig().getBoolean("autodownload"));
+                        }
+                        if (args[0].equalsIgnoreCase("autodownload")) {
+                            getConfig().set("autodownload", Boolean.valueOf(!getConfig().getBoolean("autodownload")));
                             Logger("autodownload set to: " + getConfig().getBoolean("autodownload"), "");
                             saveConfig();
                             Logger("Config saved!", "Debug");
                             reloadConfig();
                             Logger("Config reloaded!", "Debug");
                             Logger("debug reloaded!", "Debug");
-                            config.reload();
+                            this.config.reload();
                             Logger("Config reloaded!", "Debug");
                             return true;
-                        } else if (args.length == 2) {
+                        }
+                        if (args.length == 2) {
                             if (args[0].equalsIgnoreCase("language")) {
                                 getConfig().set("language", args[1]);
                                 Logger("language set to: " + args[1], "");
@@ -1067,152 +1044,151 @@ public class BookShop extends JavaPlugin {
                                 reloadConfig();
                                 Logger("Config reloaded!", "Debug");
                                 Logger("debug reloaded!", "Debug");
-                                config.reload();
+                                this.config.reload();
                                 Logger("Config reloaded!", "Debug");
                                 return true;
                             }
-                        }
-                    } else if (args.length == 2) {
-                        if (!Tools.isInteger(args[1])) {
-                            Logger(report.report(331, "Reported issue", args[1], "BookShop", "No stacktrace because of command"), "");
+                        } else if (args[0].equalsIgnoreCase("report")) {
+                            String text = "";
+                            for (int i = 1; i < args.length; i++) {
+                                text = text.concat(" " + args[i]);
+                            }
+                            Logger(this.report.report(331, "Reported issue", text, "BookShop", "No stacktrace because of command"), "");
                             return true;
                         }
-                        return false;
+                    } else if (args[0].equalsIgnoreCase("report")) {
+                        String text = "";
+                        for (int i = 1; i < args.length; i++) {
+                            text = text.concat(" " + args[i]);
+                        }
+                        Logger(this.report.report(331, "Reported issue", text, "BookShop", "No stacktrace because of command"), "");
+                        return true;
                     }
                     return false;
-                } else if (args.length == 1) {
-                    if (args[0].equalsIgnoreCase("toggle")) {
-                        if (sender instanceof Player) {
-                            Player p = (Player) sender;
-                            if (PermissionsHandler.checkpermissions(p, "BookShop.admin")) {
-                                if (toggle) {
-                                    toggle = false;
-                                } else {
-                                    toggle = true;
-                                }
-                                PlayerLogger(p, "BookShop offline: " + toggle, "");
-                                return true;
-                            }
-                        } else {
-                            if (toggle) {
-                                toggle = false;
+                }
+                return false;
+            }
+            if (args.length == 1) {
+                if (args[0].equalsIgnoreCase("toggle")) {
+                    if ((sender instanceof Player)) {
+                        Player p = (Player) sender;
+                        if (this.PermissionsHandler.checkpermissions(p, "BookShop.admin")) {
+                            if (this.toggle) {
+                                this.toggle = false;
                             } else {
-                                toggle = true;
+                                this.toggle = true;
                             }
-                            Logger("BookShop offline: " + toggle, "");
+                            PlayerLogger(p, "BookShop offline: " + this.toggle, "");
                             return true;
                         }
                     } else {
-                        return false;
+                        if (this.toggle) {
+                            this.toggle = false;
+                        } else {
+                            this.toggle = true;
+                        }
+                        Logger("BookShop offline: " + this.toggle, "");
+                        return true;
                     }
+                } else {
+                    return false;
                 }
-            } catch (Exception e1) {
-                sender.sendMessage("Unknown Error: " + e1.getMessage());
-                System.out.println("[BookShop] Unknown Error: " + e1.getMessage());
-                e1.printStackTrace();
-                report.report(3316, "A Command dont work", e1.getMessage(), "BookShop", e1);
-                Logger("Uncatched Exeption!", "Error");
-                try {
-                    metricshandler.Error++;
-                } catch (Exception e11) {
-                }
+            }
+        } catch (Exception e1) {
+            sender.sendMessage("Unknown Error: " + e1.getMessage());
+            System.out.println("[BookShop] Unknown Error: " + e1.getMessage());
+            e1.printStackTrace();
+            this.report.report(3316, "A Command dont work", e1.getMessage(), "BookShop", e1);
+            Logger("Uncatched Exeption!", "Error");
+            try {
+                MetricsHandler.Error += 1;
+            } catch (Exception e11) {
             }
         }
         return false;
     }
 
-    /**
-     * Intern logger to send player messages and log it into file
-     *
-     * @param msg
-     * @param TYPE
-     */
     public void Logger(String msg, String TYPE) {
         try {
-            if (TYPE.equalsIgnoreCase("Warning") || TYPE.equalsIgnoreCase("Error")) {
+            if ((TYPE.equalsIgnoreCase("Warning")) || (TYPE.equalsIgnoreCase("Error"))) {
                 System.err.println(PrefixConsole + TYPE + ": " + msg);
-                if (config.debugfile) {
-                    Loggerclass.log("Error: " + msg);
+                if (this.config.debugfile) {
+                    this.Loggerclass.log("Error: " + msg);
                 }
-                if (playerManager != null) {
-                    playerManager.BroadcastconsoleMsg("BookShop.consolemsg", " Warning: " + msg);
+                if (this.playerManager != null) {
+                    this.playerManager.BroadcastconsoleMsg("BookShop.consolemsg", " Warning: " + msg);
                 }
             } else if (TYPE.equalsIgnoreCase("Debug")) {
-                if (config.debug) {
+                if (this.config.debug) {
                     System.out.println(PrefixConsole + "Debug: " + msg);
                 }
-                if (config.debugfile) {
-                    Loggerclass.log("Debug: " + msg);
+                if (this.config.debugfile) {
+                    this.Loggerclass.log("Debug: " + msg);
                 }
-                if (playerManager != null) {
-                    playerManager.BroadcastconsoleMsg("BookShop.consolemsg", " Debug: " + msg);
+                if (this.playerManager != null) {
+                    this.playerManager.BroadcastconsoleMsg("BookShop.consolemsg", " Debug: " + msg);
                 }
             } else {
-                if (playerManager != null) {
-                    playerManager.BroadcastconsoleMsg("BookShop.consolemsg", msg);
+                if (this.playerManager != null) {
+                    this.playerManager.BroadcastconsoleMsg("BookShop.consolemsg", msg);
                 }
                 System.out.println(PrefixConsole + msg);
-                if (config.debugfile) {
-                    Loggerclass.log(msg);
+                if (this.config.debugfile) {
+                    this.Loggerclass.log(msg);
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("[BookShop] Error: Uncatch Exeption!");
-            report.report(3317, "Logger doesnt work", e.getMessage(), "BookShop", e);
+            if (this.report != null) {
+                this.report.report(3317, "Logger doesnt work", e.getMessage(), "BookShop", e);
+            }
             try {
-                metricshandler.Error++;
+                MetricsHandler.Error += 1;
             } catch (Exception e1) {
             }
         }
     }
 
-    /**
-     * Intern logger to send player messages and log it into file
-     *
-     * @param p
-     * @param msg
-     * @param TYPE
-     */
     public void PlayerLogger(Player p, String msg, String TYPE) {
         try {
             if (TYPE.equalsIgnoreCase("Error")) {
-                if (config.UsePrefix) {
-                    p.sendMessage(config.Prefix + Prefix + ChatColor.RED + "Error: " + config.Text + msg);
-                    if (config.debugfile) {
-                        Loggerclass.log("Player: " + p.getName() + " Error: " + msg);
+                if (this.config.UsePrefix) {
+                    p.sendMessage(this.config.Prefix + Prefix + ChatColor.RED + "Error: " + this.config.Text + msg);
+                    if (this.config.debugfile) {
+                        this.Loggerclass.log("Player: " + p.getName() + " Error: " + msg);
                     }
                 } else {
-                    p.sendMessage(ChatColor.RED + "Error: " + config.Text + msg);
-                    if (config.debugfile) {
-                        Loggerclass.log("Player: " + p.getName() + " Error: " + msg);
+                    p.sendMessage(ChatColor.RED + "Error: " + this.config.Text + msg);
+                    if (this.config.debugfile) {
+                        this.Loggerclass.log("Player: " + p.getName() + " Error: " + msg);
                     }
                 }
-                if (playerManager != null) {
-                    playerManager.BroadcastconsoleMsg("BookShop.gamemsg", "Player: " + p.getName() + " Error: " + msg);
+                if (this.playerManager != null) {
+                    this.playerManager.BroadcastconsoleMsg("BookShop.gamemsg", "Player: " + p.getName() + " Error: " + msg);
                 }
             } else {
-                if (config.UsePrefix) {
-                    p.sendMessage(config.Prefix + Prefix + config.Text + msg);
-                    if (config.debugfile) {
-                        Loggerclass.log("Player: " + p.getName() + " Msg: " + msg);
+                if (this.config.UsePrefix) {
+                    p.sendMessage(this.config.Prefix + Prefix + this.config.Text + msg);
+                    if (this.config.debugfile) {
+                        this.Loggerclass.log("Player: " + p.getName() + " Msg: " + msg);
                     }
                 } else {
-                    p.sendMessage(config.Text + msg);
-                    if (config.debugfile) {
-                        Loggerclass.log("Player: " + p.getName() + " Msg: " + msg);
+                    p.sendMessage(this.config.Text + msg);
+                    if (this.config.debugfile) {
+                        this.Loggerclass.log("Player: " + p.getName() + " Msg: " + msg);
                     }
                 }
-                if (playerManager != null) {
-                    playerManager.BroadcastconsoleMsg("BookShop.gamemsg", "Player: " + p.getName() + " " + msg);
+                if (this.playerManager != null) {
+                    this.playerManager.BroadcastconsoleMsg("BookShop.gamemsg", "Player: " + p.getName() + " " + msg);
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("[BookShop] Error: Uncatch Exeption!");
-            report.report(3317, "PlayerLogger doesnt work", e.getMessage(), "BookShop", e);
+            this.report.report(3317, "PlayerLogger doesnt work", e.getMessage(), "BookShop", e);
             try {
-                metricshandler.Error++;
+                MetricsHandler.Error += 1;
             } catch (Exception e1) {
             }
         }

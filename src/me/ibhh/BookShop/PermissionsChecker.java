@@ -27,7 +27,7 @@ public class PermissionsChecker {
             @Override
             public void run() {
                 try {
-                    if (GMplugin != null && GMplugin.isEnabled()) {
+                    if (GMplugin != null) {
                         groupManager = (GroupManager) GMplugin;
 
                     }
@@ -113,7 +113,7 @@ public class PermissionsChecker {
                     }
                 }
             } else if (PermPlugin == 3) {
-                if (!Bukkit.getPluginManager().isPluginEnabled("GroupManager")) {
+                if (!Bukkit.getPluginManager().isPluginEnabled("GroupManager") && groupManager != null) {
                     return false;
                 }
                 try {

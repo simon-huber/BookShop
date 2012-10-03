@@ -5,9 +5,9 @@ import java.io.*;
 /**
  * Simple utilities to return the stack trace of an exception as a String.
  */
-public final class StackTraceUtil {
+public class StackTraceUtil {
 
-    public static String getStackTrace(Throwable aThrowable) {
+    public String getStackTrace(Throwable aThrowable) {
         final Writer result = new StringWriter();
         final PrintWriter printWriter = new PrintWriter(result);
         aThrowable.printStackTrace(printWriter);
@@ -23,7 +23,7 @@ public final class StackTraceUtil {
     /**
      * Defines a custom format for the stack trace as String.
      */
-    public static String getCustomStackTrace(Throwable aThrowable) {
+    public String getCustomStackTrace(Throwable aThrowable) {
         if (aThrowable != null) {
             //add the class name and any message passed to constructor
             final StringBuilder result = new StringBuilder("");

@@ -27,7 +27,7 @@ public class BookLoader {
         }
         return null;
     }
-    
+
     public static BookHandler load(BookShop plugin, String filename) {
         try {
             BookFile book = ObjectManager.load(plugin.getDataFolder() + File.separator + "books" + File.separator + filename);
@@ -60,14 +60,16 @@ public class BookLoader {
         }
     }
 
-    public static void delete(BookShop plugin, BookHandler book){
-        String path = plugin.getDataFolder() + File.separator + "books" + File.separator;
-        File bookfile = new File(path + book.getAuthor() + " - " + book.getTitle() + ".txt");
-        if(bookfile.exists()){
-            bookfile.delete();
+    public static void delete(BookShop plugin, BookHandler book) {
+        if (book != null) {
+            String path = plugin.getDataFolder() + File.separator + "books" + File.separator;
+            File bookfile = new File(path + book.getAuthor() + " - " + book.getTitle() + ".txt");
+            if (bookfile.exists()) {
+                bookfile.delete();
+            }
         }
     }
-    
+
     public static BookHandler BookFileToBookHandler(BookFile file) {
         try {
             return new BookHandler(file.getTitle(), file.getAuthor(), file.getPages(), file.getSelled());

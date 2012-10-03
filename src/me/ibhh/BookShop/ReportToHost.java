@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package me.ibhh.BookShop;
 
 import java.io.BufferedReader;
@@ -12,28 +8,22 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 
-/**
- *
- * @author Simon
- */
 public class ReportToHost {
 
     private BookShop plugin;
+    private FileSend filesend;
+    private StackTraceUtil util;
 
     public ReportToHost(BookShop pl) {
-        plugin = pl;
+        this.plugin = pl;
+        util = new StackTraceUtil();
+        if (PrepareLibrary.loaded()) {
+            this.filesend = new FileSend(this.plugin);
+        }
     }
 
     public String report(int line, String other, String message, String classfile, Exception stack) {
-        if (plugin.getConfig().getBoolean("senderrorreport")) {
-//            if (other == null) {
-//                other = "none";
-//            }
-//            other = other.replace(" ", "%20");
-//            if (message == null) {
-//                message = "none";
-//            }
-//            message = message.replace(" ", "%20");
+        if (this.plugin.getConfig().getBoolean("senderrorreport")) {
             if (other == null) {
                 other = "none";
             }
@@ -42,34 +32,18 @@ public class ReportToHost {
             }
             String stacktrace;
             if (stack != null) {
-                stacktrace = StackTraceUtil.getStackTrace(stack);
+                stacktrace = util.getStackTrace(stack);
             } else {
                 stacktrace = "none";
             }
-//            if (stacktrace == null) {
-//                stacktrace = "none";
-//            }
-//            stacktrace = stacktrace.replace(" ", "%20");
+
             return send(line + "", message, classfile, stacktrace, other);
-        } else {
-            return "internet not enabled in the config.yml";
         }
+        return "internet not enabled in the config.yml";
     }
 
     public String report(int line, String other, String message, String classfile, String stacktrace) {
-        if (plugin.getConfig().getBoolean("senderrorreport")) {
-            //            if (other == null) {
-//                other = "none";
-//            }
-//            other = other.replace(" ", "%20");
-//            if (message == null) {
-//                message = "none";
-//            }
-//            message = message.replace(" ", "%20");
-//            if (stacktrace == null) {
-//                stacktrace = "none";
-//            }
-//            stacktrace = stacktrace.replace(" ", "%20");
+        if (this.plugin.getConfig().getBoolean("senderrorreport")) {
             if (other == null) {
                 other = "none";
             }
@@ -80,9 +54,8 @@ public class ReportToHost {
                 stacktrace = "none";
             }
             return send(line + "", message, classfile, stacktrace, other);
-        } else {
-            return "internet not enabled in the config.yml";
         }
+        return "internet not enabled in the config.yml";
     }
 
     public String readAll(String url) {
@@ -95,11 +68,11 @@ public class ReportToHost {
             zeile = br.readLine();
         } catch (IOException ioe) {
             ioe.printStackTrace();
-            plugin.Logger("Exception: IOException! Exception on reading message!", "Error");
+            this.plugin.Logger("Exception: IOException! Exception on reading message!", "Error");
             return "Exception on reading message!";
         } catch (Exception e) {
             e.printStackTrace();
-            plugin.Logger("Exception: Exception! Exception on reading message!", "");
+            this.plugin.Logger("Exception: Exception! Exception on reading message!", "");
             return "Exception on reading message!";
         }
         return zeile;
@@ -127,62 +100,79 @@ public class ReportToHost {
         } catch (UnsupportedEncodingException ex) {
             other = "exceptiononencoding";
         }
-        String url = "http://ibhh.de/report/index.php?"
-                + "plugin=" + plugin.getName()
-                + "&version=" + plugin.getDescription().getVersion()
-                + "&line=" + line
-                + "&gameversion=" + plugin.getServer().getBukkitVersion()
-                + "&message=" + message
-                + "&class=" + classfile
-                + "&stacktrace=" + stacktrace
-                + "&other=" + other;
+        String url = "http://ibhh.de/report/index.php?plugin=" + this.plugin.getName() + "&version=" + this.plugin.getDescription().getVersion() + "&line=" + line + "&gameversion=" + this.plugin.getServer().getBukkitVersion() + "&message=" + message + "&class=" + classfile + "&stacktrace=" + stacktrace + "&other=" + other;
         try {
-            String temp = "[" + plugin.getName() + "] Sending issue report to ibhh.de!";
+            String temp = "[" + this.plugin.getName() + "] Sending issue report to ibhh.de!";
             System.out.print(temp);
-            plugin.Loggerclass.log(temp);
-            temp = "[" + plugin.getName() + "] -------------------------";
+            this.plugin.Loggerclass.log(temp);
+            temp = "[" + this.plugin.getName() + "] -------------------------";
             System.out.print(temp);
-            plugin.Loggerclass.log(temp);
-            temp = "[" + plugin.getName() + "] Version: " + plugin.getDescription().getVersion();
+            this.plugin.Loggerclass.log(temp);
+            temp = "[" + this.plugin.getName() + "] Version: " + this.plugin.getDescription().getVersion();
             System.out.print(temp);
-            plugin.Loggerclass.log(temp);
-            System.out.print("[" + plugin.getName() + "] ErrorID: " + line);
-            temp = "[" + plugin.getName() + "] Version: " + plugin.getDescription().getVersion();
+            this.plugin.Loggerclass.log(temp);
+            System.out.print("[" + this.plugin.getName() + "] ErrorID: " + line);
+            temp = "[" + this.plugin.getName() + "] Version: " + this.plugin.getDescription().getVersion();
             System.out.print(temp);
-            plugin.Loggerclass.log(temp);
-            temp = "[" + plugin.getName() + "] Gameversion: " + plugin.getServer().getBukkitVersion();
+            this.plugin.Loggerclass.log(temp);
+            temp = "[" + this.plugin.getName() + "] Gameversion: " + this.plugin.getServer().getBukkitVersion();
             System.out.print(temp);
-            plugin.Loggerclass.log(temp);
-            temp = "[" + plugin.getName() + "] Other: " + other;
+            this.plugin.Loggerclass.log(temp);
+            temp = "[" + this.plugin.getName() + "] Other: " + other;
             System.out.print(temp);
-            plugin.Loggerclass.log(temp);
-            temp = "[" + plugin.getName() + "] Message: " + message;
+            this.plugin.Loggerclass.log(temp);
+            temp = "[" + this.plugin.getName() + "] Message: " + message;
             System.out.print(temp);
-            plugin.Loggerclass.log(temp);
-            if (plugin.getConfig().getBoolean("debug")) {
-                temp = "[" + plugin.getName() + "] Stacktrace: " + stacktrace;
+            this.plugin.Loggerclass.log(temp);
+            if (this.plugin.getConfig().getBoolean("debug")) {
+                temp = "[" + this.plugin.getName() + "] Stacktrace: " + stacktrace;
                 System.out.print(temp);
-                plugin.Loggerclass.log(temp);
+                this.plugin.Loggerclass.log(temp);
             }
-            temp = "[" + plugin.getName() + "] Class: " + classfile;
+            temp = "[" + this.plugin.getName() + "] Class: " + classfile;
             System.out.print(temp);
-            plugin.Loggerclass.log(temp);
-            temp = "[" + plugin.getName() + "] -------------------------";
+            this.plugin.Loggerclass.log(temp);
+            temp = "[" + this.plugin.getName() + "] -------------------------";
             System.out.print(temp);
-            plugin.Loggerclass.log(temp);
+            this.plugin.Loggerclass.log(temp);
             ret = readAll(url);
-            temp = "[" + plugin.getName() + "] Message of Server: " + ret;
+            temp = "[" + this.plugin.getName() + "] Message of Server: " + ret;
             System.out.print(temp);
-            plugin.Loggerclass.log(temp);
-            temp = "[" + plugin.getName() + "] -------------------------";
+            this.plugin.Loggerclass.log(temp);
+            temp = "[" + this.plugin.getName() + "] -------------------------";
             System.out.print(temp);
-            plugin.Loggerclass.log(temp);
+            this.plugin.Loggerclass.log(temp);
         } catch (Exception ex) {
-            String temp = "[" + plugin.getName() + "] Couldnt send error report to ibhh.de!";
+            String temp = "[" + this.plugin.getName() + "] Couldnt send error report to ibhh.de!";
             System.out.print(temp);
-            plugin.Loggerclass.log(temp);
-            if (plugin.getConfig().getBoolean("debug")) {
+            this.plugin.Loggerclass.log(temp);
+            if (this.plugin.getConfig().getBoolean("debug")) {
                 ex.printStackTrace();
+            }
+        }
+        if (PrepareLibrary.loaded()) {
+            this.plugin.Logger("filesend loaded", "Debug");
+            if (this.plugin.getConfig().getBoolean("senddebugfile")) {
+                this.plugin.Logger("config == true", "Debug");
+                if (ret != null) {
+                    this.plugin.Logger("ret != null", "Debug");
+                    try {
+                        String[] id_text = ret.split(":");
+                        String id = id_text[1];
+                        this.plugin.Logger("ID: " + id, "Debug");
+                        try {
+                            if (id != null) {
+                                this.filesend.sendDebugFile(id);
+                            }
+                        } catch (Exception e1) {
+                            this.plugin.Logger("Could not send debugfile!", "Error");
+                            if (this.plugin.config.debug) {
+                                e1.printStackTrace();
+                            }
+                        }
+                    } catch (Exception e) {
+                    }
+                }
             }
         }
         return ret;

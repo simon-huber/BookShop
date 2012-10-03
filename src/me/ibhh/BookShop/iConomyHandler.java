@@ -23,7 +23,6 @@ public class iConomyHandler {
             plugin.Logger("hooked into Vault", "Debug");
         }
         plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new Runnable() {
-
             @Override
             public void run() {
                 plugin.Logger("checking MoneyPlugin!", "Debug");
@@ -126,8 +125,7 @@ public class iConomyHandler {
         }
         if (iConomyversion == 1) {
             try {
-                this.balance =
-                        Double.valueOf(Methods.getMethod().getAccount(name).balance());
+                this.balance = Double.valueOf(Methods.getMethod().getAccount(name).balance());
             } catch (Exception e) {
                 plugin.Logger("No Account! Please report it to an admin!", "Error");
                 e.printStackTrace();
@@ -139,8 +137,7 @@ public class iConomyHandler {
             this.balance = economy.getBalance(name);
             return balance;
         }
-
-        return this.balance;
+        return 0;
     }
 
     private com.iConomy.system.Account getAccount5(String name) {

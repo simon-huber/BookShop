@@ -59,10 +59,10 @@ public class ChestHandler {
             }
             i++;
         }
-        if(containInt(a, -1)){
+        if (containInt(a, -1)) {
             plugin.Logger("Not allowed to interact with shop: " + player.getName(), "Debug");
             return -1;
-        } else if(containInt(a, 1)){
+        } else if (containInt(a, 1)) {
             plugin.Logger("Is allowed to interact with shop: " + player.getName(), "Debug");
             return 1;
         } else {
@@ -79,6 +79,42 @@ public class ChestHandler {
             }
         }
         return a;
+    }
+
+    public boolean isNewspaper(Block block) {
+        for (BlockFace bf : DPChestFaces) {
+            Block faceBlock = block.getRelative(bf);
+            if (isNewspaperblock(faceBlock)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+
+    private boolean isNewspaperblock(Block block) {
+        if (block.getRelative(BlockFace.UP) != null) {
+            plugin.Logger("Block over chest != null", "Debug");
+            if (isSign(block.getRelative(BlockFace.UP))) {
+                plugin.Logger("Is sign", "Debug");
+                Sign sign = (Sign) block.getRelative(BlockFace.UP).getState();
+                if (sign.getLine(0).equalsIgnoreCase(plugin.SHOP_configuration.getString("FirstLineOfEveryShop"))) {
+                    plugin.Logger("Is bookshop", "Debug");
+                    if (sign.getLine(1).equalsIgnoreCase(plugin.SHOP_configuration.getString("Newspapers"))) {
+                        plugin.Logger("Is newspaper", "Debug");
+                        return true;
+                    } else {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 
     private int BookChestInteract(Block block, String admin, Player player) {

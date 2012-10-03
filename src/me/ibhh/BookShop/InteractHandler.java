@@ -64,6 +64,7 @@ public class InteractHandler {
                                 event.setCancelled(true);
                             } else if (plugin.ListenerShop.chestHandler.isProtectedChest(event.getClickedBlock(), p, "BookShop.admin") == 1) {
                                 plugin.ListenerShop.ChestViewers.put(p, (Chest) event.getClickedBlock().getState());
+                                plugin.ListenerShop.NewspapersViewers.put(p, plugin.ListenerShop.chestHandler.isNewspaper(event.getClickedBlock()));
                             }
                         }
                     }
