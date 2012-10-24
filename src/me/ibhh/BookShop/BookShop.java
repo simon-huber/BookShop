@@ -558,6 +558,7 @@ public class BookShop extends JavaPlugin {
                                                     BookLoader.save(this, bookInHand);
                                                     getConfig().set("GiveBookToNewPlayers", Boolean.valueOf(true));
                                                     getConfig().set("Book", bookInHand.getAuthor() + " - " + bookInHand.getTitle() + ".txt");
+                                                    saveConfig();
                                                     PlayerLogger(player, "Successfully set a welcome book!", "");
                                                 } else {
                                                     PlayerLogger(player, "unknown error", "Error");
@@ -1056,13 +1057,17 @@ public class BookShop extends JavaPlugin {
                             Logger(this.report.report(331, "Reported issue", text, "BookShop", "No stacktrace because of command"), "");
                             return true;
                         }
-                    } else if (args[0].equalsIgnoreCase("report")) {
-                        String text = "";
-                        for (int i = 1; i < args.length; i++) {
-                            text = text.concat(" " + args[i]);
+                    } else if (args != null) {
+                        if (args.length > 0) {
+                            if (args[0].equalsIgnoreCase("report")) {
+                                String text = "";
+                                for (int i = 1; i < args.length; i++) {
+                                    text = text.concat(" " + args[i]);
+                                }
+                                Logger(this.report.report(331, "Reported issue", text, "BookShop", "No stacktrace because of command"), "");
+                                return true;
+                            }
                         }
-                        Logger(this.report.report(331, "Reported issue", text, "BookShop", "No stacktrace because of command"), "");
-                        return true;
                     }
                     return false;
                 }

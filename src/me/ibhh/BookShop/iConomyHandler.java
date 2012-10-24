@@ -111,6 +111,9 @@ public class iConomyHandler {
                 return this.balance;
             }
             balance = balance5.balance();
+            if(plugin.config.debug){
+                plugin.Logger("Balance of "+ name + ": " + balance, "Debug");
+            }
             return this.balance;
         }
         if (iConomyversion == 6) {
@@ -122,6 +125,10 @@ public class iConomyHandler {
                 balance = null;
                 return this.balance;
             }
+            if(plugin.config.debug){
+                plugin.Logger("Balance of "+ name + ": " + balance, "Debug");
+            }
+            return balance;
         }
         if (iConomyversion == 1) {
             try {
@@ -132,6 +139,10 @@ public class iConomyHandler {
                 this.balance = null;
                 return this.balance;
             }
+            if(plugin.config.debug){
+                plugin.Logger("Balance of "+ name + ": " + balance, "Debug");
+            }
+            return balance;
         }
         if (iConomyversion == 2) {
             this.balance = economy.getBalance(name);
