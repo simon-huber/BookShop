@@ -1,20 +1,16 @@
 package me.ibhh.BookShop;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpVersion;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.ContentBody;
-import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
 
 public class FileSend {
 
@@ -29,34 +25,39 @@ public class FileSend {
             @Override
             public void run() {
                 try {
-                    DefaultHttpClient httpclient = new DefaultHttpClient();
-                    httpclient.getParams().setParameter("http.protocol.version", HttpVersion.HTTP_1_1);
-
-                    HttpPost httppost = new HttpPost("http://ibhh.de/report/logs/send.php?plugin=" + FileSend.this.plugin.getName() + "&ID=" + errorid);
+                    URL url = new URL("http://report.ibhh.de/logs/send.php?plugin=" + FileSend.this.plugin.getName() + "&ID=" + errorid);
                     Date now = new Date();
                     String path = FileSend.this.plugin.getDataFolder().toString() + File.separator + "debugfiles" + File.separator;
                     SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd 'at' HH");
                     File file = new File(path + "debug-" + ft.format(now) + ".txt");
                     if (file.exists()) {
+                        // Construct data
+                        String data = URLEncoder.encode("file", "UTF-8") + "=";
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
                         try {
-                            MultipartEntity mpEntity = new MultipartEntity();
-                            ContentBody cbFile = new FileBody(file, "text");
-                            mpEntity.addPart("userfile", cbFile);
-                            httppost.setEntity(mpEntity);
-                            System.out.println("executing request " + httppost.getRequestLine());
-                            HttpResponse response = httpclient.execute(httppost);
-                            HttpEntity resEntity = response.getEntity();
-                            System.out.println(response.getStatusLine());
-                            if (resEntity != null) {
-                                System.out.println(EntityUtils.toString(resEntity));
+                            String line = null;
+                            while ((line = reader.readLine()) != null) {
+                                data += URLEncoder.encode(line, "UTF-8") + "\n";
                             }
-                            if (resEntity != null) {
-                                resEntity.consumeContent();
-                            }
-                            httpclient.getConnectionManager().shutdown();
-                        } catch (IOException ex) {
-                            Logger.getLogger(FileSend.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (Exception e) {
                         }
+                        // Send data
+                        URLConnection conn = url.openConnection();
+                        conn.setDoOutput(true);
+                        OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+                        wr.write(data);
+                        wr.flush();
+
+                        // Get the response
+                        BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                        String line;
+                        while ((line = rd.readLine()) != null) {
+                            if (line.contains("Successfully")) {
+                                System.out.println(line);
+                            }
+                        }
+                        wr.close();
+                        rd.close();
                     }
                 } catch (Exception e) {
                     plugin.Logger("cannot send debugfile because the linking of some resources failed.", "Error");

@@ -2,7 +2,6 @@ package me.ibhh.BookShop;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
@@ -14,21 +13,15 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.Server;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.configuration.file.YamlConfigurationOptions;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.InvalidDescriptionException;
 import org.bukkit.plugin.InvalidPluginException;
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitScheduler;
 
 public class BookShop extends JavaPlugin {
 
@@ -55,7 +48,6 @@ public class BookShop extends JavaPlugin {
     public MetricsHandler metricshandler;
     public PlayerManager playerManager;
     public ReportToHost report;
-    private PrepareLibrary lib;
     private static String SHOP_CONFIG_FILE;
     public YamlConfiguration SHOP_configuration;
     private File configurationFile;
@@ -77,10 +69,6 @@ public class BookShop extends JavaPlugin {
         Logger("disabled in " + timetemp + "ms", "");
     }
 
-    public PrepareLibrary getLib() {
-        return this.lib;
-    }
-
     @Override
     public void onEnable() {
         try {
@@ -96,14 +84,6 @@ public class BookShop extends JavaPlugin {
                 Logger("Error on loading config: " + e1.getMessage(), "Error");
                 e1.printStackTrace();
                 Logger("Version: " + this.Version + " failed to enable!", "Error");
-            }
-            this.lib = new PrepareLibrary();
-            PrepareLibrary.setPlugin(this);
-            PrepareLibrary.copy();
-            if (PrepareLibrary.loaded()) {
-                Logger("Librarys exist and loaded!", "Debug");
-            } else {
-                Logger("Librarys exist but not loaded!", "Debug");
             }
 
             this.report = new ReportToHost(this);

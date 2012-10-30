@@ -29,11 +29,10 @@ public class PermissionsChecker {
                 try {
                     if (GMplugin != null) {
                         groupManager = (GroupManager) GMplugin;
-
                     }
                     plugin.Logger("checking PermissionsPlugin!", "Debug");
                     searchpermplugin();
-                } catch (Exception e){
+                } catch (Exception e) {
                     plugin.report.report(3324, "Checking Permissions plugin failed", e.getMessage(), "PermissionsChecker", e);
                 }
             }
@@ -92,7 +91,7 @@ public class PermissionsChecker {
                     }
                     return false;
                 } catch (Exception e) {
-                    if(plugin.config.debug){
+                    if (plugin.config.debug) {
                         e.printStackTrace();
                     }
                     try {
@@ -107,7 +106,7 @@ public class PermissionsChecker {
                         plugin.Logger("May the /reload command caused this issue!", "Error");
                         plugin.Logger("May your permissions.yml is wrong, please check it!", "Error");
                         plugin.Logger("------------", "Error");
-                        plugin.Logger("If you mean this is an error, use /"+ plugin.getName() + " report myissueisthis", "Error");
+                        plugin.Logger("If you mean this is an error, use /" + plugin.getName() + " report myissueisthis", "Error");
                         plugin.Logger("------------", "Error");
                         return false;
                     }
@@ -118,15 +117,10 @@ public class PermissionsChecker {
                 }
                 try {
                     final AnjoPermissionsHandler handler = groupManager.getWorldsHolder().getWorldPermissions(player);
-                    {
-                        if (handler != null) {
-                            if (handler.has(player, action)) {
-                                return true;
-                            } else {
-                                return false;
-                            }
-                        }
+                    if (handler == null) {
+                        return false;
                     }
+                    return handler.has(player, action);
                 } catch (Exception e) {
                     e.printStackTrace();
                     plugin.report.report(3327, "Couldnt check permission with GroupManager", e.getMessage(), "PermissionsChecker", e);
@@ -159,7 +153,6 @@ public class PermissionsChecker {
             e.printStackTrace();
             return false;
         }
-        return false;
     }
 
     public boolean checkpermissions(Player player, String action) {
@@ -199,7 +192,7 @@ public class PermissionsChecker {
                         return false;
                     }
                 } catch (Exception e) {
-                    if(plugin.getConfig().getBoolean("debug")){
+                    if (plugin.getConfig().getBoolean("debug")) {
                         e.printStackTrace();
                     }
                     try {
@@ -217,7 +210,7 @@ public class PermissionsChecker {
                         plugin.Logger("May the /reload command caused this issue!", "Error");
                         plugin.Logger("May your permissions.yml is wrong, please check it!", "Error");
                         plugin.Logger("------------", "Error");
-                        plugin.Logger("If you mean this is an error, use /"+ plugin.getName() + " report myissueisthis", "Error");
+                        plugin.Logger("If you mean this is an error, use /" + plugin.getName() + " report myissueisthis", "Error");
                         plugin.Logger("------------", "Error");
                         e.printStackTrace();
                         return false;
@@ -230,15 +223,14 @@ public class PermissionsChecker {
                 }
                 try {
                     final AnjoPermissionsHandler handler = groupManager.getWorldsHolder().getWorldPermissions(player);
-                    {
-                        if (handler != null) {
-                            if (handler.has(player, action)) {
-                                return true;
-                            } else {
-                                plugin.PlayerLogger(player, player.getName() + " " + plugin.getConfig().getString("permissions.error." + plugin.getConfig().getString("language")) + " (" + action + ")", "Error");
-                                return false;
-                            }
-                        }
+                    if (handler == null) {
+                        return false;
+                    }
+                    if (handler.has(player, action)) {
+                        return true;
+                    } else {
+                        plugin.PlayerLogger(player, player.getName() + " " + plugin.getConfig().getString("permissions.error." + plugin.getConfig().getString("language")) + " (" + action + ")", "Error");
+                        return false;
                     }
                 } catch (Exception e) {
                     plugin.Logger("Error on checking permissions with GroupManager!", "Error");
@@ -280,6 +272,5 @@ public class PermissionsChecker {
             e.printStackTrace();
             return false;
         }
-        return false;
     }
 }
