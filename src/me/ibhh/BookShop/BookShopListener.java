@@ -60,7 +60,14 @@ public class BookShopListener
                 @Override
                 public void run() {
                     try {
-                        if (((Chest) BookShopListener.this.ChestViewers.get((Player) ev.getPlayer())).getBlockInventory().contains(Material.WRITTEN_BOOK)) {
+                        Chest chest = ((Chest) BookShopListener.this.ChestViewers.get((Player) ev.getPlayer()));
+                        if(chest == null){
+                            return;
+                        }
+                        if(chest.getBlockInventory() == null){
+                            return;
+                        }
+                        if (chest.getBlockInventory().contains(Material.WRITTEN_BOOK)) {
                             BookShopListener.this.plugin.Logger("Chest contains Written_Book", "Debug");
                             Block chestblock = ((Chest) BookShopListener.this.ChestViewers.get((Player) ev.getPlayer())).getBlock();
                             if ((chestblock.getRelative(BlockFace.UP).getState() instanceof org.bukkit.block.Sign)) {
@@ -95,7 +102,6 @@ public class BookShopListener
                     }
                 }
             }, 2L);
-
             this.plugin.Logger("Player from ChestViewers removed: " + event.getPlayer().getName(), "Debug");
         }
     }

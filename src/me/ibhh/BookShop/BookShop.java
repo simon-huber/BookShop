@@ -102,6 +102,7 @@ public class BookShop extends JavaPlugin {
             } catch (Exception e1) {
                 this.report.report(332, "Config loading failed", e1.getMessage(), "BookShop", e1);
                 Logger("Error on loading config: " + e1.getMessage(), "Error");
+                Logger("Using defaults!", "Error");
                 e1.printStackTrace();
                 Logger("Version: " + this.Version + " failed to enable!", "Error");
             }
@@ -319,7 +320,10 @@ public class BookShop extends JavaPlugin {
     public void UpdateAvailable(float currVersion) {
         if (this.config.Internet) {
             try {
-                if (this.upd.checkUpdate().floatValue() > currVersion) {
+                if(upd == null){
+                    updateaviable = false;
+                }
+                if (this.upd.checkUpdate() > currVersion) {
                     updateaviable = true;
                 }
                 if (updateaviable) {
@@ -561,9 +565,12 @@ public class BookShop extends JavaPlugin {
                                             if (player.getItemInHand().getType().equals(Material.WRITTEN_BOOK)) {
                                                 BookHandler bookInHand = new BookHandler(player.getItemInHand());
                                                 BookHandler loadedBook = BookLoader.load(this, bookInHand.getAuthor(), bookInHand.getTitle());
-                                                if (bookInHand != null) {
+                                                if (bookInHand != null && loadedBook != null) {
                                                     bookInHand.setSelled(loadedBook.getSelled());
                                                     BookLoader.delete(this, loadedBook);
+                                                    BookLoader.save(this, bookInHand);
+                                                    PlayerLogger(player, "Saved!", "");
+                                                } else if(bookInHand != null && loadedBook == null){
                                                     BookLoader.save(this, bookInHand);
                                                     PlayerLogger(player, "Saved!", "");
                                                 } else {
@@ -870,6 +877,11 @@ public class BookShop extends JavaPlugin {
                                         }
                                         String filename = author + " - " + title + ".txt";
                                         BookHandler book = BookLoader.load(this, filename);
+                                        if(book == null){
+                                            PlayerLogger(player, "unknown error: book == null", "Error");
+                                            PlayerLogger(player, "May the book doesnt exist!", "Error");
+                                            return true;
+                                        }
                                         player.getInventory().addItem(new ItemStack[]{book.toItemStack(1)});
                                         Logger("Book loaded!", "Debug");
                                     } else {

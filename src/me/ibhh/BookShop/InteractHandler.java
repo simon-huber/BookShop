@@ -92,7 +92,14 @@ public class InteractHandler {
         if (plugin.config.debug) {
             plugin.Logger("A left interact Event dected by player: " + p.getName(), "Debug");
         }
-        if ((event.hasBlock()) && ((event.getClickedBlock().getState() instanceof Sign)) && (!p.isSneaking())) { // && !(p.isSneaking())
+        if (!event.hasBlock()) {
+            return;
+        }
+        Block eventblock = event.getClickedBlock();
+        if (!(eventblock.getState() instanceof Sign)) {
+            return;
+        }
+        if (!p.isSneaking()) {
             Sign s = (Sign) event.getClickedBlock().getState();
             String[] line = s.getLines();
             if (plugin.config.debug) {
@@ -101,7 +108,7 @@ public class InteractHandler {
             if (line[0].equalsIgnoreCase(plugin.SHOP_configuration.getString("FirstLineOfEveryShop"))) {
                 signHandler.LinksKlick(event, line, p, s);
             }
-        } else if (p.isSneaking() && (event.getClickedBlock().getState() instanceof Sign)) {
+        } else if (p.isSneaking()) {
             Sign s = (Sign) event.getClickedBlock().getState();
             String[] line = s.getLines();
             if (plugin.config.debug) {
@@ -109,9 +116,9 @@ public class InteractHandler {
             }
             if (line[0].equalsIgnoreCase(plugin.SHOP_configuration.getString("FirstLineOfEveryShop"))) {
                 Chest chest = null;
-                try{
-                chest = (Chest) s.getBlock().getRelative(BlockFace.DOWN).getState();
-                } catch (Exception e){
+                try {
+                    chest = (Chest) s.getBlock().getRelative(BlockFace.DOWN).getState();
+                } catch (Exception e) {
                     return;
                 }
                 if (chest != null) {
