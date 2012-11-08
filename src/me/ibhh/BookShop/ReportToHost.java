@@ -83,7 +83,7 @@ public class ReportToHost {
             URL url = new URL(url1);
             // Construct data
             String data = URLEncoder.encode("version", "UTF-8") + "=" + URLEncoder.encode(String.valueOf(this.plugin.getDescription().getVersion()), "UTF-8");
-            data += "&" + URLEncoder.encode("line", "UTF-8") + "=" + URLEncoder.encode("line", "UTF-8");
+            data += "&" + URLEncoder.encode("line", "UTF-8") + "=" + URLEncoder.encode(line, "UTF-8");
             data += "&" + URLEncoder.encode("gameversion", "UTF-8") + "=" + URLEncoder.encode(this.plugin.getServer().getBukkitVersion(), "UTF-8");
             data += "&" + URLEncoder.encode("message", "UTF-8") + "=" + URLEncoder.encode(message, "UTF-8");
             data += "&" + URLEncoder.encode("class", "UTF-8") + "=" + URLEncoder.encode(classfile, "UTF-8");
@@ -114,8 +114,7 @@ public class ReportToHost {
             temp = "[" + this.plugin.getName() + "] Version: " + this.plugin.getDescription().getVersion();
             System.out.print(temp);
             this.plugin.Loggerclass.log(temp);
-            System.out.print("[" + this.plugin.getName() + "] ErrorID: " + line);
-            temp = "[" + this.plugin.getName() + "] Version: " + this.plugin.getDescription().getVersion();
+            temp = "[" + this.plugin.getName() + "] ErrorID: " + line;
             System.out.print(temp);
             this.plugin.Loggerclass.log(temp);
             temp = "[" + this.plugin.getName() + "] Gameversion: " + this.plugin.getServer().getBukkitVersion();
@@ -163,6 +162,7 @@ public class ReportToHost {
                     try {
                         if (id != null) {
                             this.filesend.sendDebugFile(id);
+                            this.plugin.Logger("debugfile successfully sent, thanks!", "");
                         }
                     } catch (Exception e1) {
                         this.plugin.Logger("Could not send debugfile!", "Error");

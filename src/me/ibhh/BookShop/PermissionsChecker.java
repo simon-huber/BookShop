@@ -2,6 +2,7 @@ package me.ibhh.BookShop;
 
 import de.bananaco.bpermissions.api.util.CalculableType;
 import org.anjocaido.groupmanager.GroupManager;
+import org.anjocaido.groupmanager.dataholder.worlds.WorldsHolder;
 import org.anjocaido.groupmanager.permissions.AnjoPermissionsHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -116,7 +117,11 @@ public class PermissionsChecker {
                     return false;
                 }
                 try {
-                    final AnjoPermissionsHandler handler = groupManager.getWorldsHolder().getWorldPermissions(player);
+                    WorldsHolder holder = groupManager.getWorldsHolder();
+                    if(holder == null) {
+                        return false;
+                    }
+                    final AnjoPermissionsHandler handler = holder.getWorldPermissions(player);
                     if (handler == null) {
                         return false;
                     }
@@ -222,7 +227,11 @@ public class PermissionsChecker {
                     return false;
                 }
                 try {
-                    final AnjoPermissionsHandler handler = groupManager.getWorldsHolder().getWorldPermissions(player);
+                    WorldsHolder holder = groupManager.getWorldsHolder();
+                    if(holder == null) {
+                        return false;
+                    }
+                    final AnjoPermissionsHandler handler = holder.getWorldPermissions(player);
                     if (handler == null) {
                         return false;
                     }

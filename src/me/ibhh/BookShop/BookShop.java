@@ -57,6 +57,7 @@ public class BookShop extends JavaPlugin {
     private HashMap<Player, String> Set = new HashMap();
     public String[] commands = {"help", "showdebug", "debugfile", "internet", "version", "update", "reload", "deletedebug", "log", "toggle", "language", "report", "backupbook", "loadbook", "giveall", "give", "setwelcomebook", "removewelcomebook"};
 
+    @Override
     public void onDisable() {
         this.toggle = true;
         long timetemp = System.currentTimeMillis();
@@ -69,6 +70,15 @@ public class BookShop extends JavaPlugin {
         Logger("disabled in " + timetemp + "ms", "");
     }
 
+    private boolean changeLanguage(String language) {
+        if (getConfig().getString("permissions.error." + getConfig().getString("language")) == null) {
+            Logger("Language not valid!", "Error");
+            return false;
+        } else {
+            return true;
+        }
+    }
+
     @Override
     public void onEnable() {
         try {
@@ -78,6 +88,18 @@ public class BookShop extends JavaPlugin {
             try {
                 this.config = new ConfigHandler(this);
                 this.config.loadConfigonStart();
+                if (!changeLanguage(getConfig().getString("language"))) {
+                    getConfig().set("language", "en");
+                    saveConfig();
+                    reloadConfig();
+                    Logger("Language changed to en because your selection wasnt found!", "Error");
+                    if (!changeLanguage(getConfig().getString("language"))) {
+                        getConfig().set("language", "de");
+                        saveConfig();
+                        reloadConfig();
+                        Logger("Language changed to de because your selection wasnt found!", "Error");
+                    }
+                }
                 Logger("Version: " + aktuelleVersion(), "Debug");
             } catch (Exception e1) {
                 ex1 = e1;
@@ -320,7 +342,7 @@ public class BookShop extends JavaPlugin {
     public void UpdateAvailable(float currVersion) {
         if (this.config.Internet) {
             try {
-                if(upd == null){
+                if (upd == null) {
                     updateaviable = false;
                 }
                 if (this.upd.checkUpdate() > currVersion) {
@@ -570,7 +592,7 @@ public class BookShop extends JavaPlugin {
                                                     BookLoader.delete(this, loadedBook);
                                                     BookLoader.save(this, bookInHand);
                                                     PlayerLogger(player, "Saved!", "");
-                                                } else if(bookInHand != null && loadedBook == null){
+                                                } else if (bookInHand != null && loadedBook == null) {
                                                     BookLoader.save(this, bookInHand);
                                                     PlayerLogger(player, "Saved!", "");
                                                 } else {
@@ -653,24 +675,6 @@ public class BookShop extends JavaPlugin {
                                             }
                                             install();
                                             return true;
-                                        } else if (this.ActionBookShop.equalsIgnoreCase("deletedebug")) {
-                                            if (!this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
-                                                break;
-                                            }
-                                            File file = new File("plugins" + File.separator + "BookShop" + File.separator + "debug.txt");
-                                            if (file.exists()) {
-                                                if (file.delete()) {
-                                                    PlayerLogger(player, "file deleted!", "Warning");
-                                                    try {
-                                                        file.createNewFile();
-                                                    } catch (IOException ex) {
-                                                        java.util.logging.Logger.getLogger(BookShop.class.getName()).log(Level.SEVERE, null, ex);
-                                                    }
-                                                } else {
-                                                    PlayerLogger(player, "Error on deleting file!", "Error");
-                                                }
-                                            }
-                                            return true;
                                         } else if (this.ActionBookShop.equalsIgnoreCase("log")) {
                                             if (!this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
                                                 break;
@@ -752,6 +756,10 @@ public class BookShop extends JavaPlugin {
                                 if (args[0].equalsIgnoreCase("language")) {
                                     if (!this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
                                         break;
+                                    }
+                                    if(!changeLanguage(args[1])){
+                                        PlayerLogger(player, "Selected language not found!", "Error");
+                                        return true;
                                     }
                                     getConfig().set("language", args[1]);
                                     PlayerLogger(player, "language set to: " + args[1], "");
@@ -877,7 +885,7 @@ public class BookShop extends JavaPlugin {
                                         }
                                         String filename = author + " - " + title + ".txt";
                                         BookHandler book = BookLoader.load(this, filename);
-                                        if(book == null){
+                                        if (book == null) {
                                             PlayerLogger(player, "unknown error: book == null", "Error");
                                             PlayerLogger(player, "May the book doesnt exist!", "Error");
                                             return true;
@@ -1030,6 +1038,10 @@ public class BookShop extends JavaPlugin {
                         }
                         if (args.length == 2) {
                             if (args[0].equalsIgnoreCase("language")) {
+                                if(!changeLanguage(args[1])){
+                                    Logger("Selected language not found!", "Error");
+                                    return true;
+                                }
                                 getConfig().set("language", args[1]);
                                 Logger("language set to: " + args[1], "");
                                 saveConfig();
