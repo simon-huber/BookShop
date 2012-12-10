@@ -17,12 +17,11 @@ public class iConomyHandler {
 
     public iConomyHandler(BookShop pl) {
         plugin = pl;
-        plugin.aktuelleVersion();
         if (setupEconomy() == true) {
             iConomyversion = 2;
             plugin.Logger("hooked into Vault", "Debug");
         }
-        plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new Runnable() {
+        plugin.getServer().getScheduler().runTaskLaterAsynchronously(plugin, new Runnable() {
             @Override
             public void run() {
                 plugin.Logger("checking MoneyPlugin!", "Debug");

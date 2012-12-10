@@ -288,7 +288,7 @@ public class SignHandler {
                             plugin.PlayerLogger(player, plugin.getConfig().getString("Shop.error.nobook." + plugin.config.language), "Error");
                         }
                     } else {
-                        Player empfaenger = plugin.getmyOfflinePlayer(line, 1);
+                        Player empfaenger = Tools.getmyOfflinePlayer(plugin, line, 1);
                         if (empfaenger != null) {
                             Chest chest = null;
                             try {

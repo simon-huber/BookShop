@@ -1,26 +1,18 @@
 package me.ibhh.BookShop;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.logging.Level;
-import net.minecraft.server.EntityPlayer;
-import net.minecraft.server.ItemInWorldManager;
-import net.minecraft.server.MinecraftServer;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.InvalidDescriptionException;
-import org.bukkit.plugin.InvalidPluginException;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class BookShop extends JavaPlugin {
@@ -55,28 +47,16 @@ public class BookShop extends JavaPlugin {
     public HashMap<String, Boolean> DebugMsg = new HashMap();
     private HashMap<Player, String> Config = new HashMap();
     private HashMap<Player, String> Set = new HashMap();
-    public String[] commands = {"help", "showdebug", "debugfile", "internet", "version", "update", "reload", "deletedebug", "log", "toggle", "language", "report", "backupbook", "loadbook", "giveall", "give", "setwelcomebook", "removewelcomebook"};
-
+    public String[] commands = {"help", "showdebug", "debugfile", "internet", "version", "reload", "deletedebug", "log", "toggle", "language", "report", "backupbook", "loadbook", "giveall", "give", "setwelcomebook", "removewelcomebook"};
+    private String mcversion = "1.4.5";
+    
     @Override
     public void onDisable() {
         this.toggle = true;
         long timetemp = System.currentTimeMillis();
-        if (this.config.Internet) {
-            UpdateAvailable(this.Version);
-        }
         this.metricshandler.saveStatsFiles();
-        forceUpdate();
         timetemp = System.currentTimeMillis() - timetemp;
         Logger("disabled in " + timetemp + "ms", "");
-    }
-
-    private boolean changeLanguage(String language) {
-        if (getConfig().getString("permissions.error." + getConfig().getString("language")) == null) {
-            Logger("Language not valid!", "Error");
-            return false;
-        } else {
-            return true;
-        }
     }
 
     @Override
@@ -84,23 +64,25 @@ public class BookShop extends JavaPlugin {
         try {
             long timetemp1 = System.nanoTime();
             this.Loggerclass = new Logger(this);
+            Logger("*****************************", "Warning");
+            Logger("Because of some Bukkitchanges", "Warning");
+            Logger("you have to update the plugin", "Warning");
+            Logger("manually. The updater was removed!", "Warning");
+            Logger("This plugin needs a update every", "Warning");
+            Logger("MC-Update!!!!", "Warning");
+            Logger("*****************************", "Warning");
+            Logger("Your Bukkit version: " + getServer().getBukkitVersion(), "Warning");
+            if(getServer().getBukkitVersion().contains(mcversion)){
+                Logger("This plugin is compatible to this bukkit-version", "Warning");
+            } else {
+                Logger("Your plugin-version is NOT compatible!", "Error");
+                setEnabled(false);
+                return;
+            }
             Exception ex1 = null;
             try {
                 this.config = new ConfigHandler(this);
                 this.config.loadConfigonStart();
-                if (!changeLanguage(getConfig().getString("language"))) {
-                    getConfig().set("language", "en");
-                    saveConfig();
-                    reloadConfig();
-                    Logger("Language changed to en because your selection wasnt found!", "Error");
-                    if (!changeLanguage(getConfig().getString("language"))) {
-                        getConfig().set("language", "de");
-                        saveConfig();
-                        reloadConfig();
-                        Logger("Language changed to de because your selection wasnt found!", "Error");
-                    }
-                }
-                Logger("Version: " + aktuelleVersion(), "Debug");
             } catch (Exception e1) {
                 ex1 = e1;
                 Logger("Error on loading config: " + e1.getMessage(), "Error");
@@ -158,60 +140,11 @@ public class BookShop extends JavaPlugin {
                     java.util.logging.Logger.getLogger(BookShop.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-            getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable() {
-                @Override
-                public void run() {
-                    if (BookShop.this.config.Internet) {
-                        try {
-                            BookShop.this.Logger("Searching update for BookShop!", "Debug");
-                            BookShop.this.aktuelleVersion();
-                            BookShop.this.newversion = BookShop.this.upd.checkUpdate().floatValue();
-                            if (BookShop.this.newversion == -1.0F) {
-                                BookShop.this.newversion = BookShop.this.aktuelleVersion();
-                            }
-                            BookShop.this.Logger("installed BookShop version: " + BookShop.this.Version + ", latest version: " + BookShop.this.newversion, "Debug");
-                            if (BookShop.this.newversion > BookShop.this.Version) {
-                                BookShop.this.Logger("New version: " + BookShop.this.newversion + " found!", "Warning");
-                                BookShop.this.Logger("******************************************", "Warning");
-                                BookShop.this.Logger("*********** Please update!!!! ************", "Warning");
-                                BookShop.this.Logger("* http://ibhh.de/BookShop.jar *", "Warning");
-                                BookShop.this.Logger("******************************************", "Warning");
-                                BookShop.updateaviable = true;
-                                if (BookShop.this.getConfig().getBoolean("installondownload")) {
-                                    BookShop.this.install();
-                                }
-                            } else {
-                                BookShop.this.Logger("No update found!", "Debug");
-                            }
-                        } catch (Exception e) {
-                            BookShop.this.Logger("Error on doing update check! Message: " + e.getMessage(), "Error");
-                            BookShop.this.Logger("may the mainserver is down!", "Error");
-                            BookShop.this.report.report(335, "Checking for update failed", e.getMessage(), "BookShop", e);
-                        }
-                    }
-                }
-            }, 400L, 50000L);
-
-            if (this.config.Internet) {
-                try {
-                    aktuelleVersion();
-                    UpdateAvailable(this.Version);
-                    if (updateaviable) {
-                        Logger("New version: " + this.newversion + " found!", "Warning");
-                        Logger("******************************************", "Warning");
-                        Logger("*********** Please update!!!! ************", "Warning");
-                        Logger("* http://ibhh.de/BookShop.jar *", "Warning");
-                        Logger("******************************************", "Warning");
-                    }
-                } catch (Exception e) {
-                    Logger("Error on doing update check! Message: " + e.getMessage(), "Error");
-                    Logger("may the mainserver is down!", "Error");
-                    this.report.report(336, "Checking for update failed", e.getMessage(), "BookShop", e);
-                }
-            }
+            
             this.metricshandler = new MetricsHandler(this);
             this.metricshandler.loadStatsFiles();
-            getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable() {
+            getServer().getScheduler().runTaskTimerAsynchronously(this, new Runnable() {
+                @Override
                 public void run() {
                     BookShop.this.metricshandler.saveStatsFiles();
                 }
@@ -219,7 +152,7 @@ public class BookShop extends JavaPlugin {
 
             this.metricshandler = new MetricsHandler(this);
             this.metricshandler.loadStatsFiles();
-            getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
+            getServer().getScheduler().runTaskLaterAsynchronously(this, new Runnable() {
                 public void run() {
                     BookShop.this.toggle = false;
                     BookShop.this.metricshandler.onStart();
@@ -240,291 +173,14 @@ public class BookShop extends JavaPlugin {
         }
     }
 
-    public boolean autoUpdate(String path) {
-        if (this.config.Internet) {
-            try {
-                this.upd.download(path);
-            } catch (Exception e) {
-                Logger("Error on doing update! Message: " + e.getMessage(), "Error");
-                Logger("may the mainserver is down!", "Error");
-                Logger("Uncatched Exeption!", "Error");
-                this.report.report(338, "Error on doing update", e.getMessage(), "BookShop", e);
-                try {
-                    MetricsHandler.Error += 1;
-                } catch (Exception e1) {
-                }
-            }
-        }
-        return true;
-    }
-
-    public void forceUpdate() {
-        if (this.config.Internet) {
-            try {
-                if (updateaviable) {
-                    this.newversion = this.upd.checkUpdate().floatValue();
-                    Logger("New version: " + this.newversion + " found!", "Warning");
-                    Logger("******************************************", "Warning");
-                    Logger("*********** Please update!!!! ************", "Warning");
-                    Logger("* http://ibhh.de/BookShop.jar *", "Warning");
-                    Logger("******************************************", "Warning");
-                    if ((getConfig().getBoolean("autodownload")) || (getConfig().getBoolean("installondownload"))) {
-                        if (getConfig().getBoolean("autodownload")) {
-                            try {
-                                String path = "plugins" + File.separator + "BookShop" + File.separator;
-                                if (this.upd.download(path)) {
-                                    Logger("Downloaded new Version!", "Warning");
-                                } else {
-                                    Logger(" Cant download new Version!", "Warning");
-                                }
-                            } catch (Exception e) {
-                                Logger("Error on dowloading new Version!", "Error");
-                                e.printStackTrace();
-                                Logger("Uncatched Exeption!", "Error");
-                                try {
-                                    MetricsHandler.Error += 1;
-                                } catch (Exception e1) {
-                                }
-                            }
-                        }
-                        if (getConfig().getBoolean("installondownload")) {
-                            try {
-                                String path = "plugins" + File.separator;
-                                if (this.upd.download(path)) {
-                                    Logger("Downloaded new Version!", "Warning");
-                                    Logger("BookShop will be updated on the next restart!", "Warning");
-                                } else {
-                                    Logger(" Cant download new Version!", "Warning");
-                                }
-                            } catch (Exception e) {
-                                Logger("Error on donwloading new Version!", "Error");
-                                e.printStackTrace();
-                                Logger("Uncatched Exeption!", "Error");
-                                try {
-                                    MetricsHandler.Error += 1;
-                                } catch (Exception e1) {
-                                }
-                            }
-                        }
-                    } else {
-                        Logger("Please type [BookShop download] to download manual! ", "Warning");
-                    }
-                }
-            } catch (Exception e) {
-                Logger("Error on doing update check or update! Message: " + e.getMessage(), "Error");
-                Logger("may the mainserver is down!", "Error");
-                Logger("Uncatched Exeption!", "Error");
-                this.report.report(339, "Error on doing update check or update", e.getMessage(), "BookShop", e);
-                try {
-                    MetricsHandler.Error += 1;
-                } catch (Exception e1) {
-                }
-            }
-        }
-    }
-
-    public float aktuelleVersion() {
-        try {
-            this.Version = Float.parseFloat(getDescription().getVersion());
-        } catch (Exception e) {
-            Logger("Could not parse version in float", "");
-            Logger("Error getting version of BookShop! Message: " + e.getMessage(), "Error");
-            this.report.report(3310, "Error getting version of BookShop", e.getMessage(), "BookShop", e);
-            Logger("Uncatched Exeption!", "Error");
-            try {
-                MetricsHandler.Error += 1;
-            } catch (Exception e1) {
-            }
-        }
-        return this.Version;
-    }
-
-    public void UpdateAvailable(float currVersion) {
-        if (this.config.Internet) {
-            try {
-                if (upd == null) {
-                    updateaviable = false;
-                }
-                if (this.upd.checkUpdate() > currVersion) {
-                    updateaviable = true;
-                }
-                if (updateaviable) {
-                    updateaviable = true;
-                } else {
-                    updateaviable = false;
-                }
-            } catch (Exception e) {
-                Logger("Error checking for new version! Message: " + e.getMessage(), "Error");
-                this.report.report(3311, "Error checking for new version", e.getMessage(), "BookShop", e);
-                Logger("May the mainserver is down!", "Error");
-                Logger("Uncatched Exeption!", "Error");
-                try {
-                    MetricsHandler.Error += 1;
-                } catch (Exception e1) {
-                }
-            }
-        }
-    }
-
-    public Player getmyOfflinePlayer(String[] args, int index) {
-        String playername = args[index];
-        Logger("Empfaenger: " + playername, "Debug");
-        Player player = getServer().getPlayerExact(playername);
-        try {
-            if (player == null) {
-                player = getServer().getPlayer(playername);
-            }
-            if (player == null) {
-                for (OfflinePlayer p : Bukkit.getServer().getOfflinePlayers()) {
-                    OfflinePlayer offp = p;
-                    if (offp.getName().toLowerCase().equals(playername.toLowerCase())) {
-                        Logger("Player has same name: " + offp.getName(), "Debug");
-                        if (offp != null) {
-                            if (offp.hasPlayedBefore()) {
-                                player = (Player) offp.getPlayer();
-                                Logger("Player has Played before: " + offp.getName(), "Debug");
-                            }
-                            break;
-                        }
-                    }
-                }
-            }
-            if (player == null) {
-                MinecraftServer server = ((CraftServer) this.getServer()).getServer();
-                EntityPlayer entity = new EntityPlayer(server, server.getWorldServer(0), args[index], new ItemInWorldManager(server.getWorldServer(0)));
-                player = entity == null ? null : (Player) entity.getBukkitEntity();
-                if (player != null) {
-                    player.loadData();
-                    return player;
-                }
-            }
-            if (player != null) {
-                Logger("Empfaengername after getting Player: " + player.getName(), "Debug");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            Logger("Uncatched Exeption!", "Error");
-            report.report(3312, "Uncatched Exeption on getting offlineplayer", e.getMessage(), "BookShop", e);
-            try {
-                metricshandler.Error++;
-            } catch (Exception e1) {
-            }
-        }
-        return player;
-    }
-
-    public Player getmyOfflinePlayer(String playername) {
-        Logger("Empfaenger: " + playername, "Debug");
-        Player player = getServer().getPlayerExact(playername);
-        try {
-            if (player == null) {
-                player = getServer().getPlayer(playername);
-            }
-            if (player == null) {
-                for (OfflinePlayer p : Bukkit.getServer().getOfflinePlayers()) {
-                    OfflinePlayer offp = p;
-                    if (offp.getName().toLowerCase().equals(playername.toLowerCase())) {
-                        Logger("Player has same name: " + offp.getName(), "Debug");
-                        if (offp != null) {
-                            if (offp.hasPlayedBefore()) {
-                                player = (Player) offp.getPlayer();
-                                Logger("Player has Played before: " + offp.getName(), "Debug");
-                            }
-                            break;
-                        }
-                    }
-                }
-            }
-            if (player == null) {
-                MinecraftServer server = ((CraftServer) this.getServer()).getServer();
-                EntityPlayer entity = new EntityPlayer(server, server.getWorldServer(0), playername, new ItemInWorldManager(server.getWorldServer(0)));
-                player = entity == null ? null : (Player) entity.getBukkitEntity();
-                if (player != null) {
-                    player.loadData();
-                    return player;
-                }
-            }
-            if (player != null) {
-                Logger("Empfaengername after getting Player: " + player.getName(), "Debug");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            Logger("Uncatched Exeption!", "Error");
-            report.report(3312, "Uncatched Exeption on getting offlineplayer", e.getMessage(), "BookShop", e);
-            try {
-                metricshandler.Error++;
-            } catch (Exception e1) {
-            }
-        }
-        return player;
-    }
-
-    public void install() {
-        try {
-            if (this.config.Internet) {
-                try {
-                    String path = "plugins" + File.separator;
-                    if (this.upd.download(path)) {
-                        Logger("Downloaded new Version!", "Warning");
-                        Logger("BookShop will be updated on the next restart!", "Warning");
-                    } else {
-                        Logger(" Cant download new Version!", "Warning");
-                    }
-                } catch (Exception e) {
-                    Logger("Error on downloading new Version!", "Error");
-                    this.report.report(3313, "Error on downloading new Version", e.getMessage(), "BookShop", e);
-                    e.printStackTrace();
-                    Logger("Uncatched Exeption!", "Error");
-                    try {
-                        MetricsHandler.Error += 1;
-                    } catch (Exception e1) {
-                    }
-                }
-            }
-            if (getConfig().getBoolean("installondownload")) {
-                Logger("Found Update! Installing now because of 'installondownload = true', please wait!", "Warning");
-                this.playerManager.BroadcastMsg("BookShop.update", "Found Update! Installing now because of 'installondownload = true', please wait!");
-            }
-            try {
-                this.plugman.unloadPlugin("BookShop");
-            } catch (NoSuchFieldException ex) {
-                Logger("Error on installing! Please check the log!", "Error");
-                this.playerManager.BroadcastMsg("BookShop.update", "Error on installing! Please check the log!");
-                java.util.logging.Logger.getLogger(BookShop.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (IllegalAccessException ex) {
-                Logger("Error on installing! Please check the log!", "Error");
-                this.playerManager.BroadcastMsg("BookShop.update", "Error on installing! Please check the log!");
-                java.util.logging.Logger.getLogger(BookShop.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            try {
-                this.plugman.loadPlugin("BookShop");
-            } catch (InvalidPluginException ex) {
-                Logger("Error on loading after installing! Please check the log!", "Error");
-                this.playerManager.BroadcastMsg("BookShop.update", "Error on loading after installing! Please check the log!");
-                java.util.logging.Logger.getLogger(BookShop.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (InvalidDescriptionException ex) {
-                Logger("Error on loading after installing! Please check the log!", "Error");
-                this.playerManager.BroadcastMsg("BookShop.update", "Error on loading after installing! Please check the log!");
-                java.util.logging.Logger.getLogger(BookShop.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            Logger("Installing finished!", "");
-            this.playerManager.BroadcastMsg("BookShop.update", "Installing finished!");
-        } catch (Exception w) {
-            w.printStackTrace();
-            Logger("Uncatched Exeption!", "Error");
-            this.report.report(3314, "Uncatched Exeption on installing", w.getMessage(), "BookShop", w);
-            try {
-                MetricsHandler.Error += 1;
-            } catch (Exception e1) {
-            }
-        }
-    }
+   
 
     public void onReload() {
         onDisable();
         onEnable();
     }
 
+    @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         try {
             if (!this.toggle) {
@@ -607,14 +263,15 @@ public class BookShop extends JavaPlugin {
                                     if (args[0].equalsIgnoreCase("giveall")) {
                                         if (this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
                                             final Player player_final = player;
-                                            getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
+                                            getServer().getScheduler().runTaskLaterAsynchronously(this, new Runnable() {
+                                                @Override
                                                 public void run() {
                                                     if (player_final.getItemInHand().getType().equals(Material.WRITTEN_BOOK)) {
                                                         ItemStack item = player_final.getItemInHand();
                                                         BookShop.this.PlayerLogger(player_final, "Giving book to every player!", "");
                                                         BookShop.this.PlayerLogger(player_final, "Please wait ....", "");
                                                         for (OfflinePlayer off : BookShop.this.getServer().getOfflinePlayers()) {
-                                                            Player empfaenger = BookShop.this.getmyOfflinePlayer(off.getName());
+                                                            Player empfaenger = Tools.getmyOfflinePlayer(BookShop, off.getName());
                                                             if (empfaenger.getInventory().firstEmpty() != -1) {
                                                                 empfaenger.getInventory().addItem(new ItemStack[]{item});
                                                                 BookShop.this.PlayerLogger(empfaenger, "You were given a book by an admin!", "");
@@ -669,13 +326,14 @@ public class BookShop extends JavaPlugin {
                                             Logger("Command: " + cmd.getName() + " " + args.toString() + " executed in " + temptime + "ms", "Debug");
                                             return true;
                                         }
-                                        if (this.ActionBookShop.equalsIgnoreCase("update")) {
-                                            if (!this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
-                                                break;
-                                            }
-                                            install();
-                                            return true;
-                                        } else if (this.ActionBookShop.equalsIgnoreCase("log")) {
+//                                        if (this.ActionBookShop.equalsIgnoreCase("update")) {
+//                                            if (!this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
+//                                                break;
+//                                            }
+//                                            install();
+//                                            return true;
+//                                        } else 
+                                            if (this.ActionBookShop.equalsIgnoreCase("log")) {
                                             if (!this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
                                                 break;
                                             }
@@ -757,10 +415,6 @@ public class BookShop extends JavaPlugin {
                                     if (!this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
                                         break;
                                     }
-                                    if(!changeLanguage(args[1])){
-                                        PlayerLogger(player, "Selected language not found!", "Error");
-                                        return true;
-                                    }
                                     getConfig().set("language", args[1]);
                                     PlayerLogger(player, "language set to: " + args[1], "");
                                     saveConfig();
@@ -777,7 +431,7 @@ public class BookShop extends JavaPlugin {
                                             if (player.getItemInHand().getType().equals(Material.WRITTEN_BOOK)) {
                                                 ItemStack item = player.getItemInHand();
                                                 PlayerLogger(player, "Giving book to " + args[1] + "!", "");
-                                                Player empfaenger = getmyOfflinePlayer(args[1]);
+                                                Player empfaenger = Tools.getmyOfflinePlayer(BookShop, args[1]);
                                                 if (empfaenger.hasPlayedBefore()) {
                                                     if (empfaenger.getInventory().firstEmpty() != -1) {
                                                         empfaenger.getInventory().addItem(new ItemStack[]{item});
@@ -842,7 +496,8 @@ public class BookShop extends JavaPlugin {
                                         PlayerLogger(player, "Please confirm with \"/BookShop configconfirm\" !", "Warning");
                                         PlayerLogger(player, "Please cancel with \"/BookShop configcancel\" !", "Warning");
                                         final Player player1 = player;
-                                        getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
+                                        getServer().getScheduler().runTaskLaterAsynchronously(this, new Runnable() {
+                                            @Override
                                             public void run() {
                                                 if (BookShop.this.Config.containsKey(player1)) {
                                                     BookShop.this.Config.remove(player1);
@@ -1038,10 +693,6 @@ public class BookShop extends JavaPlugin {
                         }
                         if (args.length == 2) {
                             if (args[0].equalsIgnoreCase("language")) {
-                                if(!changeLanguage(args[1])){
-                                    Logger("Selected language not found!", "Error");
-                                    return true;
-                                }
                                 getConfig().set("language", args[1]);
                                 Logger("language set to: " + args[1], "");
                                 saveConfig();
