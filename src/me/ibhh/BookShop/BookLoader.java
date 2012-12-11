@@ -3,6 +3,8 @@ package me.ibhh.BookShop;
 import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import me.ibhh.BookShop.BookHandler.BookHandler;
+import me.ibhh.BookShop.BookHandler.BookHandlerUtility;
 
 /**
  *
@@ -68,7 +70,7 @@ public class BookLoader {
 
     public static BookHandler BookFileToBookHandler(BookFile file) {
         try {
-            return new BookHandler(file.getTitle(), file.getAuthor(), file.getPages(), file.getSelled());
+            return new BookHandlerUtility(file.getTitle(), file.getAuthor(), file.getPages(), file.getSelled()).getBookHandler();
         } catch (InvalidBookException ex) {
             Logger.getLogger(BookLoader.class.getName()).log(Level.SEVERE, null, ex);
             return null;

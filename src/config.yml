@@ -12,6 +12,7 @@ senddebugfile: true
 debug: false
 debugfile: true
 LEFT_CLICK_buy: true
+Prefix: BookShop
 UsePrefix: true
 PrefixColor: b
 TextColor: 6

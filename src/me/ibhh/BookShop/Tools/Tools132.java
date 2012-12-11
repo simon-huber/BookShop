@@ -1,77 +1,17 @@
-package me.ibhh.BookShop;
+package me.ibhh.BookShop.Tools;
 
-import net.minecraft.server.v1_4_5.EntityPlayer;
-import net.minecraft.server.v1_4_5.ItemInWorldManager;
-import net.minecraft.server.v1_4_5.MinecraftServer;
+import me.ibhh.BookShop.BookShop;
+import net.minecraft.server.EntityPlayer;
+import net.minecraft.server.ItemInWorldManager;
+import net.minecraft.server.MinecraftServer;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.craftbukkit.v1_4_5.CraftServer;
+import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.Player;
 
+public class Tools132 extends Tools{
 
-public class Tools
-{
-	public static boolean isInteger(String input)
-	{
-		try
-		{
-			Integer.parseInt(input);
-			return true;
-		} catch (Exception e) {
-		}
-		return false;
-	}
-        public static boolean isFloat(String input)
-	{
-		try
-		{
-			Float.parseFloat(input);
-			return true;
-		} catch (Exception e) {
-		}
-		return false;
-	}
-	public static String[] stringtoArray( String s, String sep ) {
-		// convert a String s to an Array, the elements
-		// are delimited by sep
-		// NOTE : for old JDK only (<1.4).
-		//        for JDK 1.4 +, use String.split() instead
-		StringBuffer buf = new StringBuffer(s);
-		int arraysize = 1;
-		for ( int i = 0; i < buf.length(); i++ ) {
-			if ( sep.indexOf(buf.charAt(i) ) != -1 )
-				arraysize++;
-		}
-		String [] elements  = new String [arraysize];
-		int y,z = 0;
-		if ( buf.toString().indexOf(sep) != -1 ) {
-			while (  buf.length() > 0 ) {
-				if ( buf.toString().indexOf(sep) != -1 ) {
-					y =  buf.toString().indexOf(sep);
-					if ( y != buf.toString().lastIndexOf(sep) ) {
-						elements[z] = buf.toString().substring(0, y ); 
-						z++;
-						buf.delete(0, y + 1);
-					}
-					else if ( buf.toString().lastIndexOf(sep) == y ) {
-						elements[z] = buf.toString().substring
-								(0, buf.toString().indexOf(sep));
-						z++;
-						buf.delete(0, buf.toString().indexOf(sep) + 1);
-						elements[z] = buf.toString();z++;
-						buf.delete(0, buf.length() );
-					}
-				}
-			}
-		}
-		else {
-			elements[0] = buf.toString(); 
-		}
-		buf = null;
-		return elements;
-	}
-        
-        public static Player getmyOfflinePlayer(BookShop plugin, String[] args, int index) {
+    public Player getmyOfflinePlayer(BookShop plugin, String[] args, int index) {
         String playername = args[index];
         plugin.Logger("Empfaenger: " + playername, "Debug");
         Player player = plugin.getServer().getPlayerExact(playername);
@@ -109,7 +49,7 @@ public class Tools
         } catch (Exception e) {
             e.printStackTrace();
             plugin.Logger("Uncatched Exeption!", "Error");
-            plugin.report.report(3312, "Uncatched Exeption on getting offlineplayer", e.getMessage(), "BookShop", e);
+            plugin.getReportHandler().report(3312, "Uncatched Exeption on getting offlineplayer", e.getMessage(), "BookShop", e);
             try {
                 plugin.metricshandler.Error++;
             } catch (Exception e1) {
@@ -118,7 +58,7 @@ public class Tools
         return player;
     }
 
-    public static Player getmyOfflinePlayer(BookShop plugin, String playername) {
+    public Player getmyOfflinePlayer(BookShop plugin, String playername) {
         plugin.Logger("Empfaenger: " + playername, "Debug");
         Player player = plugin.getServer().getPlayerExact(playername);
         try {
@@ -155,7 +95,7 @@ public class Tools
         } catch (Exception e) {
             e.printStackTrace();
             plugin.Logger("Uncatched Exeption!", "Error");
-            plugin.report.report(3312, "Uncatched Exeption on getting offlineplayer", e.getMessage(), "BookShop", e);
+            plugin.getReportHandler().report(3312, "Uncatched Exeption on getting offlineplayer", e.getMessage(), "BookShop", e);
             try {
                 plugin.metricshandler.Error++;
             } catch (Exception e1) {

@@ -1,11 +1,15 @@
 /*
- * To change this template, choose Tools | Templates
+ * To change this template, choose Tools145 | Templates
  * and open the template in the editor.
  */
 package me.ibhh.BookShop;
 
+import me.ibhh.BookShop.Tools.Tools145;
+import me.ibhh.BookShop.BookHandler.BookHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import me.ibhh.BookShop.BookHandler.BookHandlerUtility;
+import me.ibhh.BookShop.Tools.ToolUtility;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -144,7 +148,7 @@ public class SignHandler {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            plugin.report.report(3336, "Error BookShop create", e.getMessage(), "SignHandler", e);
+            plugin.getReportHandler().report(3336, "Error BookShop create", e.getMessage(), "SignHandler", e);
             event.setCancelled(true);
             plugin.PlayerLogger(event.getPlayer(), "BookShop creation failed!", "Error");
         }
@@ -186,7 +190,7 @@ public class SignHandler {
                 }
             }
         } catch (Exception e) {
-            plugin.report.report(3337, "Error BookShopSignLinks", e.getMessage(), "SignHandler", e);
+            plugin.getReportHandler().report(3337, "Error BookShopSignLinks", e.getMessage(), "SignHandler", e);
         }
     }
 
@@ -215,7 +219,7 @@ public class SignHandler {
                                     price = plugin.ListenerShop.getPrice(s, player, false);
                                     if (price >= 0) {
                                         if ((plugin.MoneyHandler.getBalance(player) - price) >= 0) {
-                                            BookHandler bookInChest = new BookHandler(item);
+                                            BookHandler bookInChest = new BookHandlerUtility(item).getBookHandler();
                                             BookHandler loadedBook = BookLoader.load(plugin, bookInChest.getAuthor(), bookInChest.getTitle());
                                             if (loadedBook != null) {
                                                 loadedBook.increaseSelled();
@@ -258,7 +262,7 @@ public class SignHandler {
                                         for (ItemStack item : chest.getInventory().getContents()) {
                                             if (item != null) {
                                                 if (item.getType().equals(Material.WRITTEN_BOOK)) {
-                                                    BookHandler bookInChest = new BookHandler(item);
+                                                    BookHandler bookInChest = new BookHandlerUtility(item).getBookHandler();
                                                     BookHandler loadedBook = BookLoader.load(plugin, bookInChest.getAuthor(), bookInChest.getTitle());
                                                     if (loadedBook != null) {
                                                         loadedBook.increaseSelled();
@@ -288,7 +292,7 @@ public class SignHandler {
                             plugin.PlayerLogger(player, plugin.getConfig().getString("Shop.error.nobook." + plugin.config.language), "Error");
                         }
                     } else {
-                        Player empfaenger = Tools.getmyOfflinePlayer(plugin, line, 1);
+                        Player empfaenger = ToolUtility.getTools().getmyOfflinePlayer(plugin, line, 1);
                         if (empfaenger != null) {
                             Chest chest = null;
                             try {
@@ -349,7 +353,7 @@ public class SignHandler {
                                                     player.updateInventory();
                                                     empfaenger.saveData();
                                                     player.saveData();
-                                                    BookHandler bookInChest = new BookHandler(item);
+                                                    BookHandler bookInChest = new BookHandlerUtility(item).getBookHandler();
                                                     BookHandler loadedBook = BookLoader.load(plugin, bookInChest.getAuthor(), bookInChest.getTitle());
                                                     if (loadedBook != null) {
                                                         loadedBook.increaseSelled();
@@ -392,7 +396,7 @@ public class SignHandler {
         } catch (InvalidBookException ex) {
             Logger.getLogger(SignHandler.class.getName()).log(Level.SEVERE, null, ex);
             plugin.PlayerLogger(player, "Something is wrong with this book!", "Error");
-            plugin.report.report(3338, "Error BookShopSignBuy", ex.getMessage(), "SignHandler", ex);
+            plugin.getReportHandler().report(3338, "Error BookShopSignBuy", ex.getMessage(), "SignHandler", ex);
         }
     }
 

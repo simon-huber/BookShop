@@ -24,7 +24,7 @@ public class PermissionsChecker {
         final PluginManager pluginManager = plugin.getServer().getPluginManager();
         final Plugin GMplugin = pluginManager.getPlugin("GroupManager");
 
-        plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new Runnable() {
+        plugin.getServer().getScheduler().runTaskLaterAsynchronously(plugin, new Runnable() {
             @Override
             public void run() {
                 try {
@@ -34,7 +34,7 @@ public class PermissionsChecker {
                     plugin.Logger("checking PermissionsPlugin!", "Debug");
                     searchpermplugin();
                 } catch (Exception e) {
-                    plugin.report.report(3324, "Checking Permissions plugin failed", e.getMessage(), "PermissionsChecker", e);
+                    plugin.getReportHandler().report(3324, "Checking Permissions plugin failed", e.getMessage(), "PermissionsChecker", e);
                 }
             }
         }, 0);
@@ -78,7 +78,7 @@ public class PermissionsChecker {
                     return player.hasPermission(action) || player.hasPermission(action.toLowerCase());
                 } catch (Exception e) {
                     e.printStackTrace();
-                    plugin.report.report(3325, "Couldnt check permission with BukkitPermission", e.getMessage(), "PermissionsChecker", e);
+                    plugin.getReportHandler().report(3325, "Couldnt check permission with BukkitPermission", e.getMessage(), "PermissionsChecker", e);
                     return false;
                 }
             } else if (PermPlugin == 2) {
@@ -128,7 +128,7 @@ public class PermissionsChecker {
                     return handler.has(player, action);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    plugin.report.report(3327, "Couldnt check permission with GroupManager", e.getMessage(), "PermissionsChecker", e);
+                    plugin.getReportHandler().report(3327, "Couldnt check permission with GroupManager", e.getMessage(), "PermissionsChecker", e);
                     return false;
                 }
             } else if (PermPlugin == 4) {
@@ -145,7 +145,7 @@ public class PermissionsChecker {
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
-                    plugin.report.report(3327, "Couldnt check permission with bPermissions", e.getMessage(), "PermissionsChecker", e);
+                    plugin.getReportHandler().report(3327, "Couldnt check permission with bPermissions", e.getMessage(), "PermissionsChecker", e);
                     return false;
                 }
             } else {
@@ -154,7 +154,7 @@ public class PermissionsChecker {
             }
         } catch (Exception e) {
             plugin.Logger("Error on checking permissions!", "Error");
-            plugin.report.report(3328, "Error on checking permissions", e.getMessage(), "PermissionsChecker", e);
+            plugin.getReportHandler().report(3328, "Error on checking permissions", e.getMessage(), "PermissionsChecker", e);
             e.printStackTrace();
             return false;
         }
@@ -178,7 +178,7 @@ public class PermissionsChecker {
                     }
                 } catch (Exception e) {
                     plugin.Logger("Error on checking permissions with BukkitPermissions!", "Error");
-                    plugin.report.report(3329, "Couldnt check permission with BukkitPermissions", e.getMessage(), "PermissionsChecker", e);
+                    plugin.getReportHandler().report(3329, "Couldnt check permission with BukkitPermissions", e.getMessage(), "PermissionsChecker", e);
                     plugin.PlayerLogger(player, "Error on checking permissions with BukkitPermissions!", "Error");
                     e.printStackTrace();
                     return false;
@@ -243,7 +243,7 @@ public class PermissionsChecker {
                     }
                 } catch (Exception e) {
                     plugin.Logger("Error on checking permissions with GroupManager!", "Error");
-                    plugin.report.report(3331, "Couldnt check permission with GroupManager", e.getMessage(), "PermissionsChecker", e);
+                    plugin.getReportHandler().report(3331, "Couldnt check permission with GroupManager", e.getMessage(), "PermissionsChecker", e);
                     plugin.PlayerLogger(player, "Error on checking permissions with GroupManager!", "Error");
                     e.printStackTrace();
                     return false;
@@ -264,7 +264,7 @@ public class PermissionsChecker {
                     }
                 } catch (Exception e) {
                     plugin.Logger("Error on checking permissions with bPermissions!", "Error");
-                    plugin.report.report(3332, "Couldnt check permission with bPermissions", e.getMessage(), "PermissionsChecker", e);
+                    plugin.getReportHandler().report(3332, "Couldnt check permission with bPermissions", e.getMessage(), "PermissionsChecker", e);
                     plugin.PlayerLogger(player, "Error on checking permissions with bPermissions!", "Error");
                     e.printStackTrace();
                     return false;
@@ -276,7 +276,7 @@ public class PermissionsChecker {
             }
         } catch (Exception e) {
             plugin.Logger("Error on checking permissions!", "Error");
-            plugin.report.report(3333, "Error on checking permissions", e.getMessage(), "PermissionsChecker", e);
+            plugin.getReportHandler().report(3333, "Error on checking permissions", e.getMessage(), "PermissionsChecker", e);
             plugin.PlayerLogger(player, "Error on checking permissions!", "Error");
             e.printStackTrace();
             return false;

@@ -27,7 +27,7 @@ public class PlayerManager {
             for (Player player : plugin.getServer().getOnlinePlayers()) {
                 if (plugin.PermissionsHandler != null) {
                     if (plugin.PermissionsHandler.checkpermissionssilent(player, Permission)) {
-                        player.sendMessage(plugin.config.Prefix + plugin.Prefix + plugin.config.Text + msg);
+                        player.sendMessage( plugin.config.Text + msg);
                         BroadcastedPlayers++;
                     }
                 }
@@ -50,7 +50,7 @@ public class PlayerManager {
                         if (plugin.DebugMsg != null) {
                             if (plugin.DebugMsg.containsKey(player.getName())) {
                                 if (plugin.DebugMsg.get(player.getName())) {
-                                    player.sendMessage(plugin.config.Prefix + plugin.Prefix + plugin.config.Text + msg);
+                                    player.sendMessage(plugin.config.Text + msg);
                                     BroadcastedPlayers++;
                                 }
                             }

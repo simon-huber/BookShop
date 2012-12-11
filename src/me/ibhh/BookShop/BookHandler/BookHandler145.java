@@ -1,11 +1,9 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-package me.ibhh.BookShop;
+
+package me.ibhh.BookShop.BookHandler;
 
 import java.util.ArrayList;
 import java.util.List;
+import me.ibhh.BookShop.InvalidBookException;
 import net.minecraft.server.v1_4_5.NBTTagCompound;
 import net.minecraft.server.v1_4_5.NBTTagList;
 import net.minecraft.server.v1_4_5.NBTTagString;
@@ -14,9 +12,10 @@ import org.bukkit.craftbukkit.v1_4_5.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 
 /**
- * Represents a CraftWrittenBook
+ *
+ * @author Simon
  */
-public class BookHandler {
+public class BookHandler145 extends BookHandler{
 
     private NBTTagCompound tag;
     private int selled = 0;
@@ -24,7 +23,7 @@ public class BookHandler {
 // private String author;
 // private ArrayList<String> pages;
 
-    public BookHandler(String title, String author, List<String> pages, int selled) throws InvalidBookException {
+    public BookHandler145(String title, String author, List<String> pages, int selled) throws InvalidBookException {
         tag = new NBTTagCompound();
         setTitle(title);
         setAuthor(author);
@@ -35,11 +34,11 @@ public class BookHandler {
 // this.pages = pages;
     }
 
-    public BookHandler(ItemStack itemStack) throws InvalidBookException {
+    public BookHandler145(ItemStack itemStack) throws InvalidBookException {
         this((CraftItemStack) itemStack);
     }
 
-    public BookHandler(CraftItemStack itemStack) throws InvalidBookException {
+    public BookHandler145(CraftItemStack itemStack) throws InvalidBookException {
 
         if (itemStack.getTypeId() != 387) {
             throw new InvalidBookException("The book must be a written book!");
@@ -67,14 +66,17 @@ public class BookHandler {
 // this.pages = realPages;
     }
 
+    @Override
     public String getTitle() {
         return tag.getString("title");
     }
 
+    @Override
     public String getAuthor() {
         return tag.getString("author");
     }
 
+    @Override
     public ArrayList<String> getPages() {
         ArrayList<String> out = new ArrayList<String>();
 
@@ -87,16 +89,19 @@ public class BookHandler {
         return out;
     }
 
+    @Override
     public void setTitle(String title) {
         tag.setString("title", title);
 // this.title = title;
     }
 
+    @Override
     public void setAuthor(String author) {
         tag.setString("author", author);
 // this.author = author;
     }
 
+    @Override
     public void setPages(List<String> pages) throws InvalidBookException {
         NBTTagList list = new NBTTagList();
         for (String page : pages) {
@@ -114,6 +119,7 @@ public class BookHandler {
 // this.pages = pages;
     }
 
+    @Override
     public boolean unsign() {
         if (tag.get("author") == null || tag.getString("title") == null) {
             return false;
@@ -125,6 +131,7 @@ public class BookHandler {
         return true;
     }
 
+    @Override
     public ItemStack toItemStack(int amount) throws InvalidBookException {
         CraftItemStack item = new CraftItemStack(Material.WRITTEN_BOOK, amount);
 // NBTTagCompound newBookData = new NBTTagCompound();
@@ -151,18 +158,22 @@ public class BookHandler {
         return item;
     }
     
+    @Override
     public int selled(){
         return selled;
     }
     
+    @Override
     public int getSelled(){
         return selled;
     }
     
+    @Override
     public int increaseSelled(){
         return ++selled;
     }
     
+    @Override
     public void setSelled(int i){
         selled = i;
     }

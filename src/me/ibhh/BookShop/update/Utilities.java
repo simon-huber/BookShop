@@ -2,13 +2,15 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package me.ibhh.BookShop;
+package me.ibhh.BookShop.update;
 
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import me.ibhh.BookShop.BookShop;
+import me.ibhh.BookShop.logger.LoggerUtility;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -371,8 +373,8 @@ public class Utilities {
 
     // Reload Command
     public void reloadPlugin(CommandSender sender, String args) {
-        if (args.equalsIgnoreCase("BookShop")) {
-            plugin.PlayerLogger((Player) sender, "Please wait: Reloading this plugin!", "Warning");
+        if (args.equalsIgnoreCase("Paypassage")) {
+            plugin.getLoggerUtility().log((Player) sender, "Please wait: Reloading this plugin!", LoggerUtility.Level.WARNING);
         }
         if ("all".equalsIgnoreCase(args) || "*".equalsIgnoreCase(args)) {
             for (Plugin pl : Bukkit.getPluginManager().getPlugins()) {

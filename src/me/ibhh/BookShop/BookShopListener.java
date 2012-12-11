@@ -1,11 +1,12 @@
 package me.ibhh.BookShop;
 
+import me.ibhh.BookShop.BookHandler.BookHandler;
 import java.util.HashMap;
+import me.ibhh.BookShop.BookHandler.BookHandlerUtility;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Chest;
-import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -44,7 +45,7 @@ public class BookShopListener
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("[BookShop] Error: Uncatch Exeption!");
-            this.plugin.report.report(3318, "Logger doesnt work", e.getMessage(), "BookShopListener", e);
+            this.plugin.getReportHandler().report(3318, "Logger doesnt work", e.getMessage(), "BookShopListener", e);
             try {
                 MetricsHandler.Error += 1;
             } catch (Exception e1) {
@@ -77,7 +78,7 @@ public class BookShopListener
                                     BookShopListener.this.plugin.Logger("Sign is BookShop", "Debug");
                                     int slot = ((Chest) BookShopListener.this.ChestViewers.get((Player) ev.getPlayer())).getBlockInventory().first(Material.WRITTEN_BOOK);
                                     ItemStack item = ((Chest) BookShopListener.this.ChestViewers.get((Player) ev.getPlayer())).getBlockInventory().getItem(slot);
-                                    BookHandler bookInChest = new BookHandler(item);
+                                    BookHandler bookInChest = new BookHandlerUtility(item).getBookHandler();
                                     if (bookInChest != null) {
                                         BookShopListener.this.plugin.Logger("Book != null", "Debug");
                                         BookHandler loadedBook = BookLoader.load(BookShopListener.this.plugin, bookInChest.getAuthor(), bookInChest.getTitle());
@@ -96,7 +97,7 @@ public class BookShopListener
                         BookShopListener.this.NewspapersViewers.remove((Player) ev.getPlayer());
                     } catch (Exception e) {
                         e.printStackTrace();
-                        BookShopListener.this.plugin.report.report(3319, "Error on closing chest", e.getMessage(), "BookShopListener", e);
+                        BookShopListener.this.plugin.getReportHandler().report(3319, "Error on closing chest", e.getMessage(), "BookShopListener", e);
                         MetricsHandler.Error += 1;
                         BookShopListener.this.plugin.Logger("uncatched Exception!", "Error");
                     }
@@ -135,7 +136,7 @@ public class BookShopListener
                             }
                             BookHandler book = null;
                             try {
-                                book = new BookHandler(event.getCurrentItem());
+                                book = new BookHandlerUtility(event.getCurrentItem()).getBookHandler();
                             } catch (InvalidBookException ex) {
                             }
                             if ((book != null)
@@ -172,7 +173,7 @@ public class BookShopListener
                             }
                             BookHandler book = null;
                             try {
-                                book = new BookHandler(event.getCurrentItem());
+                                book = new BookHandlerUtility(event.getCurrentItem()).getBookHandler();
                             } catch (InvalidBookException ex) {
                             }
                             if ((book != null)
@@ -220,7 +221,7 @@ public class BookShopListener
             }
         } catch (Exception e) {
             e.printStackTrace();
-            this.plugin.report.report(3320, "invClick doesnt work", e.getMessage(), "BookShopListener", e);
+            this.plugin.getReportHandler().report(3320, "invClick doesnt work", e.getMessage(), "BookShopListener", e);
             System.out.println("[BookShop] Error: Uncatch Exeption!");
             try {
                 MetricsHandler.Error += 1;
@@ -234,8 +235,8 @@ public class BookShopListener
         try {
             if (!this.plugin.toggle) {
                 if ((this.plugin.PermissionsHandler.checkpermissionssilent(event.getPlayer(), "BookShop.admin"))
-                        && (BookShop.updateaviable)) {
-                    this.plugin.PlayerLogger(event.getPlayer(), "installed BookShop version: " + this.plugin.Version + ", latest version: " + this.plugin.newversion, "Warning");
+                        && plugin.getUpdate().isUpdateaviable()) {
+                    this.plugin.PlayerLogger(event.getPlayer(), "installed BookShop version: " + plugin.getVersion() + ", latest version: " + plugin.getUpdate().getNewversion(), "Warning");
                     this.plugin.PlayerLogger(event.getPlayer(), "New BookShop update aviable: type \"/BookShop update\" to install!", "Warning");
                     if (!this.plugin.getConfig().getBoolean("installondownload")) {
                         this.plugin.PlayerLogger(event.getPlayer(), "Please edit the config.yml if you wish that the plugin updates itself atomatically!", "Warning");
@@ -258,7 +259,7 @@ public class BookShopListener
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("[BookShop] Error: Uncatched Exeption!");
-            this.plugin.report.report(3321, "Player join throws error", e.getMessage(), "BookShopListener", e);
+            this.plugin.getReportHandler().report(3321, "Player join throws error", e.getMessage(), "BookShopListener", e);
             try {
                 MetricsHandler.Error += 1;
             } catch (Exception e1) {
@@ -271,7 +272,7 @@ public class BookShopListener
         if ((!this.plugin.toggle)
                 && (event.getMessage().toLowerCase().startsWith("/BookShop".toLowerCase()))
                 && (this.plugin.config.debugfile)) {
-            this.plugin.Loggerclass.log("Player: " + event.getPlayer().getName() + " command: " + event.getMessage());
+            this.plugin.getLoggerUtility().log("Player: " + event.getPlayer().getName() + " command: " + event.getMessage());
         }
     }
 
@@ -355,7 +356,7 @@ public class BookShopListener
             }
         } catch (Exception e) {
             e.printStackTrace();
-            this.plugin.report.report(3322, "Breaking BookShop throws error", e.getMessage(), "BookShopListener", e);
+            this.plugin.getReportHandler().report(3322, "Breaking BookShop throws error", e.getMessage(), "BookShopListener", e);
             System.out.println("[BookShop] Error: Uncatch Exeption!");
             try {
                 MetricsHandler.Error += 1;
@@ -371,7 +372,7 @@ public class BookShopListener
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("[BookShop] Error: Uncatch Exeption!");
-            this.plugin.report.report(3323, "BookShop interact throws error", e.getMessage(), "BookShopListener", e);
+            this.plugin.getReportHandler().report(3323, "BookShop interact throws error", e.getMessage(), "BookShopListener", e);
             try {
                 MetricsHandler.Error += 1;
             } catch (Exception e1) {

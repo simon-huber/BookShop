@@ -6,6 +6,9 @@ package me.ibhh.BookShop;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import me.ibhh.BookShop.BookHandler.BookHandler;
+import me.ibhh.BookShop.BookHandler.BookHandlerUtility;
+import me.ibhh.BookShop.logger.LoggerUtility;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -51,7 +54,7 @@ public class InteractHandler {
                     try {
                         LeftInteract(event);
                     } catch (Exception e) {
-                        plugin.report.report(3335, "Error on leftInteract", e.getMessage(), "InteractHandler", e);
+                        plugin.getReportHandler().report(3335, "Error on leftInteract", e.getMessage(), "InteractHandler", e);
                     }
                 }
             } else if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
@@ -69,13 +72,13 @@ public class InteractHandler {
                         }
                     }
                 } catch (Exception e) {
-                    plugin.report.report(3336, "Error on RightInteract", e.getMessage(), "InteractHandler", e);
+                    plugin.getReportHandler().report(3336, "Error on RightInteract", e.getMessage(), "InteractHandler", e);
                 }
                 if (!plugin.getConfig().getBoolean("LEFT_CLICK_buy")) {
                     try {
                         LeftInteract(event);
                     } catch (Exception e) {
-                        plugin.report.report(3335, "Error on leftInteract", e.getMessage(), "InteractHandler", e);
+                        plugin.getReportHandler().report(3335, "Error on leftInteract", e.getMessage(), "InteractHandler", e);
                     }
                 }
             }
@@ -100,6 +103,7 @@ public class InteractHandler {
             return;
         }
         if (!p.isSneaking()) {
+            plugin.Logger("Player NOT Sneaking!", "Debug");
             Sign s = (Sign) event.getClickedBlock().getState();
             String[] line = s.getLines();
             if (plugin.config.debug) {
@@ -109,6 +113,7 @@ public class InteractHandler {
                 signHandler.LinksKlick(event, line, p, s);
             }
         } else if (p.isSneaking()) {
+            plugin.Logger("Player sneaking!", "Debug");
             Sign s = (Sign) event.getClickedBlock().getState();
             String[] line = s.getLines();
             if (plugin.config.debug) {
@@ -127,13 +132,17 @@ public class InteractHandler {
                         ItemStack item = chest.getInventory().getItem(Slot);
                         if (item != null) {
                             try {
-                                BookHandler bookInChest = new BookHandler(item);
+                                BookHandler bookInChest = new BookHandlerUtility(item).getBookHandler();
                                 BookHandler loadedBook = BookLoader.load(plugin, bookInChest.getAuthor(), bookInChest.getTitle());
                                 if (loadedBook != null) {
                                     BookLoader.save(plugin, loadedBook);
                                 } else {
                                     BookLoader.save(plugin, bookInChest);
                                     loadedBook = bookInChest;
+                                }
+                                if(bookInChest == null){
+                                    plugin.getLoggerUtility().log(p, "An unknown error occurred!", LoggerUtility.Level.ERROR );
+                                    return;
                                 }
                                 plugin.PlayerLogger(p, String.format(plugin.getConfig().getString("Shop.success.bookselled." + plugin.config.language), loadedBook.getTitle(), loadedBook.getAuthor()), "");
                                 plugin.PlayerLogger(p, String.format(plugin.getConfig().getString("Shop.success.bookselled2." + plugin.config.language), loadedBook.selled()), "");

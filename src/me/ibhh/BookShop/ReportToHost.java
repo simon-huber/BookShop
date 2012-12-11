@@ -107,46 +107,46 @@ public class ReportToHost {
         try {
             String temp = "[" + this.plugin.getName() + "] Sending issue report to ibhh.de!";
             System.out.print(temp);
-            this.plugin.Loggerclass.log(temp);
+            this.plugin.getLoggerUtility().log(temp);
             temp = "[" + this.plugin.getName() + "] -------------------------";
             System.out.print(temp);
-            this.plugin.Loggerclass.log(temp);
+            this.plugin.getLoggerUtility().log(temp);
             temp = "[" + this.plugin.getName() + "] Version: " + this.plugin.getDescription().getVersion();
             System.out.print(temp);
-            this.plugin.Loggerclass.log(temp);
+            this.plugin.getLoggerUtility().log(temp);
             temp = "[" + this.plugin.getName() + "] ErrorID: " + line;
             System.out.print(temp);
-            this.plugin.Loggerclass.log(temp);
+            this.plugin.getLoggerUtility().log(temp);
             temp = "[" + this.plugin.getName() + "] Gameversion: " + this.plugin.getServer().getBukkitVersion();
             System.out.print(temp);
-            this.plugin.Loggerclass.log(temp);
+            this.plugin.getLoggerUtility().log(temp);
             temp = "[" + this.plugin.getName() + "] Other: " + other;
             System.out.print(temp);
-            this.plugin.Loggerclass.log(temp);
+            this.plugin.getLoggerUtility().log(temp);
             temp = "[" + this.plugin.getName() + "] Message: " + message;
             System.out.print(temp);
-            this.plugin.Loggerclass.log(temp);
+            this.plugin.getLoggerUtility().log(temp);
+            temp = "[" + this.plugin.getName() + "] Stacktrace: " + stacktrace;
             if (this.plugin.getConfig().getBoolean("debug")) {
-                temp = "[" + this.plugin.getName() + "] Stacktrace: " + stacktrace;
                 System.out.print(temp);
-                this.plugin.Loggerclass.log(temp);
             }
+            this.plugin.getLoggerUtility().log(temp);
             temp = "[" + this.plugin.getName() + "] Class: " + classfile;
             System.out.print(temp);
-            this.plugin.Loggerclass.log(temp);
+            this.plugin.getLoggerUtility().log(temp);
             temp = "[" + this.plugin.getName() + "] -------------------------";
             System.out.print(temp);
-            this.plugin.Loggerclass.log(temp);
+            this.plugin.getLoggerUtility().log(temp);
             temp = "[" + this.plugin.getName() + "] Message of Server: " + ret;
             System.out.print(temp);
-            this.plugin.Loggerclass.log(temp);
+            this.plugin.getLoggerUtility().log(temp);
             temp = "[" + this.plugin.getName() + "] -------------------------";
             System.out.print(temp);
-            this.plugin.Loggerclass.log(temp);
+            this.plugin.getLoggerUtility().log(temp);
         } catch (Exception ex) {
             String temp = "[" + this.plugin.getName() + "] Couldnt send error report to ibhh.de!";
             System.out.print(temp);
-            this.plugin.Loggerclass.log(temp);
+            this.plugin.getLoggerUtility().log(temp);
             if (this.plugin.getConfig().getBoolean("debug")) {
                 ex.printStackTrace();
             }

@@ -1,11 +1,15 @@
 package me.ibhh.BookShop;
 
+import me.ibhh.BookShop.Tools.Tools145;
 import java.io.File;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.HashMap;
-import java.util.logging.Level;
-import org.bukkit.ChatColor;
+import me.ibhh.BookShop.BookHandler.BookHandler;
+import me.ibhh.BookShop.BookHandler.BookHandlerUtility;
+import me.ibhh.BookShop.Tools.ToolUtility;
+import me.ibhh.BookShop.logger.LoggerUtility;
+import me.ibhh.BookShop.update.Update;
+import me.ibhh.BookShop.update.Utilities;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -20,26 +24,19 @@ public class BookShop extends JavaPlugin {
     private String ActionBookShop;
     public double getmoney;
     public int SubstractedXP;
-    public float Version = 0.0F;
-    public float newversion = 0.0F;
-    int rounds1 = 0;
-    int rounds = 0;
-    public Utilities plugman;
+    private Utilities pluginmanager;
+    private LoggerUtility logger;
     private Help Help;
-    public static String PrefixConsole = "[BookShop] ";
-    public static String Prefix = "[BookShop] ";
+    private Update update;
     public ConfigHandler config;
     public BookShopListener ListenerShop;
-    private Update upd;
     public BookShop BookShop = this;
-    public static boolean updateaviable = false;
     public PermissionsChecker PermissionsHandler;
     public iConomyHandler MoneyHandler;
-    public Logger Loggerclass;
     public boolean toggle = true;
     public MetricsHandler metricshandler;
     public PlayerManager playerManager;
-    public ReportToHost report;
+    private ReportToHost report;
     private static String SHOP_CONFIG_FILE;
     public YamlConfiguration SHOP_configuration;
     private File configurationFile;
@@ -47,14 +44,31 @@ public class BookShop extends JavaPlugin {
     public HashMap<String, Boolean> DebugMsg = new HashMap();
     private HashMap<Player, String> Config = new HashMap();
     private HashMap<Player, String> Set = new HashMap();
-    public String[] commands = {"help", "showdebug", "debugfile", "internet", "version", "reload", "deletedebug", "log", "toggle", "language", "report", "backupbook", "loadbook", "giveall", "give", "setwelcomebook", "removewelcomebook"};
-    private String mcversion = "1.4.5";
-    
+    public String[] commands = {"help", "showdebug", "debugfile", "internet", "version", "reload", "toggle", "language", "report", "backupbook", "loadbook", "giveall", "give", "setwelcomebook", "removewelcomebook"};
+    private String[] mcversion = {"1.3", "1.4.1", "1.4.2", "1.4.3", "1.4.4", "1.4.5-R0.1", "1.4.5-R0.2", "1.4.5-R0.3"};
+
+    public boolean isBukkitVersionCompatible() {
+        boolean contains = false;
+        for (String version1 : mcversion) {
+            if (getServer().getBukkitVersion().contains(version1)) {
+                contains = true;
+            }
+        }
+        return contains;
+    }
+
+    public static String getRawBukkitVersion() {
+        String[] a = Bukkit.getServer().getBukkitVersion().split("-");
+        return a[0];
+    }
+
     @Override
     public void onDisable() {
         this.toggle = true;
         long timetemp = System.currentTimeMillis();
-        this.metricshandler.saveStatsFiles();
+        if (metricshandler != null) {
+            this.metricshandler.saveStatsFiles();
+        }
         timetemp = System.currentTimeMillis() - timetemp;
         Logger("disabled in " + timetemp + "ms", "");
     }
@@ -63,22 +77,7 @@ public class BookShop extends JavaPlugin {
     public void onEnable() {
         try {
             long timetemp1 = System.nanoTime();
-            this.Loggerclass = new Logger(this);
-            Logger("*****************************", "Warning");
-            Logger("Because of some Bukkitchanges", "Warning");
-            Logger("you have to update the plugin", "Warning");
-            Logger("manually. The updater was removed!", "Warning");
-            Logger("This plugin needs a update every", "Warning");
-            Logger("MC-Update!!!!", "Warning");
-            Logger("*****************************", "Warning");
-            Logger("Your Bukkit version: " + getServer().getBukkitVersion(), "Warning");
-            if(getServer().getBukkitVersion().contains(mcversion)){
-                Logger("This plugin is compatible to this bukkit-version", "Warning");
-            } else {
-                Logger("Your plugin-version is NOT compatible!", "Error");
-                setEnabled(false);
-                return;
-            }
+            getLoggerUtility();
             Exception ex1 = null;
             try {
                 this.config = new ConfigHandler(this);
@@ -87,10 +86,30 @@ public class BookShop extends JavaPlugin {
                 ex1 = e1;
                 Logger("Error on loading config: " + e1.getMessage(), "Error");
                 e1.printStackTrace();
-                Logger("Version: " + this.Version + " failed to enable!", "Error");
             }
-
-            this.report = new ReportToHost(this);
+            getUpdate().startUpdateTimer();
+            Logger("*****************************", "Warning");
+            Logger("Because of some Bukkitchanges", "Warning");
+            Logger("you have to update the plugin", "Warning");
+            Logger("manually.", "Warning");
+            Logger("This plugin needs a update every", "Warning");
+            Logger("MC-Update!!!!", "Warning");
+            Logger("*****************************", "Warning");
+            Logger("Your Bukkit version: " + getServer().getBukkitVersion(), "Warning");
+            boolean contains = false;
+            for (String version : mcversion) {
+                if (getServer().getBukkitVersion().contains(version)) {
+                    contains = true;
+                }
+            }
+            if (contains) {
+                Logger("This plugin is compatible to this bukkit-version", "Warning");
+            } else {
+                Logger("Your plugin-version is NOT compatible!", "Error");
+                setEnabled(false);
+                return;
+            }
+            getReportHandler();
             if (ex1 != null) {
                 this.report.report(332, "Config loading failed", ex1.getMessage(), "BookShop", ex1);
             }
@@ -108,39 +127,24 @@ public class BookShop extends JavaPlugin {
                 Logger("Error on loading config: " + e1.getMessage(), "Error");
                 Logger("Using defaults!", "Error");
                 e1.printStackTrace();
-                Logger("Version: " + this.Version + " failed to enable!", "Error");
-            }
-            try {
-                this.upd = new Update(this);
-            } catch (IllegalAccessError e) {
-                Logger("Cant access Class \"Update\": " + e.getMessage(), "Error");
-                e.printStackTrace();
-                StringWriter sw = new StringWriter();
-                e.printStackTrace(new PrintWriter(sw));
-                this.report.report(333, "New Update failed", e.getMessage(), "BookShop", sw.toString());
-                setEnabled(false);
+                Logger("Version: " + getVersion() + " failed to enable!", "Error");
             }
             try {
                 this.playerManager = new PlayerManager(this);
-                this.plugman = new Utilities(this);
+                getPluginManager();
                 this.Help = new Help(this);
                 this.MoneyHandler = new iConomyHandler(this);
                 this.PermissionsHandler = new PermissionsChecker(this, "BookShop");
+                getUpdate();
                 this.ListenerShop = new BookShopListener(this);
             } catch (Exception e1) {
                 Logger("Error on enabling: " + e1.getMessage(), "Error");
                 this.report.report(334, "Error on enabling", e1.getMessage(), "BookShop", e1);
                 e1.printStackTrace();
-                Logger("Version: " + this.Version + " failed to enable!", "Error");
-                try {
-                    this.plugman.unloadPlugin("BookShop");
-                } catch (NoSuchFieldException ex) {
-                    java.util.logging.Logger.getLogger(BookShop.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (IllegalAccessException ex) {
-                    java.util.logging.Logger.getLogger(BookShop.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                Logger("Version: " + getVersion() + " failed to enable!", "Error");
+                setEnabled(false);
             }
-            
+
             this.metricshandler = new MetricsHandler(this);
             this.metricshandler.loadStatsFiles();
             getServer().getScheduler().runTaskTimerAsynchronously(this, new Runnable() {
@@ -150,9 +154,8 @@ public class BookShop extends JavaPlugin {
                 }
             }, 200L, 50000L);
 
-            this.metricshandler = new MetricsHandler(this);
-            this.metricshandler.loadStatsFiles();
             getServer().getScheduler().runTaskLaterAsynchronously(this, new Runnable() {
+                @Override
                 public void run() {
                     BookShop.this.toggle = false;
                     BookShop.this.metricshandler.onStart();
@@ -173,7 +176,45 @@ public class BookShop extends JavaPlugin {
         }
     }
 
-   
+    public ReportToHost getReportHandler() {
+        if (report == null) {
+            report = new ReportToHost(this);
+        }
+        return report;
+    }
+
+    public Utilities getPluginManager() {
+        if (pluginmanager == null) {
+            pluginmanager = new Utilities(this);
+        }
+        return pluginmanager;
+    }
+
+    public Update getUpdate() {
+        if (update == null) {
+            update = new Update(this);
+        }
+        return update;
+    }
+
+    public LoggerUtility getLoggerUtility() {
+        if (logger == null) {
+            logger = new LoggerUtility(this);
+        }
+        return logger;
+    }
+
+    public float getVersion() {
+        try {
+            return Float.parseFloat(getDescription().getVersion());
+        } catch (Exception e) {
+            getLoggerUtility().log("Could not parse version in float", LoggerUtility.Level.INFO);
+            getLoggerUtility().log("Error getting version of " + this.getName() + "! Message: " + e.getMessage(), LoggerUtility.Level.ERROR);
+            this.report.report(3310, "Error getting version of " + this.getName() + "!", e.getMessage(), "Paypassage", e);
+            getLoggerUtility().log("Uncatched Exeption!", LoggerUtility.Level.ERROR);
+        }
+        return 0;
+    }
 
     public void onReload() {
         onDisable();
@@ -201,8 +242,8 @@ public class BookShop extends JavaPlugin {
                                     if (args[0].equalsIgnoreCase("reload")) {
                                         if (this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
                                             PlayerLogger(player, "Please wait: Reloading this plugin!", "Warning");
-                                            this.plugman.unloadPlugin("BookShop");
-                                            this.plugman.loadPlugin("BookShop");
+                                            getPluginManager().unloadPlugin("BookShop");
+                                            getPluginManager().loadPlugin("BookShop");
                                             PlayerLogger(player, "Reloaded!", "");
                                         }
                                         return true;
@@ -210,7 +251,7 @@ public class BookShop extends JavaPlugin {
                                     if (args[0].equalsIgnoreCase("setwelcomebook")) {
                                         if (this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
                                             if (player.getItemInHand().getType().equals(Material.WRITTEN_BOOK)) {
-                                                BookHandler bookInHand = new BookHandler(player.getItemInHand());
+                                                BookHandler bookInHand = new BookHandlerUtility(player.getItemInHand()).getBookHandler();
                                                 BookHandler loadedBook = BookLoader.load(this, bookInHand.getAuthor(), bookInHand.getTitle());
                                                 if (loadedBook != null) {
                                                     bookInHand.setSelled(loadedBook.getSelled());
@@ -238,10 +279,39 @@ public class BookShop extends JavaPlugin {
                                         }
                                         return true;
                                     }
+                                    if (args[0].equalsIgnoreCase("infobook")) {
+                                        if (this.PermissionsHandler.checkpermissions(player, "BookShop.infobook")) {
+                                            if (player.getItemInHand() != null) {
+                                                getLoggerUtility().log("has item", LoggerUtility.Level.DEBUG);
+                                                if (player.getItemInHand().getType().equals(Material.WRITTEN_BOOK)) {
+                                                    getLoggerUtility().log("has item written book", LoggerUtility.Level.DEBUG);
+                                                    try {
+                                                        BookHandler bookInChest = new BookHandlerUtility(player.getItemInHand()).getBookHandler();
+                                                        BookHandler loadedBook = BookLoader.load(this, bookInChest.getAuthor(), bookInChest.getTitle());
+                                                        if (loadedBook != null) {
+                                                            BookLoader.save(this, loadedBook);
+                                                        } else {
+                                                            BookLoader.save(this, bookInChest);
+                                                            loadedBook = bookInChest;
+                                                        }
+                                                        PlayerLogger(player, String.format(getConfig().getString("Shop.success.bookselled." + config.language), loadedBook.getTitle(), loadedBook.getAuthor()), "");
+                                                        PlayerLogger(player, String.format(getConfig().getString("Shop.success.bookselled2." + config.language), loadedBook.selled()), "");
+                                                        PlayerLogger(player, String.format(getConfig().getString("Shop.success.bookselled3." + config.language), loadedBook.getPages().size()), "");
+                                                    } catch (InvalidBookException ex) {
+                                                        ex.printStackTrace();
+                                                        PlayerLogger(player, "Something is wrong with the book in the chest :(", "Error");
+                                                    }
+                                                } else {
+                                                    getLoggerUtility().log(player, "You need a book for this commands", LoggerUtility.Level.ERROR);
+                                                }
+                                            }
+                                        }
+                                        return true;
+                                    }
                                     if (args[0].equalsIgnoreCase("backupbook")) {
                                         if (this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
                                             if (player.getItemInHand().getType().equals(Material.WRITTEN_BOOK)) {
-                                                BookHandler bookInHand = new BookHandler(player.getItemInHand());
+                                                BookHandler bookInHand = new BookHandlerUtility(player.getItemInHand()).getBookHandler();
                                                 BookHandler loadedBook = BookLoader.load(this, bookInHand.getAuthor(), bookInHand.getTitle());
                                                 if (bookInHand != null && loadedBook != null) {
                                                     bookInHand.setSelled(loadedBook.getSelled());
@@ -271,7 +341,7 @@ public class BookShop extends JavaPlugin {
                                                         BookShop.this.PlayerLogger(player_final, "Giving book to every player!", "");
                                                         BookShop.this.PlayerLogger(player_final, "Please wait ....", "");
                                                         for (OfflinePlayer off : BookShop.this.getServer().getOfflinePlayers()) {
-                                                            Player empfaenger = Tools.getmyOfflinePlayer(BookShop, off.getName());
+                                                            Player empfaenger = ToolUtility.getTools().getmyOfflinePlayer(BookShop, off.getName());
                                                             if (empfaenger.getInventory().firstEmpty() != -1) {
                                                                 empfaenger.getInventory().addItem(new ItemStack[]{item});
                                                                 BookShop.this.PlayerLogger(empfaenger, "You were given a book by an admin!", "");
@@ -333,17 +403,7 @@ public class BookShop extends JavaPlugin {
 //                                            install();
 //                                            return true;
 //                                        } else 
-                                            if (this.ActionBookShop.equalsIgnoreCase("log")) {
-                                            if (!this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
-                                                break;
-                                            }
-                                            File file = new File("plugins" + File.separator + "BookShop" + File.separator + "debug.txt");
-                                            if (file.exists()) {
-                                                PlayerLogger(player, "debug.txt is " + file.length() + " Byte big!", "Warning");
-                                                PlayerLogger(player, "Type /BookShop deletedebug to delete the debug.txt!", "Warning");
-                                            }
-                                            return true;
-                                        } else if (this.ActionBookShop.equalsIgnoreCase("toggle")) {
+                                        if (this.ActionBookShop.equalsIgnoreCase("toggle")) {
                                             if (!this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
                                                 break;
                                             }
@@ -431,7 +491,7 @@ public class BookShop extends JavaPlugin {
                                             if (player.getItemInHand().getType().equals(Material.WRITTEN_BOOK)) {
                                                 ItemStack item = player.getItemInHand();
                                                 PlayerLogger(player, "Giving book to " + args[1] + "!", "");
-                                                Player empfaenger = Tools.getmyOfflinePlayer(BookShop, args[1]);
+                                                Player empfaenger = ToolUtility.getTools().getmyOfflinePlayer(BookShop, args[1]);
                                                 if (empfaenger.hasPlayedBefore()) {
                                                     if (empfaenger.getInventory().firstEmpty() != -1) {
                                                         empfaenger.getInventory().addItem(new ItemStack[]{item});
@@ -453,7 +513,7 @@ public class BookShop extends JavaPlugin {
                                         if (!this.PermissionsHandler.checkpermissions(player, "BookShop.help")) {
                                             break;
                                         }
-                                        if (!Tools.isInteger(args[1])) {
+                                        if (!Tools145.isInteger(args[1])) {
                                             this.Help.help(player, args);
                                             temptime = (System.nanoTime() - temptime) / 1000000L;
                                             Logger("Command: " + cmd.getName() + " " + args.toString() + " executed in " + temptime + "ms", "Debug");
@@ -465,7 +525,7 @@ public class BookShop extends JavaPlugin {
                                         if (!this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
                                             break;
                                         }
-                                        if (!Tools.isInteger(args[1])) {
+                                        if (!Tools145.isInteger(args[1])) {
                                             PlayerLogger(player, this.report.report(331, "Reported issue", args[1], "BookShop", "No stacktrace because of command"), "");
                                             temptime = (System.nanoTime() - temptime) / 1000000L;
                                             Logger("Command: " + cmd.getName() + " " + args.toString() + " executed in " + temptime + "ms", "Debug");
@@ -515,7 +575,7 @@ public class BookShop extends JavaPlugin {
                                     if (!this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
                                         break;
                                     }
-                                    if (!Tools.isInteger(args[1])) {
+                                    if (!Tools145.isInteger(args[1])) {
                                         String text = "";
                                         for (int i = 1; i < args.length; i++) {
                                             text = text.concat(" " + args[i]);
@@ -611,7 +671,7 @@ public class BookShop extends JavaPlugin {
                                         }
                                     } else if ((this.ActionBookShop.equalsIgnoreCase("report"))
                                             && (this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission")))) {
-                                        if (!Tools.isInteger(args[1])) {
+                                        if (!Tools145.isInteger(args[1])) {
                                             String text = "";
                                             for (int i = 1; i < args.length; i++) {
                                                 text = text.concat(" " + args[i]);
@@ -632,17 +692,17 @@ public class BookShop extends JavaPlugin {
                     }
                 } else if (cmd.getName().equalsIgnoreCase("BookShop")) {
                     if (args.length == 1) {
-                        if (args[0].equalsIgnoreCase("download")) {
-                            String path = "plugins" + File.separator;
-                            this.upd.download(path);
-                            Logger("Downloaded new Version!", "Warning");
-                            Logger("BookShop will be updated on the next restart!", "Warning");
-                            return true;
-                        }
+//                        if (args[0].equalsIgnoreCase("download")) {
+//                            String path = "plugins" + File.separator;
+//                            this.upd.download(path);
+//                            Logger("Downloaded new Version!", "Warning");
+//                            Logger("BookShop will be updated on the next restart!", "Warning");
+//                            return true;
+//                        }
                         if (args[0].equalsIgnoreCase("reload")) {
                             Logger("Please wait: Reloading this plugin!", "Warning");
-                            this.plugman.unloadPlugin("BookShop");
-                            this.plugman.loadPlugin("BookShop");
+                            getPluginManager().unloadPlugin("BookShop");
+                            getPluginManager().loadPlugin("BookShop");
                             Logger("Reloaded!", "");
                             return true;
                         }
@@ -770,32 +830,20 @@ public class BookShop extends JavaPlugin {
 
     public void Logger(String msg, String TYPE) {
         try {
-            if ((TYPE.equalsIgnoreCase("Warning")) || (TYPE.equalsIgnoreCase("Error"))) {
-                System.err.println(PrefixConsole + TYPE + ": " + msg);
-                if (this.config.debugfile) {
-                    this.Loggerclass.log("Error: " + msg);
-                }
-                if (this.playerManager != null) {
-                    this.playerManager.BroadcastconsoleMsg("BookShop.consolemsg", " Warning: " + msg);
-                }
+            if ((TYPE.equalsIgnoreCase("Warning"))) {
+                getLoggerUtility().log(msg, LoggerUtility.Level.WARNING);
             } else if (TYPE.equalsIgnoreCase("Debug")) {
-                if (this.config.debug) {
-                    System.out.println(PrefixConsole + "Debug: " + msg);
-                }
-                if (this.config.debugfile) {
-                    this.Loggerclass.log("Debug: " + msg);
-                }
+                getLoggerUtility().log(msg, LoggerUtility.Level.DEBUG);
                 if (this.playerManager != null) {
                     this.playerManager.BroadcastconsoleMsg("BookShop.consolemsg", " Debug: " + msg);
                 }
+            } else if ((TYPE.equalsIgnoreCase("Error"))) {
+                getLoggerUtility().log(msg, LoggerUtility.Level.WARNING);
             } else {
                 if (this.playerManager != null) {
                     this.playerManager.BroadcastconsoleMsg("BookShop.consolemsg", msg);
                 }
-                System.out.println(PrefixConsole + msg);
-                if (this.config.debugfile) {
-                    this.Loggerclass.log(msg);
-                }
+                getLoggerUtility().log(msg, LoggerUtility.Level.INFO);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -813,32 +861,14 @@ public class BookShop extends JavaPlugin {
     public void PlayerLogger(Player p, String msg, String TYPE) {
         try {
             if (TYPE.equalsIgnoreCase("Error")) {
-                if (this.config.UsePrefix) {
-                    p.sendMessage(this.config.Prefix + Prefix + ChatColor.RED + "Error: " + this.config.Text + msg);
-                    if (this.config.debugfile) {
-                        this.Loggerclass.log("Player: " + p.getName() + " Error: " + msg);
-                    }
-                } else {
-                    p.sendMessage(ChatColor.RED + "Error: " + this.config.Text + msg);
-                    if (this.config.debugfile) {
-                        this.Loggerclass.log("Player: " + p.getName() + " Error: " + msg);
-                    }
-                }
+                getLoggerUtility().log(p, msg, LoggerUtility.Level.ERROR);
                 if (this.playerManager != null) {
                     this.playerManager.BroadcastconsoleMsg("BookShop.gamemsg", "Player: " + p.getName() + " Error: " + msg);
                 }
+            } else if (TYPE.equalsIgnoreCase("Warning")) {
+                getLoggerUtility().log(p, msg, LoggerUtility.Level.WARNING);
             } else {
-                if (this.config.UsePrefix) {
-                    p.sendMessage(this.config.Prefix + Prefix + this.config.Text + msg);
-                    if (this.config.debugfile) {
-                        this.Loggerclass.log("Player: " + p.getName() + " Msg: " + msg);
-                    }
-                } else {
-                    p.sendMessage(this.config.Text + msg);
-                    if (this.config.debugfile) {
-                        this.Loggerclass.log("Player: " + p.getName() + " Msg: " + msg);
-                    }
-                }
+                getLoggerUtility().log(p, msg, LoggerUtility.Level.INFO);
                 if (this.playerManager != null) {
                     this.playerManager.BroadcastconsoleMsg("BookShop.gamemsg", "Player: " + p.getName() + " " + msg);
                 }
