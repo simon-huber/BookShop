@@ -45,7 +45,7 @@ public class BookShop extends JavaPlugin {
     private HashMap<Player, String> Config = new HashMap();
     private HashMap<Player, String> Set = new HashMap();
     public String[] commands = {"help", "showdebug", "debugfile", "internet", "version", "reload", "toggle", "language", "report", "backupbook", "loadbook", "giveall", "give", "setwelcomebook", "removewelcomebook"};
-    private String[] mcversion = {"1.3", "1.4.1", "1.4.2", "1.4.3", "1.4.4", "1.4.5-R0.1", "1.4.5-R0.2", "1.4.5-R0.3"};
+    private String[] mcversion = {"1.3", "1.4.1", "1.4.2", "1.4.3", "1.4.4", "1.4.5-R0.1", "1.4.5-R0.2", "1.4.5-R0.3", "1.4.5-R1.0", "1.4.6"};
 
     public boolean isBukkitVersionCompatible() {
         boolean contains = false;

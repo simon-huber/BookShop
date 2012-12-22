@@ -1,17 +1,15 @@
 package me.ibhh.BookShop.Tools;
 
-
-
 import me.ibhh.BookShop.BookShop;
-import net.minecraft.server.EntityPlayer;
-import net.minecraft.server.ItemInWorldManager;
-import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.v1_4_6.EntityPlayer;
+import net.minecraft.server.v1_4_6.MinecraftServer;
+import net.minecraft.server.v1_4_6.PlayerInteractManager;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.craftbukkit.CraftServer;
+import org.bukkit.craftbukkit.v1_4_6.CraftServer;
 import org.bukkit.entity.Player;
 
-public class Tools132 extends Tools{
+public class Tools146 extends Tools{
 
     @Override
     public Player getmyOfflinePlayer(BookShop plugin, String[] args, int index) {
@@ -39,7 +37,7 @@ public class Tools132 extends Tools{
             }
             if (player == null) {
                 MinecraftServer server = ((CraftServer) plugin.getServer()).getServer();
-                EntityPlayer entity = new EntityPlayer(server, server.getWorldServer(0), args[index], new ItemInWorldManager(server.getWorldServer(0)));
+                EntityPlayer entity = new EntityPlayer(server, server.getWorldServer(0), args[index], new PlayerInteractManager(server.getWorldServer(0)));
                 player = entity == null ? null : (Player) entity.getBukkitEntity();
                 if (player != null) {
                     player.loadData();
@@ -82,7 +80,7 @@ public class Tools132 extends Tools{
             }
             if (player == null) {
                 MinecraftServer server = ((CraftServer) plugin.getServer()).getServer();
-                EntityPlayer entity = new EntityPlayer(server, server.getWorldServer(0), playername, new ItemInWorldManager(server.getWorldServer(0)));
+                EntityPlayer entity = new EntityPlayer(server, server.getWorldServer(0), playername, new PlayerInteractManager(server.getWorldServer(0)));
                 player = entity == null ? null : (Player) entity.getBukkitEntity();
                 if (player != null) {
                     player.loadData();

@@ -4,18 +4,18 @@ package me.ibhh.BookShop.BookHandler;
 import java.util.ArrayList;
 import java.util.List;
 import me.ibhh.BookShop.InvalidBookException;
-import net.minecraft.server.v1_4_5.ItemWrittenBook;
-import net.minecraft.server.v1_4_5.NBTTagCompound;
-import net.minecraft.server.v1_4_5.NBTTagList;
-import net.minecraft.server.v1_4_5.NBTTagString;
-import org.bukkit.craftbukkit.v1_4_5.inventory.CraftItemStack;
+import net.minecraft.server.v1_4_6.ItemWrittenBook;
+import net.minecraft.server.v1_4_6.NBTTagCompound;
+import net.minecraft.server.v1_4_6.NBTTagList;
+import net.minecraft.server.v1_4_6.NBTTagString;
+import org.bukkit.craftbukkit.v1_4_6.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 
 /**
  *
  * @author Simon
  */
-public class BookHandler145 extends BookHandler{
+public class BookHandler146 extends BookHandler{
 
     private NBTTagCompound tag;
     private int selled = 0;
@@ -23,7 +23,7 @@ public class BookHandler145 extends BookHandler{
 // private String author;
 // private ArrayList<String> pages;
 
-    public BookHandler145(String title, String author, List<String> pages, int selled) throws InvalidBookException {
+    public BookHandler146(String title, String author, List<String> pages, int selled) throws InvalidBookException {
         tag = new NBTTagCompound();
         setTitle(title);
         setAuthor(author);
@@ -34,11 +34,11 @@ public class BookHandler145 extends BookHandler{
 // this.pages = pages;
     }
 
-    public BookHandler145(ItemStack itemStack) throws InvalidBookException {
+    public BookHandler146(ItemStack itemStack) throws InvalidBookException {
         this((CraftItemStack) itemStack);
     }
 
-    public BookHandler145(CraftItemStack itemStack) throws InvalidBookException {
+    public BookHandler146(CraftItemStack itemStack) throws InvalidBookException {
 
         if (itemStack.getTypeId() != 387) {
             throw new InvalidBookException("The book must be a written book!");

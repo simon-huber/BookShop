@@ -57,15 +57,17 @@ public class BookShopListener
     public void invClose(InventoryCloseEvent event) {
         final InventoryCloseEvent ev = event;
         if (this.ChestViewers.containsKey((Player) event.getPlayer())) {
-            this.plugin.getServer().getScheduler().scheduleAsyncDelayedTask(this.plugin, new Runnable() {
+            this.plugin.getServer().getScheduler().runTaskLaterAsynchronously(this.plugin, new Runnable() {
                 @Override
                 public void run() {
                     try {
                         Chest chest = ((Chest) BookShopListener.this.ChestViewers.get((Player) ev.getPlayer()));
-                        if(chest == null){
+                        if (chest == null) {
+                            BookShopListener.this.plugin.Logger("Chest == null", "Debug");
                             return;
                         }
-                        if(chest.getBlockInventory() == null){
+                        if (chest.getBlockInventory() == null) {
+                            BookShopListener.this.plugin.Logger("Inv == null", "Debug");
                             return;
                         }
                         if (chest.getBlockInventory().contains(Material.WRITTEN_BOOK)) {
@@ -81,14 +83,20 @@ public class BookShopListener
                                     BookHandler bookInChest = new BookHandlerUtility(item).getBookHandler();
                                     if (bookInChest != null) {
                                         BookShopListener.this.plugin.Logger("Book != null", "Debug");
-                                        BookHandler loadedBook = BookLoader.load(BookShopListener.this.plugin, bookInChest.getAuthor(), bookInChest.getTitle());
+                                        BookHandler loadedBook = null;
+                                        try {
+                                            loadedBook = BookLoader.load(BookShopListener.this.plugin, bookInChest.getAuthor(), bookInChest.getTitle());
+                                        } catch (Exception e) {
+                                        }
                                         if (loadedBook != null) {
                                             if ((!loadedBook.getAuthor().equals(bookInChest.getAuthor())) || (!loadedBook.getTitle().equals(bookInChest.getTitle()))) {
                                                 BookLoader.save(BookShopListener.this.plugin, bookInChest);
                                             }
-                                            sign.setLine(2, bookInChest.getTitle());
-                                            sign.update();
+                                        } else {
+                                            BookLoader.save(BookShopListener.this.plugin, bookInChest);
                                         }
+                                        sign.setLine(2, bookInChest.getTitle());
+                                        sign.update();
                                     }
                                 }
                             }

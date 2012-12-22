@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 
 public class Tools145 extends Tools{
 
+    @Override
     public Player getmyOfflinePlayer(BookShop plugin, String[] args, int index) {
         String playername = args[index];
         plugin.Logger("Empfaenger: " + playername, "Debug");
@@ -50,14 +51,11 @@ public class Tools145 extends Tools{
             e.printStackTrace();
             plugin.Logger("Uncatched Exeption!", "Error");
             plugin.getReportHandler().report(3312, "Uncatched Exeption on getting offlineplayer", e.getMessage(), "BookShop", e);
-            try {
-                plugin.metricshandler.Error++;
-            } catch (Exception e1) {
-            }
         }
         return player;
     }
 
+    @Override
     public Player getmyOfflinePlayer(BookShop plugin, String playername) {
         plugin.Logger("Empfaenger: " + playername, "Debug");
         Player player = plugin.getServer().getPlayerExact(playername);
@@ -96,10 +94,6 @@ public class Tools145 extends Tools{
             e.printStackTrace();
             plugin.Logger("Uncatched Exeption!", "Error");
             plugin.getReportHandler().report(3312, "Uncatched Exeption on getting offlineplayer", e.getMessage(), "BookShop", e);
-            try {
-                plugin.metricshandler.Error++;
-            } catch (Exception e1) {
-            }
         }
         return player;
     }

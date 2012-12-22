@@ -1,21 +1,42 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package me.ibhh.BookShop.Tools;
 
-import me.ibhh.BookShop.BookShop;
+
 
 /**
  *
- * @author Simon
+ * @author ibhh
  */
 public class ToolUtility {
-    public static Tools getTools(){
-        if(BookShop.getRawBukkitVersion().equalsIgnoreCase("1.4.5-R0.3")){
+
+    public static Tools getTools() {
+        if (Tools.packagesExists(
+                "net.minecraft.server.v1_4_5.EntityPlayer",
+                "net.minecraft.server.v1_4_5.ItemInWorldManager",
+                "net.minecraft.server.v1_4_5.MinecraftServer",
+                "org.bukkit.Bukkit",
+                "org.bukkit.OfflinePlayer",
+                "org.bukkit.craftbukkit.v1_4_5.CraftServer",
+                "org.bukkit.entity.Player")) {
             return new Tools145();
-        } else {
+        } else if (Tools.packagesExists(
+                "net.minecraft.server.EntityPlayer",
+                "net.minecraft.server.ItemInWorldManager",
+                "net.minecraft.server.MinecraftServer",
+                "org.bukkit.Bukkit",
+                "org.bukkit.OfflinePlayer",
+                "org.bukkit.craftbukkit.CraftServer",
+                "org.bukkit.entity.Player")) {
             return new Tools132();
+        } else if (Tools.packagesExists(
+                "net.minecraft.server.v1_4_6.EntityPlayer",
+                "net.minecraft.server.v1_4_6.PlayerInteractManager",
+                "net.minecraft.server.v1_4_6.MinecraftServer",
+                "org.bukkit.Bukkit",
+                "org.bukkit.OfflinePlayer",
+                "org.bukkit.craftbukkit.v1_4_6.CraftServer",
+                "org.bukkit.entity.Player")) {
+            return new Tools146();
         }
+        return null;
     }
 }
