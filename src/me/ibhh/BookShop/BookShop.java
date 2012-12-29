@@ -1,11 +1,11 @@
 package me.ibhh.BookShop;
 
-import me.ibhh.BookShop.Tools.Tools145;
 import java.io.File;
 import java.util.HashMap;
 import me.ibhh.BookShop.BookHandler.BookHandler;
 import me.ibhh.BookShop.BookHandler.BookHandlerUtility;
 import me.ibhh.BookShop.Tools.ToolUtility;
+import me.ibhh.BookShop.Tools.Tools;
 import me.ibhh.BookShop.logger.LoggerUtility;
 import me.ibhh.BookShop.update.Update;
 import me.ibhh.BookShop.update.Utilities;
@@ -45,16 +45,9 @@ public class BookShop extends JavaPlugin {
     private HashMap<Player, String> Config = new HashMap();
     private HashMap<Player, String> Set = new HashMap();
     public String[] commands = {"help", "showdebug", "debugfile", "internet", "version", "reload", "toggle", "language", "report", "backupbook", "loadbook", "giveall", "give", "setwelcomebook", "removewelcomebook"};
-    private String[] mcversion = {"1.3", "1.4.1", "1.4.2", "1.4.3", "1.4.4", "1.4.5-R0.1", "1.4.5-R0.2", "1.4.5-R0.3", "1.4.5-R1.0", "1.4.6"};
 
     public boolean isBukkitVersionCompatible() {
-        boolean contains = false;
-        for (String version1 : mcversion) {
-            if (getServer().getBukkitVersion().contains(version1)) {
-                contains = true;
-            }
-        }
-        return contains;
+        return Tools.packagesExists("net.minecraft.server.v1_4_5.MinecraftServer") || Tools.packagesExists("net.minecraft.server.v1_4_6.MinecraftServer") || Tools.packagesExists("net.minecraft.server.MinecraftServer");
     }
 
     public static String getRawBukkitVersion() {
@@ -97,11 +90,7 @@ public class BookShop extends JavaPlugin {
             Logger("*****************************", "Warning");
             Logger("Your Bukkit version: " + getServer().getBukkitVersion(), "Warning");
             boolean contains = false;
-            for (String version : mcversion) {
-                if (getServer().getBukkitVersion().contains(version)) {
-                    contains = true;
-                }
-            }
+            contains = isBukkitVersionCompatible();
             if (contains) {
                 Logger("This plugin is compatible to this bukkit-version", "Warning");
             } else {
@@ -513,7 +502,7 @@ public class BookShop extends JavaPlugin {
                                         if (!this.PermissionsHandler.checkpermissions(player, "BookShop.help")) {
                                             break;
                                         }
-                                        if (!Tools145.isInteger(args[1])) {
+                                        if (!Tools.isInteger(args[1])) {
                                             this.Help.help(player, args);
                                             temptime = (System.nanoTime() - temptime) / 1000000L;
                                             Logger("Command: " + cmd.getName() + " " + args.toString() + " executed in " + temptime + "ms", "Debug");
@@ -525,7 +514,7 @@ public class BookShop extends JavaPlugin {
                                         if (!this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
                                             break;
                                         }
-                                        if (!Tools145.isInteger(args[1])) {
+                                        if (!Tools.isInteger(args[1])) {
                                             PlayerLogger(player, this.report.report(331, "Reported issue", args[1], "BookShop", "No stacktrace because of command"), "");
                                             temptime = (System.nanoTime() - temptime) / 1000000L;
                                             Logger("Command: " + cmd.getName() + " " + args.toString() + " executed in " + temptime + "ms", "Debug");
@@ -575,7 +564,7 @@ public class BookShop extends JavaPlugin {
                                     if (!this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
                                         break;
                                     }
-                                    if (!Tools145.isInteger(args[1])) {
+                                    if (!Tools.isInteger(args[1])) {
                                         String text = "";
                                         for (int i = 1; i < args.length; i++) {
                                             text = text.concat(" " + args[i]);
@@ -671,7 +660,7 @@ public class BookShop extends JavaPlugin {
                                         }
                                     } else if ((this.ActionBookShop.equalsIgnoreCase("report"))
                                             && (this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission")))) {
-                                        if (!Tools145.isInteger(args[1])) {
+                                        if (!Tools.isInteger(args[1])) {
                                             String text = "";
                                             for (int i = 1; i < args.length; i++) {
                                                 text = text.concat(" " + args[i]);

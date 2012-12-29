@@ -16,7 +16,7 @@ public class BookHandlerUtility {
 
     public BookHandlerUtility(String title, String author, List<String> pages, int selled) throws InvalidBookException {
         if (Tools.packagesExists(
-                "net.minecraft.server.v1_4_5.ItemWrittenBook",
+                "net.minecraft.server.v1_4_6.Item",
                 "net.minecraft.server.v1_4_5.NBTTagCompound",
                 "net.minecraft.server.v1_4_5.NBTTagList",
                 "net.minecraft.server.v1_4_5.NBTTagString",
@@ -29,7 +29,7 @@ public class BookHandlerUtility {
                 "org.bukkit.craftbukkit.inventory.CraftItemStack")) {
             handler132 = new BookHandler132(title, author, pages, selled);
         } else if (Tools.packagesExists(
-                "net.minecraft.server.v1_4_6.ItemWrittenBook",
+                "net.minecraft.server.v1_4_6.Item",
                 "net.minecraft.server.v1_4_6.NBTTagCompound",
                 "net.minecraft.server.v1_4_6.NBTTagList",
                 "net.minecraft.server.v1_4_6.NBTTagString",
@@ -67,6 +67,8 @@ public class BookHandlerUtility {
             return handler132;
         } else if (handler145 != null) {
             return handler145;
+        }else if (handler146 != null) {
+            return handler146;
         } else {
             return null;
         }

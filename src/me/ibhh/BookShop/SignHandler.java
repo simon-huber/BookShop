@@ -230,7 +230,6 @@ public class SignHandler {
                                             plugin.MoneyHandler.substract(price, player);
                                             player.getInventory().addItem(item.clone());
                                             plugin.PlayerLogger(player, String.format(plugin.config.Shopsuccessbuy, s.getLine(2), s.getLine(1), price), "");
-                                            player.updateInventory();
                                             player.saveData();
                                             plugin.metricshandler.BookShopAdminSignBuy++;
                                         } else {
@@ -277,7 +276,6 @@ public class SignHandler {
                                         }
                                         plugin.MoneyHandler.substract(price, player);
                                         plugin.PlayerLogger(player, "You purchased the collection for " + price, "");
-                                        player.updateInventory();
                                         player.saveData();
                                         plugin.metricshandler.BookShopAdminSignBuy++;
                                     } else {
@@ -322,7 +320,6 @@ public class SignHandler {
                                                     if (player.getItemInHand().getType().equals(Material.BOOK_AND_QUILL)) {
                                                         player.getInventory().clear(player.getInventory().getHeldItemSlot());
                                                         player.getInventory().addItem(item.clone());
-                                                        player.updateInventory();
                                                         player.saveData();
                                                     } else if (plugin.getConfig().getBoolean("useBookandQuill") && countBooks(chest.getInventory()) > 0) {
                                                         plugin.Logger("Books in Chest", "Debug");
@@ -349,7 +346,6 @@ public class SignHandler {
                                                     }
                                                     plugin.MoneyHandler.addmoney(amount, empfaenger);
                                                     plugin.PlayerLogger(player, String.format(plugin.config.Shopsuccessbuy, s.getLine(2), s.getLine(1), price), "");
-                                                    player.updateInventory();
                                                     empfaenger.saveData();
                                                     player.saveData();
                                                     BookHandler bookInChest = new BookHandlerUtility(item).getBookHandler();

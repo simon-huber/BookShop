@@ -256,7 +256,7 @@ public class BookShopListener
                     BookHandler book = BookLoader.load(this.plugin, this.plugin.getConfig().getString("Book"));
                     if (event.getPlayer().getInventory().firstEmpty() != -1) {
                         if (book != null) {
-                            event.getPlayer().getInventory().addItem(new ItemStack[]{book.toItemStack(1)});
+                            event.getPlayer().getInventory().addItem(book.toItemStack(1).clone());
                         } else {
                             this.plugin.Logger("Book wasnt found, so the new player gets no book!", "Error");
                             this.plugin.Logger("Please check your config.yml or type with a book in the hand '/bookshop setwelcomebook'!", "Error");

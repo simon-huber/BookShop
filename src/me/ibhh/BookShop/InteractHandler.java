@@ -133,16 +133,16 @@ public class InteractHandler {
                         if (item != null) {
                             try {
                                 BookHandler bookInChest = new BookHandlerUtility(item).getBookHandler();
+                                if(bookInChest == null){
+                                    plugin.getLoggerUtility().log(p, "An unknown error occurred!", LoggerUtility.Level.ERROR );
+                                    return;
+                                }
                                 BookHandler loadedBook = BookLoader.load(plugin, bookInChest.getAuthor(), bookInChest.getTitle());
                                 if (loadedBook != null) {
                                     BookLoader.save(plugin, loadedBook);
                                 } else {
                                     BookLoader.save(plugin, bookInChest);
                                     loadedBook = bookInChest;
-                                }
-                                if(bookInChest == null){
-                                    plugin.getLoggerUtility().log(p, "An unknown error occurred!", LoggerUtility.Level.ERROR );
-                                    return;
                                 }
                                 plugin.PlayerLogger(p, String.format(plugin.getConfig().getString("Shop.success.bookselled." + plugin.config.language), loadedBook.getTitle(), loadedBook.getAuthor()), "");
                                 plugin.PlayerLogger(p, String.format(plugin.getConfig().getString("Shop.success.bookselled2." + plugin.config.language), loadedBook.selled()), "");
