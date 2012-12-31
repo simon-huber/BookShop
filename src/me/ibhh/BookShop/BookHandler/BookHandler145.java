@@ -7,7 +7,7 @@ import me.ibhh.BookShop.InvalidBookException;
 import net.minecraft.server.v1_4_5.NBTTagCompound;
 import net.minecraft.server.v1_4_5.NBTTagList;
 import net.minecraft.server.v1_4_5.NBTTagString;
-import net.minecraft.server.v1_4_6.Item;
+import net.minecraft.server.v1_4_5.Item;
 import org.bukkit.craftbukkit.v1_4_5.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 
@@ -131,7 +131,7 @@ public class BookHandler145 extends BookHandler{
 
     @Override
     public ItemStack toItemStack(int amount) throws InvalidBookException {
-        org.bukkit.craftbukkit.v1_4_6.inventory.CraftItemStack item = org.bukkit.craftbukkit.v1_4_6.inventory.CraftItemStack.asNewCraftStack(Item.byId[Item.WRITTEN_BOOK.id], amount);
+        CraftItemStack item = CraftItemStack.asNewCraftStack(Item.byId[Item.WRITTEN_BOOK.id], amount);
 // NBTTagCompound newBookData = new NBTTagCompound();
 //
 // newBookData.setString("author", this.getAuthor());
