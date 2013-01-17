@@ -47,7 +47,10 @@ public class BookShop extends JavaPlugin {
     public String[] commands = {"help", "showdebug", "debugfile", "internet", "version", "reload", "toggle", "language", "report", "backupbook", "loadbook", "giveall", "give", "setwelcomebook", "removewelcomebook"};
 
     public boolean isBukkitVersionCompatible() {
-        return Tools.packagesExists("net.minecraft.server.v1_4_5.MinecraftServer") || Tools.packagesExists("net.minecraft.server.v1_4_6.MinecraftServer") || Tools.packagesExists("net.minecraft.server.MinecraftServer");
+        return Tools.packagesExists("net.minecraft.server.v1_4_5.MinecraftServer")
+                || Tools.packagesExists("net.minecraft.server.v1_4_6.MinecraftServer")
+                || Tools.packagesExists("net.minecraft.server.v1_4_R1.MinecraftServer")
+                || Tools.packagesExists("net.minecraft.server.MinecraftServer");
     }
 
     public static String getRawBukkitVersion() {
@@ -89,9 +92,7 @@ public class BookShop extends JavaPlugin {
             Logger("MC-Update!!!!", "Warning");
             Logger("*****************************", "Warning");
             Logger("Your Bukkit version: " + getServer().getBukkitVersion(), "Warning");
-            boolean contains = false;
-            contains = isBukkitVersionCompatible();
-            if (contains) {
+            if (isBukkitVersionCompatible()) {
                 Logger("This plugin is compatible to this bukkit-version", "Warning");
             } else {
                 Logger("Your plugin-version is NOT compatible!", "Error");
@@ -243,18 +244,16 @@ public class BookShop extends JavaPlugin {
                                                 BookHandler bookInHand = new BookHandlerUtility(player.getItemInHand()).getBookHandler();
                                                 BookHandler loadedBook = BookLoader.load(this, bookInHand.getAuthor(), bookInHand.getTitle());
                                                 if (loadedBook != null) {
+                                                    getLoggerUtility().log("loadedBook: Author: " + loadedBook.getAuthor(), LoggerUtility.Level.DEBUG);
                                                     bookInHand.setSelled(loadedBook.getSelled());
                                                     BookLoader.delete(this, loadedBook);
                                                 }
-                                                if (bookInHand != null) {
-                                                    BookLoader.save(this, bookInHand);
-                                                    getConfig().set("GiveBookToNewPlayers", Boolean.valueOf(true));
-                                                    getConfig().set("Book", bookInHand.getAuthor() + " - " + bookInHand.getTitle() + ".txt");
-                                                    saveConfig();
-                                                    PlayerLogger(player, "Successfully set a welcome book!", "");
-                                                } else {
-                                                    PlayerLogger(player, "unknown error", "Error");
-                                                }
+                                                BookLoader.save(this, bookInHand);
+                                                getLoggerUtility().log("BookinHand: Author: " + bookInHand.getAuthor(), LoggerUtility.Level.DEBUG);
+                                                getConfig().set("GiveBookToNewPlayers", Boolean.valueOf(true));
+                                                getConfig().set("Book", bookInHand.getAuthor() + " - " + bookInHand.getTitle() + ".txt");
+                                                saveConfig();
+                                                PlayerLogger(player, "Successfully set a welcome book!", "");
                                             } else {
                                                 PlayerLogger(player, getConfig().getString("command.error.takeBookInHand." + this.config.language), "Error");
                                             }

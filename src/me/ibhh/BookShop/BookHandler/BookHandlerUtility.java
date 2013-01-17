@@ -13,6 +13,7 @@ public class BookHandlerUtility {
     private BookHandler132 handler132;
     private BookHandler145 handler145;
     private BookHandler146 handler146;
+    private BookHandler147 handler147;
 
     public BookHandlerUtility(String title, String author, List<String> pages, int selled) throws InvalidBookException {
         if (Tools.packagesExists(
@@ -35,6 +36,13 @@ public class BookHandlerUtility {
                 "net.minecraft.server.v1_4_6.NBTTagString",
                 "org.bukkit.craftbukkit.v1_4_6.inventory.CraftItemStack")) {
             handler146 = new BookHandler146(title, author, pages, selled);
+        } else if (Tools.packagesExists(
+                "net.minecraft.server.v1_4_R1.Item",
+                "net.minecraft.server.v1_4_R1.NBTTagCompound",
+                "net.minecraft.server.v1_4_R1.NBTTagList",
+                "net.minecraft.server.v1_4_R1.NBTTagString",
+                "org.bukkit.craftbukkit.v1_4_R1.inventory.CraftItemStack")) {
+            handler147 = new BookHandler147(title, author, pages, selled);
         }
     }
 
@@ -59,6 +67,13 @@ public class BookHandlerUtility {
                 "net.minecraft.server.v1_4_6.NBTTagString",
                 "org.bukkit.craftbukkit.v1_4_6.inventory.CraftItemStack")) {
             handler146 = new BookHandler146(itemStack);
+        }else if (Tools.packagesExists(
+                "net.minecraft.server.v1_4_R1.ItemWrittenBook",
+                "net.minecraft.server.v1_4_R1.NBTTagCompound",
+                "net.minecraft.server.v1_4_R1.NBTTagList",
+                "net.minecraft.server.v1_4_R1.NBTTagString",
+                "org.bukkit.craftbukkit.v1_4_R1.inventory.CraftItemStack")) {
+            handler147 = new BookHandler147(itemStack);
         }
     }
 
@@ -67,8 +82,10 @@ public class BookHandlerUtility {
             return handler132;
         } else if (handler145 != null) {
             return handler145;
-        }else if (handler146 != null) {
+        } else if (handler146 != null) {
             return handler146;
+        } else if (handler147 != null) {
+            return handler147;
         } else {
             return null;
         }

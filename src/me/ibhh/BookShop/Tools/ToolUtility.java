@@ -36,6 +36,15 @@ public class ToolUtility {
                 "org.bukkit.craftbukkit.v1_4_6.CraftServer",
                 "org.bukkit.entity.Player")) {
             return new Tools146();
+        } else if (Tools.packagesExists(
+                "net.minecraft.server.v1_4_R1.EntityPlayer",
+                "net.minecraft.server.v1_4_R1.PlayerInteractManager",
+                "net.minecraft.server.v1_4_R1.MinecraftServer",
+                "org.bukkit.Bukkit",
+                "org.bukkit.OfflinePlayer",
+                "org.bukkit.craftbukkit.v1_4_R1.CraftServer",
+                "org.bukkit.entity.Player")) {
+            return new Tools147();
         }
         return null;
     }
