@@ -9,6 +9,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import me.ibhh.BookShop.BookHandler.BookHandlerUtility;
 import me.ibhh.BookShop.Tools.ToolUtility;
+import me.ibhh.BookShop.intern.BukkitBuildNOTSupportedException;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -219,7 +220,18 @@ public class SignHandler {
                                     price = plugin.ListenerShop.getPrice(s, player, false);
                                     if (price >= 0) {
                                         if ((plugin.MoneyHandler.getBalance(player) - price) >= 0) {
-                                            BookHandler bookInChest = new BookHandlerUtility(item).getBookHandler();
+                                            BookHandler bookInChest;
+                                            try {
+                                                bookInChest = new BookHandlerUtility(item).getBookHandler();
+                                            } catch (BukkitBuildNOTSupportedException ex) {
+                                                Logger.getLogger(SignHandler.class.getName()).log(Level.SEVERE, null, ex);
+                                                plugin.PlayerLogger(player, ex.getMessage(), "Error");
+                                                return;
+                                            }
+                                            if (bookInChest == null) {
+                                                plugin.PlayerLogger(player, "An unknown error occurred!", "Error");
+                                                return;
+                                            }
                                             BookHandler loadedBook = BookLoader.load(plugin, bookInChest.getAuthor(), bookInChest.getTitle());
                                             if (loadedBook != null) {
                                                 loadedBook.increaseSelled();
@@ -261,7 +273,18 @@ public class SignHandler {
                                         for (ItemStack item : chest.getInventory().getContents()) {
                                             if (item != null) {
                                                 if (item.getType().equals(Material.WRITTEN_BOOK)) {
-                                                    BookHandler bookInChest = new BookHandlerUtility(item).getBookHandler();
+                                                    BookHandler bookInChest;
+                                                    try {
+                                                        bookInChest = new BookHandlerUtility(item).getBookHandler();
+                                                    } catch (BukkitBuildNOTSupportedException ex) {
+                                                        Logger.getLogger(SignHandler.class.getName()).log(Level.SEVERE, null, ex);
+                                                        plugin.PlayerLogger(player, ex.getMessage(), "Error");
+                                                        return;
+                                                    }
+                                                    if (bookInChest == null) {
+                                                        plugin.PlayerLogger(player, "An unknown error occurred!", "Error");
+                                                        return;
+                                                    }
                                                     BookHandler loadedBook = BookLoader.load(plugin, bookInChest.getAuthor(), bookInChest.getTitle());
                                                     if (loadedBook != null) {
                                                         loadedBook.increaseSelled();
@@ -349,7 +372,18 @@ public class SignHandler {
                                                     plugin.PlayerLogger(player, String.format(plugin.config.Shopsuccessbuy, s.getLine(2), s.getLine(1), price), "");
                                                     empfaenger.saveData();
                                                     player.saveData();
-                                                    BookHandler bookInChest = new BookHandlerUtility(item).getBookHandler();
+                                                    BookHandler bookInChest;
+                                                    try {
+                                                        bookInChest = new BookHandlerUtility(item).getBookHandler();
+                                                    } catch (BukkitBuildNOTSupportedException ex) {
+                                                        Logger.getLogger(SignHandler.class.getName()).log(Level.SEVERE, null, ex);
+                                                        plugin.PlayerLogger(player, ex.getMessage(), "Error");
+                                                        return;
+                                                    }
+                                                    if (bookInChest == null) {
+                                                        plugin.PlayerLogger(player, "An unknown error occurred!", "Error");
+                                                        return;
+                                                    }
                                                     BookHandler loadedBook = BookLoader.load(plugin, bookInChest.getAuthor(), bookInChest.getTitle());
                                                     if (loadedBook != null) {
                                                         loadedBook.increaseSelled();

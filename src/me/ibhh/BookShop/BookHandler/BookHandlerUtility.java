@@ -3,6 +3,7 @@ package me.ibhh.BookShop.BookHandler;
 import java.util.List;
 import me.ibhh.BookShop.InvalidBookException;
 import me.ibhh.BookShop.Tools.Tools;
+import me.ibhh.BookShop.intern.BukkitBuildNOTSupportedException;
 import org.bukkit.inventory.ItemStack;
 
 /**
@@ -15,6 +16,7 @@ public class BookHandlerUtility {
     private BookHandler146 handler146;
     private BookHandler147 handler147;
     private BookHandler15 handler15;
+    private BookHandler151 handler151;
 
     public BookHandlerUtility(String title, String author, List<String> pages, int selled) throws InvalidBookException {
         if (Tools.packagesExists(
@@ -51,8 +53,15 @@ public class BookHandlerUtility {
                 "net.minecraft.server.v1_5_R1.NBTTagString",
                 "org.bukkit.craftbukkit.v1_5_R1.inventory.CraftItemStack")) {
             handler15 = new BookHandler15(title, author, pages, selled);
+        } else if (Tools.packagesExists(
+                "net.minecraft.server.v1_5_R2.Item",
+                "net.minecraft.server.v1_5_R2.NBTTagCompound",
+                "net.minecraft.server.v1_5_R2.NBTTagList",
+                "net.minecraft.server.v1_5_R2.NBTTagString",
+                "org.bukkit.craftbukkit.v1_5_R2.inventory.CraftItemStack")) {
+            handler151 = new BookHandler151(title, author, pages, selled);
         }
-        
+
     }
 
     public BookHandlerUtility(ItemStack itemStack) throws InvalidBookException {
@@ -76,24 +85,31 @@ public class BookHandlerUtility {
                 "net.minecraft.server.v1_4_6.NBTTagString",
                 "org.bukkit.craftbukkit.v1_4_6.inventory.CraftItemStack")) {
             handler146 = new BookHandler146(itemStack);
-        }else if (Tools.packagesExists(
+        } else if (Tools.packagesExists(
                 "net.minecraft.server.v1_4_R1.ItemWrittenBook",
                 "net.minecraft.server.v1_4_R1.NBTTagCompound",
                 "net.minecraft.server.v1_4_R1.NBTTagList",
                 "net.minecraft.server.v1_4_R1.NBTTagString",
                 "org.bukkit.craftbukkit.v1_4_R1.inventory.CraftItemStack")) {
             handler147 = new BookHandler147(itemStack);
-        }else if (Tools.packagesExists(
+        } else if (Tools.packagesExists(
                 "net.minecraft.server.v1_5_R1.Item",
                 "net.minecraft.server.v1_5_R1.NBTTagCompound",
                 "net.minecraft.server.v1_5_R1.NBTTagList",
                 "net.minecraft.server.v1_5_R1.NBTTagString",
                 "org.bukkit.craftbukkit.v1_5_R1.inventory.CraftItemStack")) {
             handler15 = new BookHandler15(itemStack);
+        } else if (Tools.packagesExists(
+                "net.minecraft.server.v1_5_R2.Item",
+                "net.minecraft.server.v1_5_R2.NBTTagCompound",
+                "net.minecraft.server.v1_5_R2.NBTTagList",
+                "net.minecraft.server.v1_5_R2.NBTTagString",
+                "org.bukkit.craftbukkit.v1_5_R2.inventory.CraftItemStack")) {
+            handler151 = new BookHandler151(itemStack);
         }
     }
 
-    public BookHandler getBookHandler() {
+    public BookHandler getBookHandler() throws BukkitBuildNOTSupportedException {
         if (handler132 != null) {
             return handler132;
         } else if (handler145 != null) {
@@ -104,8 +120,10 @@ public class BookHandlerUtility {
             return handler147;
         } else if (handler15 != null) {
             return handler15;
+        } else if (handler151 != null) {
+            return handler151;
         } else {
-            return null;
+            throw new BukkitBuildNOTSupportedException("Your bukkit version is NOT supported, or an error occured!");
         }
     }
 //

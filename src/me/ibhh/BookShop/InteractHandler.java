@@ -8,6 +8,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import me.ibhh.BookShop.BookHandler.BookHandler;
 import me.ibhh.BookShop.BookHandler.BookHandlerUtility;
+import me.ibhh.BookShop.intern.BukkitBuildNOTSupportedException;
 import me.ibhh.BookShop.logger.LoggerUtility;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -132,7 +133,13 @@ public class InteractHandler {
                         ItemStack item = chest.getInventory().getItem(Slot);
                         if (item != null) {
                             try {
-                                BookHandler bookInChest = new BookHandlerUtility(item).getBookHandler();
+                                BookHandler bookInChest = null;
+                                try {
+                                    bookInChest = new BookHandlerUtility(item).getBookHandler();
+                                } catch (BukkitBuildNOTSupportedException ex) {
+                                    Logger.getLogger(InteractHandler.class.getName()).log(Level.SEVERE, null, ex);
+                                    return;
+                                }
                                 if(bookInChest == null){
                                     plugin.getLoggerUtility().log(p, "An unknown error occurred!", LoggerUtility.Level.ERROR );
                                     return;
