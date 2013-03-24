@@ -14,6 +14,7 @@ public class BookHandlerUtility {
     private BookHandler145 handler145;
     private BookHandler146 handler146;
     private BookHandler147 handler147;
+    private BookHandler15 handler15;
 
     public BookHandlerUtility(String title, String author, List<String> pages, int selled) throws InvalidBookException {
         if (Tools.packagesExists(
@@ -43,7 +44,15 @@ public class BookHandlerUtility {
                 "net.minecraft.server.v1_4_R1.NBTTagString",
                 "org.bukkit.craftbukkit.v1_4_R1.inventory.CraftItemStack")) {
             handler147 = new BookHandler147(title, author, pages, selled);
+        } else if (Tools.packagesExists(
+                "net.minecraft.server.v1_5_R1.Item",
+                "net.minecraft.server.v1_5_R1.NBTTagCompound",
+                "net.minecraft.server.v1_5_R1.NBTTagList",
+                "net.minecraft.server.v1_5_R1.NBTTagString",
+                "org.bukkit.craftbukkit.v1_5_R1.inventory.CraftItemStack")) {
+            handler15 = new BookHandler15(title, author, pages, selled);
         }
+        
     }
 
     public BookHandlerUtility(ItemStack itemStack) throws InvalidBookException {
@@ -74,6 +83,13 @@ public class BookHandlerUtility {
                 "net.minecraft.server.v1_4_R1.NBTTagString",
                 "org.bukkit.craftbukkit.v1_4_R1.inventory.CraftItemStack")) {
             handler147 = new BookHandler147(itemStack);
+        }else if (Tools.packagesExists(
+                "net.minecraft.server.v1_5_R1.Item",
+                "net.minecraft.server.v1_5_R1.NBTTagCompound",
+                "net.minecraft.server.v1_5_R1.NBTTagList",
+                "net.minecraft.server.v1_5_R1.NBTTagString",
+                "org.bukkit.craftbukkit.v1_5_R1.inventory.CraftItemStack")) {
+            handler15 = new BookHandler15(itemStack);
         }
     }
 
@@ -86,6 +102,8 @@ public class BookHandlerUtility {
             return handler146;
         } else if (handler147 != null) {
             return handler147;
+        } else if (handler15 != null) {
+            return handler15;
         } else {
             return null;
         }

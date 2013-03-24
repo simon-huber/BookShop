@@ -8,6 +8,7 @@ import net.minecraft.server.v1_4_6.Item;
 import net.minecraft.server.v1_4_6.NBTTagCompound;
 import net.minecraft.server.v1_4_6.NBTTagList;
 import net.minecraft.server.v1_4_6.NBTTagString;
+import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_4_6.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 
@@ -131,28 +132,10 @@ public class BookHandler146 extends BookHandler{
 
     @Override
     public ItemStack toItemStack(int amount) throws InvalidBookException {
-        CraftItemStack item = CraftItemStack.asNewCraftStack(Item.byId[Item.WRITTEN_BOOK.id], amount);
-// NBTTagCompound newBookData = new NBTTagCompound();
-//
-// newBookData.setString("author", this.getAuthor());
-// newBookData.setString("title", this.getTitle());
-//
-// NBTTagList pages = new NBTTagList();
-//
-// List<String> bookPages = this.getPages();
-//
-// for (int i = 0; i < bookPages.size(); i++) {
-// String page = bookPages.get(i);
-// if (page.length() > 256) {
-// throw new InvalidBookException("The maximum size of a page is 256!");
-// }
-// pages.add(new NBTTagString(String.valueOf(i), page));
-// }
-//
-// newBookData.set("pages", pages);
-
-        CraftItemStack.asNMSCopy(item).tag = tag;
-        return item.clone();
+        net.minecraft.server.v1_4_6.ItemStack nmsStack = CraftItemStack.asNMSCopy(new ItemStack(Material.WRITTEN_BOOK));
+        nmsStack.setTag(tag);
+//Zurück umwandeln
+        return CraftItemStack.asCraftMirror(nmsStack);
     }
     
     @Override

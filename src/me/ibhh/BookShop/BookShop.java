@@ -50,6 +50,7 @@ public class BookShop extends JavaPlugin {
         return Tools.packagesExists("net.minecraft.server.v1_4_5.MinecraftServer")
                 || Tools.packagesExists("net.minecraft.server.v1_4_6.MinecraftServer")
                 || Tools.packagesExists("net.minecraft.server.v1_4_R1.MinecraftServer")
+                || Tools.packagesExists("net.minecraft.server.v1_5_R1.MinecraftServer")
                 || Tools.packagesExists("net.minecraft.server.MinecraftServer");
     }
 

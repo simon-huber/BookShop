@@ -3,19 +3,18 @@ package me.ibhh.BookShop.BookHandler;
 import java.util.ArrayList;
 import java.util.List;
 import me.ibhh.BookShop.InvalidBookException;
-import net.minecraft.server.v1_4_R1.Item;
-import net.minecraft.server.v1_4_R1.NBTTagCompound;
-import net.minecraft.server.v1_4_R1.NBTTagList;
-import net.minecraft.server.v1_4_R1.NBTTagString;
+import net.minecraft.server.v1_5_R1.NBTTagCompound;
+import net.minecraft.server.v1_5_R1.NBTTagList;
+import net.minecraft.server.v1_5_R1.NBTTagString;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_4_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_5_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 
 /**
  *
  * @author Simon
  */
-public class BookHandler147 extends BookHandler {
+public class BookHandler15 extends BookHandler {
 
     private NBTTagCompound tag;
     private int selled = 0;
@@ -23,7 +22,7 @@ public class BookHandler147 extends BookHandler {
 // private String author;
 // private ArrayList<String> pages;
 
-    public BookHandler147(String title, String author, List<String> pages, int selled) throws InvalidBookException {
+    public BookHandler15(String title, String author, List<String> pages, int selled) throws InvalidBookException {
         tag = new NBTTagCompound();
         setTitle(title);
         setAuthor(author);
@@ -34,11 +33,11 @@ public class BookHandler147 extends BookHandler {
 // this.pages = pages;
     }
 
-    public BookHandler147(ItemStack itemStack) throws InvalidBookException {
+    public BookHandler15(ItemStack itemStack) throws InvalidBookException {
         this((CraftItemStack) itemStack);
     }
 
-    public BookHandler147(CraftItemStack itemStack) throws InvalidBookException {
+    public BookHandler15(CraftItemStack itemStack) throws InvalidBookException {
 
         if (itemStack.getTypeId() != 387) {
             throw new InvalidBookException("The book must be a written book!");
@@ -131,7 +130,7 @@ public class BookHandler147 extends BookHandler {
 
     @Override
     public ItemStack toItemStack(int amount) throws InvalidBookException {
-        net.minecraft.server.v1_4_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(new ItemStack(Material.WRITTEN_BOOK));
+        net.minecraft.server.v1_5_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(new ItemStack(Material.WRITTEN_BOOK));
         nmsStack.setTag(tag);
 //Zurück umwandeln
         return CraftItemStack.asCraftMirror(nmsStack);

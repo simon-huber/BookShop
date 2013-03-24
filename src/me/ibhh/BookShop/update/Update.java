@@ -102,7 +102,7 @@ public class Update {
                                 plugin.getLoggerUtility().log("New version: " + newversion + " found!", LoggerUtility.Level.WARNING);
                                 plugin.getLoggerUtility().log("******************************************", LoggerUtility.Level.WARNING);
                                 plugin.getLoggerUtility().log("*********** Please update!!!! ************", LoggerUtility.Level.WARNING);
-                                plugin.getLoggerUtility().log("* http://dev.bukkit.org/BookShop *******", LoggerUtility.Level.WARNING);
+                                plugin.getLoggerUtility().log("* http://dev.bukkit.org/server-mods/BookShop *******", LoggerUtility.Level.WARNING);
                                 plugin.getLoggerUtility().log("******************************************", LoggerUtility.Level.WARNING);
                                 updateaviable = true;
                                 if (plugin.getConfig().getBoolean("installondownload")) {

@@ -81,6 +81,7 @@ public class SignHandler {
                         event.setLine(1, event.getPlayer().getName());
                     } else if (!plugin.PermissionsHandler.checkpermissions(p, "BookShop.create.other")) {
                         plugin.PlayerLogger(event.getPlayer(), "BookShop creation failed!", "Error");
+                        event.setCancelled(true);
                     }
                 }
                 if (!isChest(event.getBlock().getRelative(BlockFace.DOWN))) {
