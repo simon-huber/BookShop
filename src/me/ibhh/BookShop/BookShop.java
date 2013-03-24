@@ -85,18 +85,16 @@ public class BookShop extends JavaPlugin {
                 e1.printStackTrace();
             }
             getUpdate().startUpdateTimer();
-            Logger("*****************************", "Warning");
-            Logger("Because of some Bukkitchanges", "Warning");
-            Logger("you have to update the plugin", "Warning");
-            Logger("manually.", "Warning");
-            Logger("This plugin needs a update every", "Warning");
-            Logger("MC-Update!!!!", "Warning");
-            Logger("*****************************", "Warning");
             Logger("Your Bukkit version: " + getServer().getBukkitVersion(), "Warning");
             if (isBukkitVersionCompatible()) {
                 Logger("This plugin is compatible to this bukkit-version", "Warning");
             } else {
                 Logger("Your plugin-version is NOT compatible!", "Error");
+                Logger("*****************************", "Warning");
+                Logger("Because of some Bukkitchanges", "Warning");
+                Logger("you have to update the plugin", "Warning");
+                Logger("manually.", "Warning");
+                Logger("*****************************", "Warning");
                 setEnabled(false);
                 return;
             }

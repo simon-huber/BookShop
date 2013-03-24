@@ -27,18 +27,18 @@ public class Update {
     private BookShop plugin;
     private boolean updateaviable = false;
     private float newversion;
-    
+
     public Update(BookShop up) {
         plugin = up;
     }
 
     public float getNewversion() {
-        if(newversion == 0){
+        if (newversion == 0) {
             newversion = plugin.getVersion();
         }
         return newversion;
     }
-    
+
     public void install() {
         try {
             if (plugin.getConfig().getBoolean("internet")) {
@@ -85,46 +85,46 @@ public class Update {
             plugin.getReportHandler().report(3314, "Uncatched Exeption on installing", w.getMessage(), "BookShop", w);
         }
     }
-    
-    public void startUpdateTimer(){
-        plugin.getServer().getScheduler().runTaskTimerAsynchronously(plugin, new Runnable() {
+
+    public void startUpdateTimer() {
+        if (plugin.getConfig().getBoolean("internet")) {
+            plugin.getServer().getScheduler().runTaskTimerAsynchronously(plugin, new Runnable() {
                 @Override
                 public void run() {
-                    if (plugin.getConfig().getBoolean("internet")) {
-                        try {
-                            plugin.getLoggerUtility().log("Searching update for BookShop!", LoggerUtility.Level.DEBUG);
-                            newversion = checkUpdate();
-                            if (newversion == -1.0F) {
-                                newversion = plugin.getVersion();
-                            }
-                            plugin.getLoggerUtility().log("installed BookShop version: " + plugin.getVersion() + ", latest version: " + newversion, LoggerUtility.Level.DEBUG);
-                            if (newversion > plugin.getVersion()) {
-                                plugin.getLoggerUtility().log("New version: " + newversion + " found!", LoggerUtility.Level.WARNING);
-                                plugin.getLoggerUtility().log("******************************************", LoggerUtility.Level.WARNING);
-                                plugin.getLoggerUtility().log("*********** Please update!!!! ************", LoggerUtility.Level.WARNING);
-                                plugin.getLoggerUtility().log("* http://dev.bukkit.org/server-mods/BookShop *******", LoggerUtility.Level.WARNING);
-                                plugin.getLoggerUtility().log("******************************************", LoggerUtility.Level.WARNING);
-                                updateaviable = true;
-                                if (plugin.getConfig().getBoolean("installondownload")) {
-                                    install();
-                                }
-                            } else {
-                                plugin.getLoggerUtility().log("No update found!", LoggerUtility.Level.DEBUG);
-                            }
-                        } catch (Exception e) {
-                            plugin.getLoggerUtility().log("Error on doing update check! Message: " + e.getMessage(), LoggerUtility.Level.ERROR);
-                            plugin.getLoggerUtility().log("may the mainserver is down!", LoggerUtility.Level.ERROR);
-                            plugin.getReportHandler().report(335, "Checking for update failed", e.getMessage(), "BookShop", e);
+                    try {
+                        plugin.getLoggerUtility().log("Searching update for BookShop!", LoggerUtility.Level.DEBUG);
+                        newversion = checkUpdate();
+                        if (newversion == -1.0F) {
+                            newversion = plugin.getVersion();
                         }
+                        plugin.getLoggerUtility().log("installed BookShop version: " + plugin.getVersion() + ", latest version: " + newversion, LoggerUtility.Level.DEBUG);
+                        if (newversion > plugin.getVersion()) {
+                            plugin.getLoggerUtility().log("New version: " + newversion + " found!", LoggerUtility.Level.WARNING);
+                            plugin.getLoggerUtility().log("******************************************", LoggerUtility.Level.WARNING);
+                            plugin.getLoggerUtility().log("*********** Please update!!!! ************", LoggerUtility.Level.WARNING);
+                            plugin.getLoggerUtility().log("* http://dev.bukkit.org/server-mods/BookShop *******", LoggerUtility.Level.WARNING);
+                            plugin.getLoggerUtility().log("******************************************", LoggerUtility.Level.WARNING);
+                            updateaviable = true;
+                            if (plugin.getConfig().getBoolean("installondownload")) {
+                                install();
+                            }
+                        } else {
+                            plugin.getLoggerUtility().log("No update found!", LoggerUtility.Level.DEBUG);
+                        }
+                    } catch (Exception e) {
+                        plugin.getLoggerUtility().log("Error on doing update check! Message: " + e.getMessage(), LoggerUtility.Level.ERROR);
+                        plugin.getLoggerUtility().log("may the mainserver is down!", LoggerUtility.Level.ERROR);
+                        plugin.getReportHandler().report(335, "Checking for update failed", e.getMessage(), "BookShop", e);
                     }
                 }
             }, 400L, 50000L);
+        }
     }
 
     public boolean isUpdateaviable() {
         return updateaviable;
     }
-    
+
 //    private void UpdateAvailable() {
 //        if (plugin.getConfigHandler().getConfig().getBoolean("internet")) {
 //            try {
@@ -144,7 +144,6 @@ public class Update {
 //            }
 //        }
 //    }
-
     public float checkUpdate() {
         String link = getLink();
         if (link.equals("Error")) {
