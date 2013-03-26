@@ -98,14 +98,12 @@ public class MetricsHandler implements Serializable {
     public void initializeOthers() {
         Metrics.Graph ShopCountGraph = metrics.createGraph("Shops");
         ShopCountGraph.addPlotter(new Metrics.Plotter("BookShopSigns") {
-
             @Override
             public int getValue() {
                 return calculateShopQuantity();
             }
         });
         ShopCountGraph.addPlotter(new Metrics.Plotter("BookShopAdminSigns") {
-
             @Override
             public int getValue() {
                 return calculateAdminShopQuantity();
@@ -113,7 +111,6 @@ public class MetricsHandler implements Serializable {
         });
         Metrics.Graph GMGraph = metrics.createGraph("DefaultGameMode");
         GMGraph.addPlotter(new Metrics.Plotter(plugin.getServer().getDefaultGameMode().name()) {
-
             @Override
             public int getValue() {
                 return 1;
@@ -121,11 +118,11 @@ public class MetricsHandler implements Serializable {
         });
         Metrics.Graph errorgraph = metrics.createGraph("uncatchedErrors");
         errorgraph.addPlotter(new Metrics.Plotter(plugin.getServer().getDefaultGameMode().name()) {
-
             @Override
             public int getValue() {
                 return Error;
             }
+
             @Override
             public void reset() {
                 Error = 0;
@@ -136,7 +133,6 @@ public class MetricsHandler implements Serializable {
     private void initializeCommandGraph() {
         Metrics.Graph CMDUses = metrics.createGraph("ShopUses");
         CMDUses.addPlotter(new Metrics.Plotter("BookShopSignBuy") {
-
             @Override
             public int getValue() {
                 return BookShopSignBuy;
@@ -148,7 +144,6 @@ public class MetricsHandler implements Serializable {
             }
         });
         CMDUses.addPlotter(new Metrics.Plotter("BookShopAdminSignBuy") {
-
             @Override
             public int getValue() {
                 return BookShopAdminSignBuy;
@@ -176,27 +171,15 @@ public class MetricsHandler implements Serializable {
             }
         }
         depGraph.addPlotter(new Metrics.Plotter(iConomyName) {
-
             @Override
             public int getValue() {
                 return 1;
             }
         });
         Metrics.Graph Permgraph = metrics.createGraph("PermissionDependencies");
-        String PermName = "None";
-        if (plugin.PermissionsHandler.PermPlugin != 0) {
-            if (plugin.PermissionsHandler.PermPlugin == 1) {
-                PermName = "BukkitPermissions";
-            } else if (plugin.PermissionsHandler.PermPlugin == 2) {
-                PermName = "PermissionsEX";
-            } else if (plugin.PermissionsHandler.PermPlugin == 3) {
-                PermName = "GroupManager";
-            } else if (plugin.PermissionsHandler.PermPlugin == 4) {
-                PermName = "bPermissions";
-            }
-        }
+        String PermName;
+        PermName = "BukkitPermissions";
         Permgraph.addPlotter(new Metrics.Plotter(PermName) {
-
             @Override
             public int getValue() {
                 return 1;
@@ -211,6 +194,7 @@ public class MetricsHandler implements Serializable {
         }
         return a;
     }
+
     public int calculateAdminShopQuantity() {
         int a = 0;
         for (String i : AdminShop.values()) {

@@ -1,5 +1,5 @@
 name: BookShop
-version: 4.5
+version: 4.6
 description: Shop for books.
 author: ibhh
 website: http://ibhh.de/BookShop.jar
@@ -15,9 +15,69 @@ permissions:
   BookShop.*:
     description: Gives access to all BookShop commands
     children:
-      BookShop.buy: false
-      BookShop.create: false
+      BookShop.buy: true
+      BookShop.create: true
+      BookShop.backupbook: true
+      BookShop.loadbook: true
+      BookShop.reload: true
+      BookShop.config: true
+      BookShop.debugfile: true
+      BookShop.internet: true
+      BookShop.version: true
+      BookShop.admin: true
+      BookShop.help: true
+      BookShop.showdebug: false
+      BookShop.report: true
+      BookShop.giveall: true
+      BookShop.give: true
+      BookShop.setwelcomebook: true
+      BookShop.removewelcomebook: true
+    default: op
+  BookShop.setwelcomebook:
+    description: Gives you access to the setwelcomebook command.
+    default: op
+  BookShop.removewelcomebook:
+    description: Gives you access to the removewelcomebook command.
+    default: op
+  BookShop.giveall:
+    description: Gives you access to the giveall command.
+    default: op
+  BookShop.give:
+    description: Gives you access to the give command.
+    default: op
+  BookShop.loadbook:
+    description: Gives you access to the loadbook command.
+    default: op
+  BookShop.backupbook:
+    description: Gives you access to the backupbook command.
+    default: op
+  BookShop.report:
+    description: Gives you access to the report command.
+    default: op
+  BookShop.showdebug:
+    description: Show the debug ingame to you.
     default: false
+  BookShop.help:
+    description: Gives you access to the help command.
+    default: true
+  BookShop.admin:
+    description: Gives you access to all admin command.
+    default: op
+  BookShop.version:
+    description: Gives you access to the version command.
+    default: true
+  BookShop.internet:
+    description: Gives you the ability to change the internet value.
+    default: op
+  BookShop.debugfile:
+    description: Gives you the ability to change the debugfile value.
+    default: op
+  BookShop.reload:
+    description: Gives you access to the reload command.
+    default: op
+  BookShop.config:
+    description: Gives you access to the config command to change the config ingame.
+    default: op
   BookShop.buy:
     description: Allows you to buy xp.
     default: false

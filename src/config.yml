@@ -159,13 +159,6 @@ help:
         de: Bricht das Aendern der config ab.
         en: Cancels the editing of the configfile.
       usage: /BookShop configcancel
-    reload:
-      name: reload
-      permission: BookShop.reload
-      description: 
-        de: Reloaded das Plugin
-        en: Reloads plugin
-      usage: /BookShop reload
     debugfile:
       name: debugfile
       permission: BookShop.debugfile

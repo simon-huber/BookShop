@@ -68,7 +68,7 @@ public class BookShop extends JavaPlugin {
             this.metricshandler.saveStatsFiles();
         }
         timetemp = System.currentTimeMillis() - timetemp;
-        Logger("disabled in " + timetemp + "ms", "");
+        Logger("disabled in " + timetemp + " ms", "");
     }
 
     @Override
@@ -86,9 +86,9 @@ public class BookShop extends JavaPlugin {
                 e1.printStackTrace();
             }
             getUpdate().startUpdateTimer();
-            Logger("Your Bukkit version: " + getServer().getBukkitVersion(), "Warning");
+            Logger("Your Bukkit version: " + getServer().getBukkitVersion(), "Debug");
             if (isBukkitVersionCompatible()) {
-                Logger("This plugin is compatible to this bukkit-version", "Warning");
+                Logger("This plugin is compatible to this bukkit-version", "Debug");
             } else {
                 Logger("Your plugin-version is NOT compatible!", "Error");
                 Logger("*****************************", "Warning");
@@ -153,7 +153,7 @@ public class BookShop extends JavaPlugin {
             }, 20L);
 
             timetemp1 = (System.nanoTime() - timetemp1) / 1000000L;
-            Logger("Enabled in " + timetemp1 + "ms", "");
+            Logger("Enabled in " + timetemp1 + " ms", "");
         } catch (Exception ex) {
             ex.printStackTrace();
             Logger("Uncatched Exeption! Disabling!", "Error");
