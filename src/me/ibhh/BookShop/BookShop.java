@@ -2,8 +2,6 @@ package me.ibhh.BookShop;
 
 import java.io.File;
 import java.util.HashMap;
-import me.ibhh.BookShop.BookHandler.BookHandler;
-import me.ibhh.BookShop.BookHandler.BookHandlerUtility;
 import me.ibhh.BookShop.Tools.ToolUtility;
 import me.ibhh.BookShop.Tools.Tools;
 import me.ibhh.BookShop.logger.LoggerUtility;
@@ -17,6 +15,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class BookShop extends JavaPlugin {
@@ -241,17 +240,18 @@ public class BookShop extends JavaPlugin {
                                     if (args[0].equalsIgnoreCase("setwelcomebook")) {
                                         if (this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
                                             if (player.getItemInHand().getType().equals(Material.WRITTEN_BOOK)) {
-                                                BookHandler bookInHand = new BookHandlerUtility(player.getItemInHand()).getBookHandler();
-                                                BookHandler loadedBook = BookLoader.load(this, bookInHand.getAuthor(), bookInHand.getTitle());
+                                                ItemStack bookInHand = player.getItemInHand();
+                                                BookMeta bmHand = (BookMeta) bookInHand.getItemMeta();
+                                                ItemStack loadedBook = BookLoader.load(this, bmHand.getAuthor(), bmHand.getTitle());
                                                 if (loadedBook != null) {
-                                                    getLoggerUtility().log("loadedBook: Author: " + loadedBook.getAuthor(), LoggerUtility.Level.DEBUG);
-                                                    bookInHand.setSelled(loadedBook.getSelled());
+                                                    BookMeta bmLoaded = (BookMeta) loadedBook.getItemMeta();
+                                                    getLoggerUtility().log("loadedBook: Author: " + bmLoaded.getAuthor(), LoggerUtility.Level.DEBUG);
                                                     BookLoader.delete(this, loadedBook);
                                                 }
                                                 BookLoader.save(this, bookInHand);
-                                                getLoggerUtility().log("BookinHand: Author: " + bookInHand.getAuthor(), LoggerUtility.Level.DEBUG);
+                                                getLoggerUtility().log("BookinHand: Author: " + bmHand.getAuthor(), LoggerUtility.Level.DEBUG);
                                                 getConfig().set("GiveBookToNewPlayers", Boolean.valueOf(true));
-                                                getConfig().set("Book", bookInHand.getAuthor() + " - " + bookInHand.getTitle() + ".txt");
+                                                getConfig().set("Book", bmHand.getAuthor() + " - " + bmHand.getTitle() + ".txt");
                                                 saveConfig();
                                                 PlayerLogger(player, "Successfully set a welcome book!", "");
                                             } else {
@@ -273,22 +273,17 @@ public class BookShop extends JavaPlugin {
                                                 getLoggerUtility().log("has item", LoggerUtility.Level.DEBUG);
                                                 if (player.getItemInHand().getType().equals(Material.WRITTEN_BOOK)) {
                                                     getLoggerUtility().log("has item written book", LoggerUtility.Level.DEBUG);
-                                                    try {
-                                                        BookHandler bookInChest = new BookHandlerUtility(player.getItemInHand()).getBookHandler();
-                                                        BookHandler loadedBook = BookLoader.load(this, bookInChest.getAuthor(), bookInChest.getTitle());
-                                                        if (loadedBook != null) {
-                                                            BookLoader.save(this, loadedBook);
-                                                        } else {
-                                                            BookLoader.save(this, bookInChest);
-                                                            loadedBook = bookInChest;
-                                                        }
-                                                        PlayerLogger(player, String.format(getConfig().getString("Shop.success.bookselled." + config.language), loadedBook.getTitle(), loadedBook.getAuthor()), "");
-                                                        PlayerLogger(player, String.format(getConfig().getString("Shop.success.bookselled2." + config.language), loadedBook.selled()), "");
-                                                        PlayerLogger(player, String.format(getConfig().getString("Shop.success.bookselled3." + config.language), loadedBook.getPages().size()), "");
-                                                    } catch (InvalidBookException ex) {
-                                                        ex.printStackTrace();
-                                                        PlayerLogger(player, "Something is wrong with the book in the chest :(", "Error");
+                                                    ItemStack bookInChest = player.getItemInHand();
+                                                    BookMeta bmChest = (BookMeta) bookInChest.getItemMeta();
+                                                    ItemStack loadedBook = BookLoader.load(this, bmChest.getAuthor(), bmChest.getTitle());
+                                                    if (loadedBook != null) {
+                                                        BookLoader.save(this, loadedBook);
+                                                    } else {
+                                                        BookLoader.save(this, bookInChest);
+                                                        loadedBook = bookInChest;
                                                     }
+                                                    PlayerLogger(player, String.format(getConfig().getString("Shop.success.bookselled." + config.language), bmChest.getTitle(), bmChest.getAuthor()), "");
+                                                    PlayerLogger(player, String.format(getConfig().getString("Shop.success.bookselled3." + config.language), bmChest.getPages().size()), "");
                                                 } else {
                                                     getLoggerUtility().log(player, "You need a book for this commands", LoggerUtility.Level.ERROR);
                                                 }
@@ -299,14 +294,23 @@ public class BookShop extends JavaPlugin {
                                     if (args[0].equalsIgnoreCase("backupbook")) {
                                         if (this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
                                             if (player.getItemInHand().getType().equals(Material.WRITTEN_BOOK)) {
-                                                BookHandler bookInHand = new BookHandlerUtility(player.getItemInHand()).getBookHandler();
-                                                BookHandler loadedBook = BookLoader.load(this, bookInHand.getAuthor(), bookInHand.getTitle());
-                                                if (bookInHand != null && loadedBook != null) {
-                                                    bookInHand.setSelled(loadedBook.getSelled());
-                                                    BookLoader.delete(this, loadedBook);
-                                                    BookLoader.save(this, bookInHand);
-                                                    PlayerLogger(player, "Saved!", "");
-                                                } else if (bookInHand != null && loadedBook == null) {
+                                                ItemStack bookInHand = player.getItemInHand();
+                                                BookMeta bmHand = (BookMeta) bookInHand.getItemMeta();
+                                                ItemStack loadedBook = BookLoader.load(this, bmHand.getAuthor(), bmHand.getTitle());
+                                                if(bookInHand == null) {
+                                                    PlayerLogger(player, getConfig().getString("command.error.takeBookInHand." + this.config.language), "Error");
+                                                    return true;
+                                                } else {
+                                                    if(!bookInHand.getType().equals(Material.WRITTEN_BOOK)) {
+                                                        PlayerLogger(player, getConfig().getString("command.error.takeBookInHand." + this.config.language), "Error");
+                                                        return true;
+                                                    }
+                                                }
+                                                if (loadedBook != null) {
+                                                        BookLoader.delete(this, loadedBook);
+                                                        BookLoader.save(this, bookInHand);
+                                                        PlayerLogger(player, "Saved!", "");
+                                                } else if (loadedBook == null) {
                                                     BookLoader.save(this, bookInHand);
                                                     PlayerLogger(player, "Saved!", "");
                                                 } else {
@@ -587,13 +591,13 @@ public class BookShop extends JavaPlugin {
                                             title = title.concat(args[i]);
                                         }
                                         String filename = author + " - " + title + ".txt";
-                                        BookHandler book = BookLoader.load(this, filename);
+                                        ItemStack book = BookLoader.load(this, filename);
                                         if (book == null) {
                                             PlayerLogger(player, "unknown error: book == null", "Error");
                                             PlayerLogger(player, "May the book doesnt exist!", "Error");
                                             return true;
                                         }
-                                        player.getInventory().addItem(new ItemStack[]{book.toItemStack(1)});
+                                        player.getInventory().addItem(book);
                                         Logger("Book loaded!", "Debug");
                                     } else {
                                         PlayerLogger(player, getConfig().getString("Shop.error.inventoryfull." + this.config.language), "Error");
@@ -620,7 +624,7 @@ public class BookShop extends JavaPlugin {
                                                 PlayerLogger(player, "Please confirm with \"/BookShop configconfirm\" !", "Warning");
                                                 PlayerLogger(player, "Please cancel with \"/BookShop configcancel\" !", "Warning");
                                                 final Player player1 = player;
-                                                getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
+                                                getServer().getScheduler().runTaskLaterAsynchronously(this, new Runnable() {
                                                     public void run() {
                                                         if (BookShop.this.Config.containsKey(player1)) {
                                                             BookShop.this.Config.remove(player1);
@@ -646,8 +650,8 @@ public class BookShop extends JavaPlugin {
                                                 }
                                                 String filename = author + " -" + title + ".txt";
                                                 try {
-                                                    BookHandler book = BookLoader.load(this, filename);
-                                                    player.getInventory().addItem(new ItemStack[]{book.toItemStack(1)});
+                                                    ItemStack book = BookLoader.load(this, filename);
+                                                    player.getInventory().addItem(book);
                                                     PlayerLogger(player, "Book loaded!", "");
                                                 } catch (Exception e) {
                                                     PlayerLogger(player, "Book not found, sorry!", "Error");

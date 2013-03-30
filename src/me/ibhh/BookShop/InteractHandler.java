@@ -6,8 +6,6 @@ package me.ibhh.BookShop;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import me.ibhh.BookShop.BookHandler.BookHandler;
-import me.ibhh.BookShop.BookHandler.BookHandlerUtility;
 import me.ibhh.BookShop.intern.BukkitBuildNOTSupportedException;
 import me.ibhh.BookShop.logger.LoggerUtility;
 import org.bukkit.Material;
@@ -19,6 +17,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BookMeta;
 
 /**
  *
@@ -132,32 +131,20 @@ public class InteractHandler {
                         int Slot = chest.getInventory().first(Material.WRITTEN_BOOK);
                         ItemStack item = chest.getInventory().getItem(Slot);
                         if (item != null) {
-                            try {
-                                BookHandler bookInChest = null;
-                                try {
-                                    bookInChest = new BookHandlerUtility(item).getBookHandler();
-                                } catch (BukkitBuildNOTSupportedException ex) {
-                                    Logger.getLogger(InteractHandler.class.getName()).log(Level.SEVERE, null, ex);
-                                    return;
-                                }
-                                if(bookInChest == null){
+                                if(item == null){
                                     plugin.getLoggerUtility().log(p, "An unknown error occurred!", LoggerUtility.Level.ERROR );
                                     return;
                                 }
-                                BookHandler loadedBook = BookLoader.load(plugin, bookInChest.getAuthor(), bookInChest.getTitle());
+                                BookMeta bm = (BookMeta) item.getItemMeta();
+                                ItemStack loadedBook = BookLoader.load(plugin, bm.getAuthor(), bm.getTitle());
                                 if (loadedBook != null) {
                                     BookLoader.save(plugin, loadedBook);
                                 } else {
-                                    BookLoader.save(plugin, bookInChest);
-                                    loadedBook = bookInChest;
+                                    BookLoader.save(plugin, item);
+                                    loadedBook = item;
                                 }
-                                plugin.PlayerLogger(p, String.format(plugin.getConfig().getString("Shop.success.bookselled." + plugin.config.language), loadedBook.getTitle(), loadedBook.getAuthor()), "");
-                                plugin.PlayerLogger(p, String.format(plugin.getConfig().getString("Shop.success.bookselled2." + plugin.config.language), loadedBook.selled()), "");
-                                plugin.PlayerLogger(p, String.format(plugin.getConfig().getString("Shop.success.bookselled3." + plugin.config.language), loadedBook.getPages().size()), "");
-                            } catch (InvalidBookException ex) {
-                                Logger.getLogger(InteractHandler.class.getName()).log(Level.SEVERE, null, ex);
-                                plugin.PlayerLogger(p, "Something is wrong with the book in the chest :(", "Error");
-                            }
+                                plugin.PlayerLogger(p, String.format(plugin.getConfig().getString("Shop.success.bookselled." + plugin.config.language), bm.getTitle(), bm.getAuthor()), "");
+                                plugin.PlayerLogger(p, String.format(plugin.getConfig().getString("Shop.success.bookselled3." + plugin.config.language), bm.getPages().size()), "");
                         }
                     }
                 }

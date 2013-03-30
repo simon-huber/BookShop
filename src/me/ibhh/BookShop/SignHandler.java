@@ -1,13 +1,7 @@
-/*
- * To change this template, choose Tools145 | Templates
- * and open the template in the editor.
- */
 package me.ibhh.BookShop;
 
-import me.ibhh.BookShop.BookHandler.BookHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import me.ibhh.BookShop.BookHandler.BookHandlerUtility;
 import me.ibhh.BookShop.Tools.ToolUtility;
 import me.ibhh.BookShop.intern.BukkitBuildNOTSupportedException;
 import org.bukkit.Material;
@@ -20,10 +14,11 @@ import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BookMeta;
 
 /**
  *
- * @author Simon
+ * @author ibhh
  */
 public class SignHandler {
 
@@ -202,104 +197,30 @@ public class SignHandler {
         plugin.Logger("Line 2: " + line[1], "Debug");
         plugin.Logger("Line 3: " + line[2], "Debug");
         plugin.Logger("Line 4: " + line[3], "Debug");
-        try {
-            if (!playername.equalsIgnoreCase(line[1])) {
-                if (player.getInventory().firstEmpty() != -1) {
-                    if (line[1].equalsIgnoreCase(plugin.SHOP_configuration.getString("AdminShop"))) {
-                        Chest chest = null;
-                        try {
-                            chest = (Chest) s.getBlock().getRelative(BlockFace.DOWN).getState();
-                        } catch (Exception e) {
-                        }
-                        if (chest != null) {
-                            if (chest.getInventory().contains(Material.WRITTEN_BOOK)) {
-                                int Slot = chest.getInventory().first(Material.WRITTEN_BOOK);
-                                ItemStack item = chest.getInventory().getItem(Slot);
-                                if (item != null) {
-                                    double price = 0;
-                                    price = plugin.ListenerShop.getPrice(s, player, false);
-                                    if (price >= 0) {
-                                        if ((plugin.MoneyHandler.getBalance(player) - price) >= 0) {
-                                            BookHandler bookInChest;
-                                            try {
-                                                bookInChest = new BookHandlerUtility(item).getBookHandler();
-                                            } catch (BukkitBuildNOTSupportedException ex) {
-                                                Logger.getLogger(SignHandler.class.getName()).log(Level.SEVERE, null, ex);
-                                                plugin.PlayerLogger(player, ex.getMessage(), "Error");
-                                                return;
-                                            }
-                                            if (bookInChest == null) {
-                                                plugin.PlayerLogger(player, "An unknown error occurred!", "Error");
-                                                return;
-                                            }
-                                            BookHandler loadedBook = BookLoader.load(plugin, bookInChest.getAuthor(), bookInChest.getTitle());
-                                            if (loadedBook != null) {
-                                                loadedBook.increaseSelled();
-                                                BookLoader.save(plugin, loadedBook);
-                                            } else {
-                                                bookInChest.increaseSelled();
-                                                BookLoader.save(plugin, bookInChest);
-                                            }
-                                            plugin.MoneyHandler.substract(price, player);
-                                            player.getInventory().addItem(item.clone());
-                                            plugin.PlayerLogger(player, String.format(plugin.config.Shopsuccessbuy, s.getLine(2), s.getLine(1), price), "");
-                                            player.saveData();
-                                            plugin.metricshandler.BookShopAdminSignBuy++;
-                                        } else {
-                                            plugin.PlayerLogger(player, plugin.config.Shoperrornotenoughmoneyconsumer, "Error");
-                                        }
-                                    } else {
-                                        plugin.PlayerLogger(player, plugin.getConfig().getString("Shop.error.wrongPrice." + plugin.config.language), "Error");
-                                    }
-                                }
-                            } else {
-                                plugin.PlayerLogger(player, plugin.getConfig().getString("Shop.error.nobook." + plugin.config.language), "Error");
-                            }
-                        } else {
-                            plugin.PlayerLogger(player, plugin.getConfig().getString("Shop.error.nobook." + plugin.config.language), "Error");
-                        }
-                    } else if (line[1].equalsIgnoreCase(plugin.SHOP_configuration.getString("Newspapers"))) {
-                        Chest chest = null;
-                        try {
-                            chest = (Chest) s.getBlock().getRelative(BlockFace.DOWN).getState();
-                        } catch (Exception e) {
-                        }
-                        if (chest != null) {
-                            if (chest.getInventory().contains(Material.WRITTEN_BOOK)) {
+        if (!playername.equalsIgnoreCase(line[1])) {
+            if (player.getInventory().firstEmpty() != -1) {
+                if (line[1].equalsIgnoreCase(plugin.SHOP_configuration.getString("AdminShop"))) {
+                    Chest chest = null;
+                    try {
+                        chest = (Chest) s.getBlock().getRelative(BlockFace.DOWN).getState();
+                    } catch (Exception e) {
+                    }
+                    if (chest != null) {
+                        if (chest.getInventory().contains(Material.WRITTEN_BOOK)) {
+                            int Slot = chest.getInventory().first(Material.WRITTEN_BOOK);
+                            ItemStack item = chest.getInventory().getItem(Slot);
+                            if (item != null) {
                                 double price = 0;
                                 price = plugin.ListenerShop.getPrice(s, player, false);
                                 if (price >= 0) {
                                     if ((plugin.MoneyHandler.getBalance(player) - price) >= 0) {
-                                        for (ItemStack item : chest.getInventory().getContents()) {
-                                            if (item != null) {
-                                                if (item.getType().equals(Material.WRITTEN_BOOK)) {
-                                                    BookHandler bookInChest;
-                                                    try {
-                                                        bookInChest = new BookHandlerUtility(item).getBookHandler();
-                                                    } catch (BukkitBuildNOTSupportedException ex) {
-                                                        Logger.getLogger(SignHandler.class.getName()).log(Level.SEVERE, null, ex);
-                                                        plugin.PlayerLogger(player, ex.getMessage(), "Error");
-                                                        return;
-                                                    }
-                                                    if (bookInChest == null) {
-                                                        plugin.PlayerLogger(player, "An unknown error occurred!", "Error");
-                                                        return;
-                                                    }
-                                                    BookHandler loadedBook = BookLoader.load(plugin, bookInChest.getAuthor(), bookInChest.getTitle());
-                                                    if (loadedBook != null) {
-                                                        loadedBook.increaseSelled();
-                                                        BookLoader.save(plugin, loadedBook);
-                                                    } else {
-                                                        bookInChest.increaseSelled();
-                                                        BookLoader.save(plugin, bookInChest);
-                                                    }
-                                                    player.getInventory().addItem(item.clone());
-                                                    plugin.PlayerLogger(player, String.format(plugin.config.Shopsuccessbuy, bookInChest.getTitle(), bookInChest.getAuthor(), 0), "");
-                                                }
-                                            }
+                                        if (item == null) {
+                                            plugin.PlayerLogger(player, "An unknown error occurred!", "Error");
+                                            return;
                                         }
                                         plugin.MoneyHandler.substract(price, player);
-                                        plugin.PlayerLogger(player, "You purchased the collection for " + price, "");
+                                        player.getInventory().addItem(item.clone());
+                                        plugin.PlayerLogger(player, String.format(plugin.config.Shopsuccessbuy, s.getLine(2), s.getLine(1), price), "");
                                         player.saveData();
                                         plugin.metricshandler.BookShopAdminSignBuy++;
                                     } else {
@@ -313,120 +234,137 @@ public class SignHandler {
                             plugin.PlayerLogger(player, plugin.getConfig().getString("Shop.error.nobook." + plugin.config.language), "Error");
                         }
                     } else {
-                        Player empfaenger = ToolUtility.getTools().getmyOfflinePlayer(plugin, line, 1);
-                        if (empfaenger != null) {
-                            Chest chest = null;
-                            try {
-                                chest = (Chest) s.getBlock().getRelative(BlockFace.DOWN).getState();
-                            } catch (Exception e) {
-                            }
-                            if (chest != null) {
-                                if (chest.getInventory().contains(Material.WRITTEN_BOOK)) {
-                                    int Slot = chest.getInventory().first(Material.WRITTEN_BOOK);
-                                    ItemStack item = chest.getInventory().getItem(Slot);
-                                    if (item != null) {
-                                        plugin.Logger(player.getName() + " has Item " + player.getItemInHand().getType().name() + " in the hand!", "Debug");
-                                        if (plugin.getConfig().getBoolean("useBookandQuill") && countBooks(chest.getInventory()) == 0) {
-                                            if (!player.getItemInHand().getType().equals(Material.BOOK_AND_QUILL) && plugin.getConfig().getBoolean("useBookandQuill")) {
-                                                plugin.PlayerLogger(player, plugin.getConfig().getString("Shop.error.takeBookandQuill." + plugin.config.language), "Error");
-                                                return;
+                        plugin.PlayerLogger(player, plugin.getConfig().getString("Shop.error.nobook." + plugin.config.language), "Error");
+                    }
+                } else if (line[1].equalsIgnoreCase(plugin.SHOP_configuration.getString("Newspapers"))) {
+                    Chest chest = null;
+                    try {
+                        chest = (Chest) s.getBlock().getRelative(BlockFace.DOWN).getState();
+                    } catch (Exception e) {
+                    }
+                    if (chest != null) {
+                        if (chest.getInventory().contains(Material.WRITTEN_BOOK)) {
+                            double price = 0;
+                            price = plugin.ListenerShop.getPrice(s, player, false);
+                            if (price >= 0) {
+                                if ((plugin.MoneyHandler.getBalance(player) - price) >= 0) {
+                                    for (ItemStack item : chest.getInventory().getContents()) {
+                                        if (item != null) {
+                                            if (item.getType().equals(Material.WRITTEN_BOOK)) {
+                                                BookMeta itemMeta = (BookMeta) item.getItemMeta();
+                                                player.getInventory().addItem(item.clone());
+                                                plugin.PlayerLogger(player, String.format(plugin.config.Shopsuccessbuy, itemMeta.getTitle(), itemMeta.getAuthor(), 0), "");
                                             }
                                         }
-                                        if (plugin.config.getPlayerConfig(empfaenger, player)) {
-                                            double price = 0;
-                                            if (player.getItemInHand().getType().equals(Material.BOOK_AND_QUILL)) {
-                                                price = plugin.ListenerShop.getPrice(s, player, true);
-                                            } else {
-                                                price = plugin.ListenerShop.getPrice(s, player, false);
-                                            }
-                                            if (price >= 0) {
-                                                if ((plugin.MoneyHandler.getBalance(player) - price) >= 0) {
-                                                    if (player.getItemInHand().getType().equals(Material.BOOK_AND_QUILL)) {
-                                                        player.getInventory().clear(player.getInventory().getHeldItemSlot());
-                                                        player.getInventory().addItem(item.clone());
-                                                        player.saveData();
-                                                    } else if (plugin.getConfig().getBoolean("useBookandQuill") && countBooks(chest.getInventory()) > 0) {
-                                                        plugin.Logger("Books in Chest", "Debug");
-                                                        int Slotbook = chest.getInventory().first(Material.BOOK_AND_QUILL);
-                                                        ItemStack itembook = chest.getInventory().getItem(Slotbook);
-                                                        if (itembook.getAmount() > 1) {
-                                                            itembook.setAmount(itembook.getAmount() - 1);
-                                                        } else {
-                                                            chest.getInventory().clear(Slotbook);
-                                                        }
-                                                        player.getInventory().addItem(item.clone());
-                                                    } else {
-                                                        if (!plugin.getConfig().getBoolean("useBookandQuill")) {
-                                                            player.getInventory().addItem(item.clone());
-                                                        } else {
-                                                            plugin.PlayerLogger(player, plugin.getConfig().getString("Shop.error.takeBookandQuill." + plugin.config.language), "Error");
-                                                            return;
-                                                        }
-                                                    }
-                                                    plugin.MoneyHandler.substract(price, player);
-                                                    double amount = price;
-                                                    if (plugin.getConfig().getInt("tax") != 0) {
-                                                        amount = price * plugin.getConfig().getInt("tax") / 100;
-                                                    }
-                                                    plugin.MoneyHandler.addmoney(amount, empfaenger);
-                                                    plugin.PlayerLogger(player, String.format(plugin.config.Shopsuccessbuy, s.getLine(2), s.getLine(1), price), "");
-                                                    empfaenger.saveData();
+                                    }
+                                    plugin.MoneyHandler.substract(price, player);
+                                    plugin.PlayerLogger(player, "You purchased the collection for " + price, "");
+                                    player.saveData();
+                                    plugin.metricshandler.BookShopAdminSignBuy++;
+                                } else {
+                                    plugin.PlayerLogger(player, plugin.config.Shoperrornotenoughmoneyconsumer, "Error");
+                                }
+                            } else {
+                                plugin.PlayerLogger(player, plugin.getConfig().getString("Shop.error.wrongPrice." + plugin.config.language), "Error");
+                            }
+                        }
+                    } else {
+                        plugin.PlayerLogger(player, plugin.getConfig().getString("Shop.error.nobook." + plugin.config.language), "Error");
+                    }
+                } else {
+                    Player empfaenger = ToolUtility.getTools().getmyOfflinePlayer(plugin, line, 1);
+                    if (empfaenger != null) {
+                        Chest chest = null;
+                        try {
+                            chest = (Chest) s.getBlock().getRelative(BlockFace.DOWN).getState();
+                        } catch (Exception e) {
+                        }
+                        if (chest != null) {
+                            if (chest.getInventory().contains(Material.WRITTEN_BOOK)) {
+                                int Slot = chest.getInventory().first(Material.WRITTEN_BOOK);
+                                ItemStack item = chest.getInventory().getItem(Slot);
+                                if (item != null) {
+                                    plugin.Logger(player.getName() + " has Item " + player.getItemInHand().getType().name() + " in the hand!", "Debug");
+                                    if (plugin.getConfig().getBoolean("useBookandQuill") && countBooks(chest.getInventory()) == 0) {
+                                        if (!player.getItemInHand().getType().equals(Material.BOOK_AND_QUILL) && plugin.getConfig().getBoolean("useBookandQuill")) {
+                                            plugin.PlayerLogger(player, plugin.getConfig().getString("Shop.error.takeBookandQuill." + plugin.config.language), "Error");
+                                            return;
+                                        }
+                                    }
+                                    if (plugin.config.getPlayerConfig(empfaenger, player)) {
+                                        double price = 0;
+                                        if (player.getItemInHand().getType().equals(Material.BOOK_AND_QUILL)) {
+                                            price = plugin.ListenerShop.getPrice(s, player, true);
+                                        } else {
+                                            price = plugin.ListenerShop.getPrice(s, player, false);
+                                        }
+                                        if (price >= 0) {
+                                            if ((plugin.MoneyHandler.getBalance(player) - price) >= 0) {
+                                                if (player.getItemInHand().getType().equals(Material.BOOK_AND_QUILL)) {
+                                                    player.getInventory().clear(player.getInventory().getHeldItemSlot());
+                                                    player.getInventory().addItem(item.clone());
                                                     player.saveData();
-                                                    BookHandler bookInChest;
-                                                    try {
-                                                        bookInChest = new BookHandlerUtility(item).getBookHandler();
-                                                    } catch (BukkitBuildNOTSupportedException ex) {
-                                                        Logger.getLogger(SignHandler.class.getName()).log(Level.SEVERE, null, ex);
-                                                        plugin.PlayerLogger(player, ex.getMessage(), "Error");
-                                                        return;
-                                                    }
-                                                    if (bookInChest == null) {
-                                                        plugin.PlayerLogger(player, "An unknown error occurred!", "Error");
-                                                        return;
-                                                    }
-                                                    BookHandler loadedBook = BookLoader.load(plugin, bookInChest.getAuthor(), bookInChest.getTitle());
-                                                    if (loadedBook != null) {
-                                                        loadedBook.increaseSelled();
-                                                        BookLoader.save(plugin, loadedBook);
+                                                } else if (plugin.getConfig().getBoolean("useBookandQuill") && countBooks(chest.getInventory()) > 0) {
+                                                    plugin.Logger("Books in Chest", "Debug");
+                                                    int Slotbook = chest.getInventory().first(Material.BOOK_AND_QUILL);
+                                                    ItemStack itembook = chest.getInventory().getItem(Slotbook);
+                                                    if (itembook.getAmount() > 1) {
+                                                        itembook.setAmount(itembook.getAmount() - 1);
                                                     } else {
-                                                        bookInChest.increaseSelled();
-                                                        BookLoader.save(plugin, bookInChest);
+                                                        chest.getInventory().clear(Slotbook);
                                                     }
-                                                    plugin.metricshandler.BookShopSignBuy++;
-                                                    plugin.PlayerLogger(empfaenger, String.format(plugin.config.Shopsuccesssellerbuy, s.getLine(2), playername, price), "");
-                                                    if (plugin.getConfig().getInt("tax") != 0) {
-                                                        plugin.PlayerLogger(empfaenger, String.format(plugin.getConfig().getString("Shop.success.tax." + plugin.config.language), plugin.getConfig().getInt("tax")), "Warning");
-                                                    }
+                                                    player.getInventory().addItem(item.clone());
                                                 } else {
-                                                    plugin.PlayerLogger(player, plugin.config.Shoperrornotenoughmoneyconsumer, "Error");
+                                                    if (!plugin.getConfig().getBoolean("useBookandQuill")) {
+                                                        player.getInventory().addItem(item.clone());
+                                                    } else {
+                                                        plugin.PlayerLogger(player, plugin.getConfig().getString("Shop.error.takeBookandQuill." + plugin.config.language), "Error");
+                                                        return;
+                                                    }
+                                                }
+                                                plugin.MoneyHandler.substract(price, player);
+                                                double amount = price;
+                                                if (plugin.getConfig().getInt("tax") != 0) {
+                                                    amount = price * plugin.getConfig().getInt("tax") / 100;
+                                                }
+                                                plugin.MoneyHandler.addmoney(amount, empfaenger);
+                                                plugin.PlayerLogger(player, String.format(plugin.config.Shopsuccessbuy, s.getLine(2), s.getLine(1), price), "");
+                                                empfaenger.saveData();
+                                                player.saveData();
+                                                if (item == null) {
+                                                    plugin.PlayerLogger(player, "An unknown error occurred!", "Error");
+                                                    return;
+                                                }
+                                                plugin.metricshandler.BookShopSignBuy++;
+                                                plugin.PlayerLogger(empfaenger, String.format(plugin.config.Shopsuccesssellerbuy, s.getLine(2), playername, price), "");
+                                                if (plugin.getConfig().getInt("tax") != 0) {
+                                                    plugin.PlayerLogger(empfaenger, String.format(plugin.getConfig().getString("Shop.success.tax." + plugin.config.language), plugin.getConfig().getInt("tax")), "Warning");
                                                 }
                                             } else {
-                                                plugin.PlayerLogger(player, plugin.getConfig().getString("Shop.error.wrongPrice." + plugin.config.language), "Error");
+                                                plugin.PlayerLogger(player, plugin.config.Shoperrornotenoughmoneyconsumer, "Error");
                                             }
+                                        } else {
+                                            plugin.PlayerLogger(player, plugin.getConfig().getString("Shop.error.wrongPrice." + plugin.config.language), "Error");
                                         }
-                                    } else {
-                                        plugin.PlayerLogger(player, plugin.getConfig().getString("Shop.error.nobook." + plugin.config.language), "Error");
                                     }
                                 } else {
                                     plugin.PlayerLogger(player, plugin.getConfig().getString("Shop.error.nobook." + plugin.config.language), "Error");
                                 }
                             } else {
-                                plugin.PlayerLogger(player, plugin.getConfig().getString("Shop.error.nochest2." + plugin.config.language), "Error");
+                                plugin.PlayerLogger(player, plugin.getConfig().getString("Shop.error.nobook." + plugin.config.language), "Error");
                             }
                         } else {
-                            plugin.PlayerLogger(player, line[1] + " " + plugin.config.playerwasntonline, "Error");
+                            plugin.PlayerLogger(player, plugin.getConfig().getString("Shop.error.nochest2." + plugin.config.language), "Error");
                         }
+                    } else {
+                        plugin.PlayerLogger(player, line[1] + " " + plugin.config.playerwasntonline, "Error");
                     }
-                } else {
-                    plugin.PlayerLogger(player, plugin.getConfig().getString("Shop.error.inventoryfull." + plugin.config.language), "Error");
                 }
             } else {
-                plugin.PlayerLogger(player, "That is your Shop", "Error");
+                plugin.PlayerLogger(player, plugin.getConfig().getString("Shop.error.inventoryfull." + plugin.config.language), "Error");
             }
-        } catch (InvalidBookException ex) {
-            Logger.getLogger(SignHandler.class.getName()).log(Level.SEVERE, null, ex);
-            plugin.PlayerLogger(player, "Something is wrong with this book!", "Error");
-            plugin.getReportHandler().report(3338, "Error BookShopSignBuy", ex.getMessage(), "SignHandler", ex);
+        } else {
+            plugin.PlayerLogger(player, "That is your Shop", "Error");
         }
     }
 

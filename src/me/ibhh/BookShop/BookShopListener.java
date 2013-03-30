@@ -1,8 +1,6 @@
 package me.ibhh.BookShop;
 
-import me.ibhh.BookShop.BookHandler.BookHandler;
 import java.util.HashMap;
-import me.ibhh.BookShop.BookHandler.BookHandlerUtility;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -23,6 +21,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BookMeta;
 
 public class BookShopListener
         implements Listener {
@@ -80,22 +79,19 @@ public class BookShopListener
                                     BookShopListener.this.plugin.Logger("Sign is BookShop", "Debug");
                                     int slot = ((Chest) BookShopListener.this.ChestViewers.get((Player) ev.getPlayer())).getBlockInventory().first(Material.WRITTEN_BOOK);
                                     ItemStack item = ((Chest) BookShopListener.this.ChestViewers.get((Player) ev.getPlayer())).getBlockInventory().getItem(slot);
-                                    BookHandler bookInChest = new BookHandlerUtility(item).getBookHandler();
-                                    if (bookInChest != null) {
+                                    if (item != null) {
                                         BookShopListener.this.plugin.Logger("Book != null", "Debug");
-                                        BookHandler loadedBook = null;
-                                        try {
-                                            loadedBook = BookLoader.load(BookShopListener.this.plugin, bookInChest.getAuthor(), bookInChest.getTitle());
-                                        } catch (Exception e) {
-                                        }
+                                        BookMeta bm = (BookMeta) item.getItemMeta();
+                                        ItemStack loadedBook = BookLoader.load(BookShopListener.this.plugin, bm.getAuthor(), bm.getTitle());
                                         if (loadedBook != null) {
-                                            if ((!loadedBook.getAuthor().equals(bookInChest.getAuthor())) || (!loadedBook.getTitle().equals(bookInChest.getTitle()))) {
-                                                BookLoader.save(BookShopListener.this.plugin, bookInChest);
+                                            BookMeta bmLoaded = (BookMeta) loadedBook.getItemMeta();
+                                            if ((!bmLoaded.getAuthor().equals(bm.getAuthor())) || (!bmLoaded.getTitle().equals(bm.getTitle()))) {
+                                                BookLoader.save(BookShopListener.this.plugin, item);
                                             }
                                         } else {
-                                            BookLoader.save(BookShopListener.this.plugin, bookInChest);
+                                            BookLoader.save(BookShopListener.this.plugin, item);
                                         }
-                                        sign.setLine(2, bookInChest.getTitle());
+                                        sign.setLine(2, bm.getTitle());
                                         sign.update();
                                     }
                                 }
@@ -142,17 +138,17 @@ public class BookShopListener
                             if (event.getCurrentItem() == null) {
                                 return;
                             }
-                            BookHandler book = null;
-                            try {
-                                book = new BookHandlerUtility(event.getCurrentItem()).getBookHandler();
-                            } catch (InvalidBookException ex) {
-                            }
-                            if ((book != null)
-                                    && (!book.getAuthor().equalsIgnoreCase(player.getName()))
-                                    && (!this.plugin.PermissionsHandler.checkpermissionssilent(player, "BookShop.sell.other"))) {
-                                this.plugin.PlayerLogger(player, this.plugin.getConfig().getString("Shop.error.onlyyourbooks." + this.plugin.getConfig().getString("language")), "Error");
-                                event.setCancelled(true);
-                                return;
+                            ItemStack bookItem = event.getCurrentItem();
+                            if (bookItem != null) {
+                                if (bookItem.getType().equals(Material.WRITTEN_BOOK)) {
+                                    BookMeta bm = (BookMeta) bookItem.getItemMeta();
+                                    if (!bm.getAuthor().equalsIgnoreCase(player.getName())
+                                            && (!this.plugin.PermissionsHandler.checkpermissionssilent(player, "BookShop.sell.other"))) {
+                                        this.plugin.PlayerLogger(player, this.plugin.getConfig().getString("Shop.error.onlyyourbooks." + this.plugin.getConfig().getString("language")), "Error");
+                                        event.setCancelled(true);
+                                        return;
+                                    }
+                                }
                             }
 
                             if ((!event.getCurrentItem().getType().equals(Material.WRITTEN_BOOK)) && (!event.getCurrentItem().getType().equals(Material.AIR))) {
@@ -179,17 +175,18 @@ public class BookShopListener
                             if (event.getCurrentItem() == null) {
                                 return;
                             }
-                            BookHandler book = null;
-                            try {
-                                book = new BookHandlerUtility(event.getCurrentItem()).getBookHandler();
-                            } catch (InvalidBookException ex) {
-                            }
-                            if ((book != null)
-                                    && (!book.getAuthor().equalsIgnoreCase(player.getName()))
-                                    && (!this.plugin.PermissionsHandler.checkpermissionssilent(player, "BookShop.sell.other"))) {
-                                this.plugin.PlayerLogger(player, this.plugin.getConfig().getString("Shop.error.onlyyourbooks." + this.plugin.getConfig().getString("language")), "Error");
-                                event.setCancelled(true);
-                                return;
+                            ItemStack bookItem = event.getCurrentItem();
+
+                            if (bookItem != null) {
+                                if (bookItem.getType().equals(Material.WRITTEN_BOOK)) {
+                                    BookMeta bm = (BookMeta) bookItem.getItemMeta();
+                                    if (!bm.getAuthor().equalsIgnoreCase(player.getName())
+                                            && (!this.plugin.PermissionsHandler.checkpermissionssilent(player, "BookShop.sell.other"))) {
+                                        this.plugin.PlayerLogger(player, this.plugin.getConfig().getString("Shop.error.onlyyourbooks." + this.plugin.getConfig().getString("language")), "Error");
+                                        event.setCancelled(true);
+                                        return;
+                                    }
+                                }
                             }
 
                             if ((!event.getCurrentItem().getType().equals(Material.WRITTEN_BOOK)) && (!event.getCurrentItem().getType().equals(Material.AIR))) {
@@ -253,10 +250,10 @@ public class BookShopListener
 
                 if ((!this.plugin.getServer().getOfflinePlayer(event.getPlayer().getName()).hasPlayedBefore())
                         && (this.plugin.getConfig().getBoolean("GiveBookToNewPlayers"))) {
-                    BookHandler book = BookLoader.load(this.plugin, this.plugin.getConfig().getString("Book"));
+                    ItemStack book = BookLoader.load(this.plugin, this.plugin.getConfig().getString("Book"));
                     if (event.getPlayer().getInventory().firstEmpty() != -1) {
                         if (book != null) {
-                            event.getPlayer().getInventory().addItem(book.toItemStack(1));
+                            event.getPlayer().getInventory().addItem(book);
                         } else {
                             this.plugin.Logger("Book wasnt found, so the new player gets no book!", "Error");
                             this.plugin.Logger("Please check your config.yml or type with a book in the hand '/bookshop setwelcomebook'!", "Error");

@@ -62,6 +62,6 @@ public class ToolUtility {
                 "org.bukkit.entity.Player")) {
             return new Tools151();
         }
-        return null;
+        return new ToolsNoCraftbukkit();
     }
 }
