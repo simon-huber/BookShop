@@ -212,6 +212,7 @@ public class SignHandler {
                                         }
                                         plugin.MoneyHandler.substract(price, player);
                                         player.getInventory().addItem(item.clone());
+                                        BookLoader.save(plugin, item);
                                         plugin.PlayerLogger(player, String.format(plugin.config.Shopsuccessbuy, s.getLine(2), s.getLine(1), price), "");
                                         player.saveData();
                                         plugin.metricshandler.BookShopAdminSignBuy++;
@@ -245,6 +246,7 @@ public class SignHandler {
                                             if (item.getType().equals(Material.WRITTEN_BOOK)) {
                                                 BookMeta itemMeta = (BookMeta) item.getItemMeta();
                                                 player.getInventory().addItem(item.clone());
+                                                BookLoader.save(plugin, item);
                                                 plugin.PlayerLogger(player, String.format(plugin.config.Shopsuccessbuy, itemMeta.getTitle(), itemMeta.getAuthor(), 0), "");
                                             }
                                         }
@@ -292,6 +294,7 @@ public class SignHandler {
                                         if (player.getItemInHand().getType().equals(Material.BOOK_AND_QUILL)) {
                                             player.getInventory().clear(player.getInventory().getHeldItemSlot());
                                             player.getInventory().addItem(item.clone());
+                                            BookLoader.save(plugin, item);
                                             player.saveData();
                                         } else if (plugin.getConfig().getBoolean("useBookandQuill") && countBooks(chest.getInventory()) > 0) {
                                             plugin.Logger("Books in Chest", "Debug");
@@ -303,6 +306,7 @@ public class SignHandler {
                                                 chest.getInventory().clear(Slotbook);
                                             }
                                             player.getInventory().addItem(item.clone());
+                                            BookLoader.save(plugin, item);
                                         } else {
                                             if (!plugin.getConfig().getBoolean("useBookandQuill")) {
                                                 player.getInventory().addItem(item.clone());

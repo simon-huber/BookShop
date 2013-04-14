@@ -4,15 +4,12 @@
  */
 package me.ibhh.BookShop;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-/**
- *
- * @author Simon
- */
 public class ObjectManager {
 
     /**
@@ -23,6 +20,10 @@ public class ObjectManager {
      * @author Tomsik68<tomsik68@gmail.com>
      */
     public static <T extends Object> void save(T obj, String path) throws Exception {
+        File file = new File(path);
+        if(file.exists()){
+            file.delete();
+        }
         ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(path));
         oos.writeObject(obj);
         oos.flush();

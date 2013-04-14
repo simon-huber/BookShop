@@ -67,7 +67,7 @@ public class BookShop extends JavaPlugin {
         }
         if (!givebook_list.isEmpty()) {
             try {
-                File path = new File(getDataFolder() + File.separator + "temp" + File.separator );
+                File path = new File(getDataFolder() + File.separator + "temp" + File.separator);
                 path.mkdirs();
                 ObjectManager.save(givebook_list, getDataFolder() + File.separator + "temp" + File.separator + "GiveAll.books");
             } catch (Exception ex) {
@@ -263,12 +263,6 @@ public class BookShop extends JavaPlugin {
                                             if (player.getItemInHand().getType().equals(Material.WRITTEN_BOOK)) {
                                                 ItemStack bookInHand = player.getItemInHand();
                                                 BookMeta bmHand = (BookMeta) bookInHand.getItemMeta();
-                                                ItemStack loadedBook = BookLoader.load(this, bmHand.getAuthor(), bmHand.getTitle());
-                                                if (loadedBook != null) {
-                                                    BookMeta bmLoaded = (BookMeta) loadedBook.getItemMeta();
-                                                    getLoggerUtility().log("loadedBook: Author: " + bmLoaded.getAuthor(), LoggerUtility.Level.DEBUG);
-                                                    BookLoader.delete(this, loadedBook);
-                                                }
                                                 BookLoader.save(this, bookInHand);
                                                 getLoggerUtility().log("BookinHand: Author: " + bmHand.getAuthor(), LoggerUtility.Level.DEBUG);
                                                 getConfig().set("GiveBookToNewPlayers", Boolean.valueOf(true));
@@ -316,8 +310,6 @@ public class BookShop extends JavaPlugin {
                                         if (this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
                                             if (player.getItemInHand().getType().equals(Material.WRITTEN_BOOK)) {
                                                 ItemStack bookInHand = player.getItemInHand();
-                                                BookMeta bmHand = (BookMeta) bookInHand.getItemMeta();
-                                                ItemStack loadedBook = BookLoader.load(this, bmHand.getAuthor(), bmHand.getTitle());
                                                 if (bookInHand == null) {
                                                     PlayerLogger(player, getConfig().getString("command.error.takeBookInHand." + this.config.language), "Error");
                                                     return true;
@@ -327,16 +319,8 @@ public class BookShop extends JavaPlugin {
                                                         return true;
                                                     }
                                                 }
-                                                if (loadedBook != null) {
-                                                    BookLoader.delete(this, loadedBook);
-                                                    BookLoader.save(this, bookInHand);
-                                                    PlayerLogger(player, "Saved!", "");
-                                                } else if (loadedBook == null) {
-                                                    BookLoader.save(this, bookInHand);
-                                                    PlayerLogger(player, "Saved!", "");
-                                                } else {
-                                                    PlayerLogger(player, getConfig().getString("command.error.takeBookInHand." + this.config.language), "Error");
-                                                }
+                                                BookLoader.save(this, bookInHand);
+                                                PlayerLogger(player, "Saved!", "");
                                             } else {
                                                 PlayerLogger(player, getConfig().getString("command.error.takeBookInHand." + this.config.language), "Error");
                                             }

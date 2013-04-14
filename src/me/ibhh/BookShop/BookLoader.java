@@ -1,7 +1,6 @@
 package me.ibhh.BookShop;
 
 import java.io.File;
-import java.util.ArrayList;
 import me.ibhh.BookShop.intern.BukkitBuildNOTSupportedException;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -41,10 +40,9 @@ public class BookLoader {
         try {
             String path = plugin.getDataFolder() + File.separator + "books" + File.separator;
             File pathFile = new File(path);
-            BookFile FileToSave = BookHandlerToBookFile(book);
             pathFile.mkdirs();
             BookMeta bm = (BookMeta) book.getItemMeta();
-            ObjectManager.save(FileToSave, path + bm.getAuthor() + " - " + bm.getTitle() + ".txt");
+            ObjectManager.save(BookHandlerToBookFile(book), path + bm.getAuthor() + " - " + bm.getTitle() + ".txt");
             plugin.Logger("Book " + bm.getTitle() + " by " + bm.getAuthor() + " saved!", "Debug");
             return true;
         } catch (Exception e) {
