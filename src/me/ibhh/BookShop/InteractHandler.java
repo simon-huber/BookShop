@@ -1,12 +1,5 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package me.ibhh.BookShop;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import me.ibhh.BookShop.intern.BukkitBuildNOTSupportedException;
 import me.ibhh.BookShop.logger.LoggerUtility;
 import org.bukkit.Material;
 import org.bukkit.block.Block;

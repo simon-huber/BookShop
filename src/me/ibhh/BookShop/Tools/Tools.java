@@ -1,12 +1,59 @@
 package me.ibhh.BookShop.Tools;
+
 import me.ibhh.BookShop.BookShop;
+import me.ibhh.BookShop.intern.PlayerNotFoundException;
+import me.ibhh.BookShop.intern.PlayerNotOnlineException;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
-/**
- *
- * @author Simon
- */
-public abstract class Tools {
+public class Tools {
+
+    public static Player getmyOfflinePlayer(BookShop plugin, String[] args, int index) throws PlayerNotOnlineException, PlayerNotFoundException {
+        return getmyOfflinePlayer(plugin, args[index]);
+    }
+
+    public static Player getmyOfflinePlayer(BookShop plugin, String playername) throws PlayerNotOnlineException, PlayerNotFoundException {
+        plugin.Logger("Empfaenger: " + playername, "Debug");
+        Player player = plugin.getServer().getPlayerExact(playername);
+        boolean wasonline = false;
+        try {
+            if (player == null) {
+                player = plugin.getServer().getPlayer(playername);
+            }
+            if (player == null) {
+                for (OfflinePlayer p : Bukkit.getServer().getOfflinePlayers()) {
+                    OfflinePlayer offp = p;
+                    if (offp.getName().toLowerCase().equals(playername.toLowerCase())) {
+                        plugin.Logger("Player has same name: " + offp.getName(), "Debug");
+                        if (offp != null) {
+                            if (offp.hasPlayedBefore()) {
+                                wasonline = true;
+                                player = (Player) offp.getPlayer();
+                                plugin.Logger("Player has Played before: " + offp.getName(), "Debug");
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+            if (player != null) {
+                plugin.Logger("Empfaengername after getting Player: " + player.getName(), "Debug");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            plugin.Logger("Uncatched Exeption!", "Error");
+            plugin.getReportHandler().report(3312, "Uncatched Exeption on getting offlineplayer", e.getMessage(), "BookShop", e);
+        }
+        if(player == null) {
+            if(wasonline) {
+                throw new PlayerNotOnlineException("Player " + playername +  " is not online");
+            } else {
+                throw new PlayerNotFoundException("Player " + playername +  " does not exist");
+            }
+        }
+        return player;
+    }
     
     /**
      * Determines if all packages in a String array are within the Classpath
@@ -83,8 +130,4 @@ public abstract class Tools {
         buf = null;
         return elements;
     }
-    
-    public abstract Player getmyOfflinePlayer(BookShop plugin, String playername);
-    
-    public abstract Player getmyOfflinePlayer(BookShop plugin, String[] args, int index);
 }

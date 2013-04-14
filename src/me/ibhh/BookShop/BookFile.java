@@ -2,6 +2,7 @@ package me.ibhh.BookShop;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -16,6 +17,16 @@ public class BookFile implements Serializable {
         this.author = author;
         this.title = title;
         this.pages = pages;
+        this.selled = selled;
+    }
+
+    BookFile(String title, String author, List<String> pages, int selled) {
+        this.author = author;
+        this.title = title;
+        this.pages = new ArrayList<String>();
+        for(String str : pages) {
+            this.pages.add(str);
+        }
         this.selled = selled;
     }
     

@@ -7,10 +7,6 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 
-/**
- *
- * @author Simon
- */
 public class BookLoader {
 
     public static ItemStack load(BookShop plugin, String author, String name) {
@@ -52,7 +48,7 @@ public class BookLoader {
             plugin.Logger("Book " + bm.getTitle() + " by " + bm.getAuthor() + " saved!", "Debug");
             return true;
         } catch (Exception e) {
-            plugin.Logger("Cannot save Shop statistics!", "Debug");
+            plugin.Logger("Cannot save book!", "Debug");
             if (plugin.config.debug) {
                 e.printStackTrace();
             }
@@ -83,7 +79,6 @@ public class BookLoader {
 
     public static BookFile BookHandlerToBookFile(ItemStack book) {
         BookMeta bm = (BookMeta) book.getItemMeta();
-        ArrayList<String> pages = (ArrayList<String>) bm.getPages();
-        return new BookFile(bm.getTitle(), bm.getAuthor(), pages, 0);
+        return new BookFile(bm.getTitle(), bm.getAuthor(), bm.getPages(), 0);
     }
 }

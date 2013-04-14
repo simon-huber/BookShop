@@ -1,5 +1,6 @@
 package me.ibhh.BookShop;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -257,6 +258,19 @@ public class BookShopListener
                         } else {
                             this.plugin.Logger("Book wasnt found, so the new player gets no book!", "Error");
                             this.plugin.Logger("Please check your config.yml or type with a book in the hand '/bookshop setwelcomebook'!", "Error");
+                        }
+                    }
+                }
+                if (plugin.getGivebook_list().containsKey(event.getPlayer().getName())) {
+                    ArrayList<BookFile> list = plugin.getGivebook_list().get(event.getPlayer().getName());
+                    for (BookFile file : list) {
+                        if (event.getPlayer().getInventory().firstEmpty() != -1) {
+                            event.getPlayer().getInventory().addItem(BookLoader.BookFileToBookHandler(file));
+                            plugin.PlayerLogger(event.getPlayer(), "You were given a book by an admin!", "");
+                            list.remove(file);
+                            if(list.isEmpty()) {
+                                plugin.getGivebook_list().remove(event.getPlayer().getName());
+                            }
                         }
                     }
                 }
