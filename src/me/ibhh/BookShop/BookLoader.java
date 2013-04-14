@@ -1,6 +1,7 @@
 package me.ibhh.BookShop;
 
 import java.io.File;
+import java.util.ArrayList;
 import me.ibhh.BookShop.intern.BukkitBuildNOTSupportedException;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -77,6 +78,10 @@ public class BookLoader {
 
     public static BookFile BookHandlerToBookFile(ItemStack book) {
         BookMeta bm = (BookMeta) book.getItemMeta();
-        return new BookFile(bm.getTitle(), bm.getAuthor(), bm.getPages(), 0);
+        ArrayList<String> pages = new ArrayList<String>();
+        for(String str : bm.getPages()) {
+            pages.add(str);
+        }
+        return new BookFile(bm.getTitle(), bm.getAuthor(), pages, 0);
     }
 }

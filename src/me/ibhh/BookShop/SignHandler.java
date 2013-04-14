@@ -188,8 +188,7 @@ public class SignHandler {
         plugin.Logger("Line 2: " + line[1], "Debug");
         plugin.Logger("Line 3: " + line[2], "Debug");
         plugin.Logger("Line 4: " + line[3], "Debug");
-        String shopowner = player.getName();
-        if (!shopowner.equalsIgnoreCase(line[1])) {
+        if (!plugin.getNameShortener().getShortName(player.getName()).equalsIgnoreCase(line[1])) {
             if (player.getInventory().firstEmpty() != -1) {
                 if (line[1].equalsIgnoreCase(plugin.SHOP_configuration.getString("AdminShop"))) {
                     Chest chest = null;

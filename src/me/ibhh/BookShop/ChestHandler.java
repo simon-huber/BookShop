@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package me.ibhh.BookShop;
 
 import org.bukkit.Material;
@@ -13,10 +9,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-/**
- *
- * @author Simon
- */
 public class ChestHandler {
 
     private BookShop plugin;
@@ -124,7 +116,7 @@ public class ChestHandler {
                 Sign sign = (Sign) block.getRelative(BlockFace.UP).getState();
                 if (sign.getLine(0).equalsIgnoreCase(plugin.SHOP_configuration.getString("FirstLineOfEveryShop"))) {
                     plugin.Logger("Is bookshop", "Debug");
-                    if (sign.getLine(1).equalsIgnoreCase(player.getName())) {
+                    if (sign.getLine(1).equalsIgnoreCase(plugin.getNameShortener().getShortName(player.getName()))) {
                         plugin.Logger("Is owner of the shop", "Debug");
                         return 1;
                     } else {
