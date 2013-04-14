@@ -26,7 +26,7 @@ import org.bukkit.inventory.meta.BookMeta;
 
 public class BookShopListener
         implements Listener {
-
+    
     private final BookShop plugin;
     private InteractHandler interactHandler;
     private CreateHandler createHandler;
@@ -34,7 +34,7 @@ public class BookShopListener
     public HashMap<Player, Chest> ChestViewers = new HashMap<Player, Chest>();
     public HashMap<Player, Boolean> NewspapersViewers = new HashMap<Player, Boolean>();
     private static final BlockFace[] shopFaces = {BlockFace.SELF, BlockFace.DOWN, BlockFace.UP, BlockFace.EAST, BlockFace.NORTH, BlockFace.WEST, BlockFace.SOUTH};
-
+    
     public BookShopListener(BookShop BookShop) {
         this.plugin = BookShop;
         try {
@@ -52,7 +52,7 @@ public class BookShopListener
             }
         }
     }
-
+    
     @EventHandler(priority = EventPriority.HIGH)
     public void invClose(InventoryCloseEvent event) {
         final InventoryCloseEvent ev = event;
@@ -111,21 +111,7 @@ public class BookShopListener
             this.plugin.Logger("Player from ChestViewers removed: " + event.getPlayer().getName(), "Debug");
         }
     }
-
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onBlockPistonRetract(BlockPistonRetractEvent event) {
-        if (this.plugin.toggle) {
-            return;
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onBlockPistonExtend(BlockPistonExtendEvent event) {
-        if (this.plugin.toggle) {
-            return;
-        }
-    }
-
+    
     @EventHandler(priority = EventPriority.HIGH)
     public void invClick(InventoryClickEvent event) {
         try {
@@ -151,7 +137,7 @@ public class BookShopListener
                                     }
                                 }
                             }
-
+                            
                             if ((!event.getCurrentItem().getType().equals(Material.WRITTEN_BOOK)) && (!event.getCurrentItem().getType().equals(Material.AIR))) {
                                 if (this.plugin.getConfig().getBoolean("useBookandQuill")) {
                                     if (!event.getCurrentItem().getType().equals(Material.BOOK_AND_QUILL)) {
@@ -177,7 +163,7 @@ public class BookShopListener
                                 return;
                             }
                             ItemStack bookItem = event.getCurrentItem();
-
+                            
                             if (bookItem != null) {
                                 if (bookItem.getType().equals(Material.WRITTEN_BOOK)) {
                                     BookMeta bm = (BookMeta) bookItem.getItemMeta();
@@ -189,7 +175,7 @@ public class BookShopListener
                                     }
                                 }
                             }
-
+                            
                             if ((!event.getCurrentItem().getType().equals(Material.WRITTEN_BOOK)) && (!event.getCurrentItem().getType().equals(Material.AIR))) {
                                 if (this.plugin.getConfig().getBoolean("useBookandQuill")) {
                                     if (!event.getCurrentItem().getType().equals(Material.BOOK_AND_QUILL)) {
@@ -235,7 +221,7 @@ public class BookShopListener
             }
         }
     }
-
+    
     @EventHandler(priority = EventPriority.HIGH)
     public void join(PlayerJoinEvent event) {
         try {
@@ -248,7 +234,7 @@ public class BookShopListener
                         this.plugin.PlayerLogger(event.getPlayer(), "Please edit the config.yml if you wish that the plugin updates itself atomatically!", "Warning");
                     }
                 }
-
+                
                 if ((!this.plugin.getServer().getOfflinePlayer(event.getPlayer().getName()).hasPlayedBefore())
                         && (this.plugin.getConfig().getBoolean("GiveBookToNewPlayers"))) {
                     ItemStack book = BookLoader.load(this.plugin, this.plugin.getConfig().getString("Book"));
@@ -268,7 +254,7 @@ public class BookShopListener
                             event.getPlayer().getInventory().addItem(BookLoader.BookFileToBookHandler(file));
                             plugin.PlayerLogger(event.getPlayer(), "You were given a book by an admin!", "");
                             list.remove(file);
-                            if(list.isEmpty()) {
+                            if (list.isEmpty()) {
                                 plugin.getGivebook_list().remove(event.getPlayer().getName());
                             }
                         }
@@ -285,7 +271,7 @@ public class BookShopListener
             }
         }
     }
-
+    
     @EventHandler(priority = EventPriority.HIGH)
     public void precommand(PlayerCommandPreprocessEvent event) {
         if ((!this.plugin.toggle)
@@ -294,7 +280,7 @@ public class BookShopListener
             this.plugin.getLoggerUtility().log("Player: " + event.getPlayer().getName() + " command: " + event.getMessage());
         }
     }
-
+    
     @EventHandler(priority = EventPriority.HIGH)
     public void aendern(SignChangeEvent event) {
         if (!this.plugin.toggle) {
@@ -306,19 +292,19 @@ public class BookShopListener
             }
         }
     }
-
+    
     public static Block getAttachedFace(org.bukkit.block.Sign sign) {
         return sign.getBlock().getRelative(((org.bukkit.material.Sign) sign.getData()).getAttachedFace());
     }
-
+    
     private static boolean isCorrectSign(org.bukkit.block.Sign sign, Block block) {
         return (sign != null) && ((sign.getBlock().equals(block)) || (getAttachedFace(sign).equals(block)));
     }
-
+    
     public static boolean isSign(Block block) {
         return block.getState() instanceof org.bukkit.block.Sign;
     }
-
+    
     public org.bukkit.block.Sign findSignBook(Block block) {
         for (BlockFace bf : shopFaces) {
             Block faceBlock = block.getRelative(bf);
@@ -331,7 +317,7 @@ public class BookShopListener
         }
         return null;
     }
-
+    
     @EventHandler(priority = EventPriority.HIGH)
     public void onBreak(BlockBreakEvent event) {
         try {
@@ -344,7 +330,7 @@ public class BookShopListener
                     this.plugin.Logger("Sign dedected", "Debug");
                     if ((line[0].equalsIgnoreCase(this.plugin.SHOP_configuration.getString("FirstLineOfEveryShop")))
                             && (blockIsValid(line, "break", p))) {
-                        if ((s.getLine(1).equalsIgnoreCase(p.getName())) && (this.plugin.PermissionsHandler.checkpermissions(p, "BookShop.create"))) {
+                        if ((s.getLine(1).equalsIgnoreCase(plugin.getNameShortener().getShortName(p.getName()))) && (this.plugin.PermissionsHandler.checkpermissions(p, "BookShop.create"))) {
                             this.plugin.PlayerLogger(p, "Destroying BookShop!", "");
                             MTLocation loc = MTLocation.getMTLocationFromLocation(s.getLocation());
                             if (MetricsHandler.Shop.containsKey(loc)) {
@@ -360,7 +346,7 @@ public class BookShopListener
                                 MetricsHandler.AdminShop.remove(loc);
                                 this.plugin.Logger("Removed AdminShop from list!", "Debug");
                             }
-
+                            
                             if (MetricsHandler.Shop.containsKey(loc)) {
                                 MetricsHandler.Shop.remove(loc);
                                 this.plugin.Logger("Removed Shop from list!", "Debug");
@@ -383,7 +369,7 @@ public class BookShopListener
             }
         }
     }
-
+    
     @EventHandler(priority = EventPriority.HIGH)
     public void onInteract(PlayerInteractEvent event) {
         try {
@@ -398,7 +384,7 @@ public class BookShopListener
             }
         }
     }
-
+    
     public double getPrice(org.bukkit.block.Sign s, Player p, boolean BookandQuill) {
         double doubleline3 = 0.0D;
         try {
@@ -428,7 +414,7 @@ public class BookShopListener
         }
         return doubleline3;
     }
-
+    
     public double getPrice(String s, Player p, boolean BookandQuill) {
         double doubleline3 = 0.0D;
         try {
@@ -458,7 +444,7 @@ public class BookShopListener
         }
         return doubleline3;
     }
-
+    
     public boolean blockIsValid(String[] lines, String von, Player p) {
         boolean a = false;
         this.plugin.Logger("Checking if block is valid!", "Debug");
@@ -483,7 +469,7 @@ public class BookShopListener
         }
         return a;
     }
-
+    
     public boolean blockIsValid(org.bukkit.block.Sign sign) {
         boolean a = false;
         this.plugin.Logger("Checking if block is valid!", "Debug");
@@ -508,7 +494,7 @@ public class BookShopListener
         }
         return a;
     }
-
+    
     public int countWrittenBooks(Inventory inv) {
         int a = 0;
         for (ItemStack i : inv.getContents()) {
@@ -519,7 +505,7 @@ public class BookShopListener
             this.plugin.Logger("Item " + i.getType().name() + " Slotid: " + inv.contains(i), "Debug");
             a++;
         }
-
+        
         return a;
     }
 }

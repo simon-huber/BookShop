@@ -45,25 +45,26 @@ public class Tools {
             plugin.Logger("Uncatched Exeption!", "Error");
             plugin.getReportHandler().report(3312, "Uncatched Exeption on getting offlineplayer", e.getMessage(), "BookShop", e);
         }
-        if(player == null) {
-            if(wasonline) {
-                throw new PlayerNotOnlineException("Player " + playername +  " is not online");
+        if (player == null) {
+            if (wasonline) {
+                throw new PlayerNotOnlineException("Player " + playername + " is not online");
             } else {
-                throw new PlayerNotFoundException("Player " + playername +  " does not exist");
+                throw new PlayerNotFoundException("Player " + playername + " does not exist");
             }
         }
         return player;
     }
-    
+
     /**
      * Determines if all packages in a String array are within the Classpath
      * This is the best way to determine if a specific plugin exists and will be
      * loaded. If the plugin package isn't loaded, we shouldn't bother waiting
      * for it!
+     *
      * @param packages String Array of package names to check
      * @return Success or Failure
      */
-    public static boolean packagesExists(String...packages) {
+    public static boolean packagesExists(String... packages) {
         try {
             for (String pkg : packages) {
                 Class.forName(pkg);
@@ -73,7 +74,7 @@ public class Tools {
             return false;
         }
     }
-    
+
     public static boolean isInteger(String input) {
         try {
             Integer.parseInt(input);
@@ -82,7 +83,7 @@ public class Tools {
         }
         return false;
     }
-    
+
     public static boolean isFloat(String input) {
         try {
             Float.parseFloat(input);
@@ -91,7 +92,7 @@ public class Tools {
         }
         return false;
     }
-    
+
     public static String[] stringtoArray(String s, String sep) {
         // convert a String s to an Array, the elements
         // are delimited by sep

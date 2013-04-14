@@ -25,6 +25,7 @@ public class LoggerUtility {
     public ChatColor PrefixColor, TextColor;
 
     public enum Level {
+
         DEBUG, INFO, SEVERE, WARNING, ERROR;
     }
 
@@ -46,7 +47,7 @@ public class LoggerUtility {
         try {
             if (TYPE.equals(Level.WARNING) || TYPE.equals(Level.ERROR)) {
                 System.err.println("[" + plugin.getName() + "] " + TYPE.name() + ": " + msg);
-                Bukkit.broadcast(PrefixColor + "[" + Prefix + "]" + ChatColor.RED  + " " +  TYPE.name() + ": " + TextColor + msg, "Paypassage.log");
+                Bukkit.broadcast(PrefixColor + "[" + Prefix + "]" + ChatColor.RED + " " + TYPE.name() + ": " + TextColor + msg, "Paypassage.log");
                 if (debugfile) {
                     this.log("Error: " + msg);
                 }
@@ -79,14 +80,14 @@ public class LoggerUtility {
             String playername = p.getName();
             if (TYPE.equals(Level.WARNING) || TYPE.equals(Level.ERROR)) {
                 if (usePrefix) {
-                    p.sendMessage(PrefixColor + "[" + Prefix + "]" + ChatColor.RED  + " " +  TYPE.name() + ": " + TextColor + msg);
+                    p.sendMessage(PrefixColor + "[" + Prefix + "]" + ChatColor.RED + " " + TYPE.name() + ": " + TextColor + msg);
                     if (debugfile) {
-                        this.log("Player: " + playername + " " +  TYPE.name() + ": " + msg);
+                        this.log("Player: " + playername + " " + TYPE.name() + ": " + msg);
                     }
                 } else {
-                    p.sendMessage(ChatColor.RED +  TYPE.name() + ": " + TextColor + msg);
+                    p.sendMessage(ChatColor.RED + TYPE.name() + ": " + TextColor + msg);
                     if (debugfile) {
-                        this.log("Player: " + playername + " " +  TYPE.name() + ": " + msg);
+                        this.log("Player: " + playername + " " + TYPE.name() + ": " + msg);
                     }
                 }
             } else {

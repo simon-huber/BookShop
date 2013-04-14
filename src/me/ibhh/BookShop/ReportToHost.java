@@ -9,17 +9,17 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 
 public class ReportToHost {
-    
+
     private BookShop plugin;
     private FileSend filesend;
     private StackTraceUtil util;
-    
+
     public ReportToHost(BookShop pl) {
         this.plugin = pl;
         util = new StackTraceUtil();
         this.filesend = new FileSend(this.plugin);
     }
-    
+
     public String report(int line, String other, String message, String classfile, Exception stack) {
         if (this.plugin.getConfig().getBoolean("senderrorreport")) {
             if (other == null) {
@@ -34,12 +34,12 @@ public class ReportToHost {
             } else {
                 stacktrace = "none";
             }
-            
+
             return send(line + "", message, classfile, stacktrace, other);
         }
         return "internet not enabled in the config.yml";
     }
-    
+
     public String report(int line, String other, String message, String classfile, String stacktrace) {
         if (this.plugin.getConfig().getBoolean("senderrorreport")) {
             if (other == null) {
@@ -55,7 +55,7 @@ public class ReportToHost {
         }
         return "internet not enabled in the config.yml";
     }
-    
+
     public String readAll(String url) {
         String zeile;
         try {
@@ -75,7 +75,7 @@ public class ReportToHost {
         }
         return zeile;
     }
-    
+
     public String send(String line, String message, String classfile, String stacktrace, String other) {
         String ret = "Error";
         String url1 = "http://report.ibhh.de/index.php?programm=" + this.plugin.getName();

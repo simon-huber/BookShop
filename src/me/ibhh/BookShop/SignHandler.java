@@ -188,8 +188,8 @@ public class SignHandler {
         plugin.Logger("Line 2: " + line[1], "Debug");
         plugin.Logger("Line 3: " + line[2], "Debug");
         plugin.Logger("Line 4: " + line[3], "Debug");
-        String playername = plugin.getNameShortener().getShortName(player.getName());
-        if (!playername.equalsIgnoreCase(line[1])) {
+        String shopowner = player.getName();
+        if (!shopowner.equalsIgnoreCase(line[1])) {
             if (player.getInventory().firstEmpty() != -1) {
                 if (line[1].equalsIgnoreCase(plugin.SHOP_configuration.getString("AdminShop"))) {
                     Chest chest = null;
@@ -330,7 +330,7 @@ public class SignHandler {
                                         }
                                         plugin.metricshandler.BookShopSignBuy++;
                                         if (plugin.getServer().getPlayer(realname) != null) {
-                                            plugin.PlayerLogger(plugin.getServer().getPlayer(line[1]), String.format(plugin.config.Shopsuccesssellerbuy, s.getLine(2), playername, price), "");
+                                            plugin.PlayerLogger(plugin.getServer().getPlayer(line[1]), String.format(plugin.config.Shopsuccesssellerbuy, s.getLine(2), realname, price), "");
                                             if (plugin.getConfig().getInt("tax") != 0) {
                                                 plugin.PlayerLogger(plugin.getServer().getPlayer(line[1]), String.format(plugin.getConfig().getString("Shop.success.tax." + plugin.config.language), plugin.getConfig().getInt("tax")), "Warning");
                                             }

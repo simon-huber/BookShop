@@ -12,10 +12,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 
-/**
- *
- * @author Simon
- */
 public class InteractHandler {
 
     private BookShop plugin;
@@ -124,20 +120,20 @@ public class InteractHandler {
                         int Slot = chest.getInventory().first(Material.WRITTEN_BOOK);
                         ItemStack item = chest.getInventory().getItem(Slot);
                         if (item != null) {
-                                if(item == null){
-                                    plugin.getLoggerUtility().log(p, "An unknown error occurred!", LoggerUtility.Level.ERROR );
-                                    return;
-                                }
-                                BookMeta bm = (BookMeta) item.getItemMeta();
-                                ItemStack loadedBook = BookLoader.load(plugin, bm.getAuthor(), bm.getTitle());
-                                if (loadedBook != null) {
-                                    BookLoader.save(plugin, loadedBook);
-                                } else {
-                                    BookLoader.save(plugin, item);
-                                    loadedBook = item;
-                                }
-                                plugin.PlayerLogger(p, String.format(plugin.getConfig().getString("Shop.success.bookselled." + plugin.config.language), bm.getTitle(), bm.getAuthor()), "");
-                                plugin.PlayerLogger(p, String.format(plugin.getConfig().getString("Shop.success.bookselled3." + plugin.config.language), bm.getPages().size()), "");
+                            if (item == null) {
+                                plugin.getLoggerUtility().log(p, "An unknown error occurred!", LoggerUtility.Level.ERROR);
+                                return;
+                            }
+                            BookMeta bm = (BookMeta) item.getItemMeta();
+                            ItemStack loadedBook = BookLoader.load(plugin, bm.getAuthor(), bm.getTitle());
+                            if (loadedBook != null) {
+                                BookLoader.save(plugin, loadedBook);
+                            } else {
+                                BookLoader.save(plugin, item);
+                                loadedBook = item;
+                            }
+                            plugin.PlayerLogger(p, String.format(plugin.getConfig().getString("Shop.success.bookselled." + plugin.config.language), bm.getTitle(), bm.getAuthor()), "");
+                            plugin.PlayerLogger(p, String.format(plugin.getConfig().getString("Shop.success.bookselled3." + plugin.config.language), bm.getPages().size()), "");
                         }
                     }
                 }

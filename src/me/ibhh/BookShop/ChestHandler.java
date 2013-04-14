@@ -90,7 +90,6 @@ public class ChestHandler {
         }
         return false;
     }
-    
 
     private boolean isNewspaperblock(Block block) {
         if (block.getRelative(BlockFace.UP) != null) {

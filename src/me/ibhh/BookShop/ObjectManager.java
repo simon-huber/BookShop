@@ -21,7 +21,7 @@ public class ObjectManager {
      */
     public static <T extends Object> void save(T obj, String path) throws Exception {
         File file = new File(path);
-        if(file.exists()){
+        if (file.exists()) {
             file.delete();
         }
         ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(path));

@@ -4,11 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- *
- * @author Simon
- */
 public class BookFile implements Serializable {
+    
     private String author, title;
     private ArrayList<String> pages;
     private int selled;
