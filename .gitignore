@@ -3,3 +3,6 @@
 /nbproject/
 /build.xml
 /dist/
+/.settings
+/.classpath
+/.project
