@@ -6,16 +6,16 @@ package me.ibhh.BookShop;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Iterator;
 
 /**
  *
- * @author Simon
+ * @author ibhh
  */
-public class MetricsHandler implements Serializable {
+public class MetricsHandler {
 
-    private BookShop plugin;
+	private BookShop plugin;
     private Metrics metrics;
     public static HashMap<MTLocation, String> Shop = new HashMap<MTLocation, String>();
     public static HashMap<MTLocation, String> AdminShop = new HashMap<MTLocation, String>();
@@ -189,17 +189,19 @@ public class MetricsHandler implements Serializable {
 
     public int calculateShopQuantity() {
         int a = 0;
-        for (String i : Shop.values()) {
-            a++;
-        }
+        for (Iterator<String> iterator = Shop.values().iterator(); iterator.hasNext();) {
+			iterator.next();
+			a++;
+		}
         return a;
     }
 
     public int calculateAdminShopQuantity() {
         int a = 0;
-        for (String i : AdminShop.values()) {
-            a++;
-        }
+        for (Iterator<String> iterator = AdminShop.values().iterator(); iterator.hasNext();) {
+			iterator.next();
+			a++;
+		}
         return a;
     }
 }

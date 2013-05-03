@@ -42,10 +42,10 @@ public class BookShop extends JavaPlugin {
     private static String SHOP_CONFIG_FILE;
     public YamlConfiguration SHOP_configuration;
     private File configurationFile;
-    public HashMap<Player, Boolean> commandexec = new HashMap();
-    public HashMap<String, Boolean> DebugMsg = new HashMap();
-    private HashMap<Player, String> Config = new HashMap();
-    private HashMap<Player, String> Set = new HashMap();
+    public HashMap<Player, Boolean> commandexec = new HashMap<Player, Boolean>();
+    public HashMap<String, Boolean> DebugMsg = new HashMap<String, Boolean>();
+    private HashMap<Player, String> Config = new HashMap<Player, String>();
+    private HashMap<Player, String> Set = new HashMap<Player, String>();
     private HashMap<String, ArrayList<BookFile>> givebook_list = new HashMap<String, ArrayList<BookFile>>();
     public String[] commands = {"help", "showdebug", "debugfile", "internet", "version", "reload", "toggle", "language", "report", "backupbook", "loadbook", "giveall", "give", "setwelcomebook", "removewelcomebook"};
 

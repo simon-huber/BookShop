@@ -32,7 +32,8 @@ public class ObjectManager {
 
     public static <T extends Object> T load(String path) throws Exception {
         ObjectInputStream ois = new ObjectInputStream(new FileInputStream(path));
-        T result = (T) ois.readObject();
+        @SuppressWarnings("unchecked")
+		T result = (T) ois.readObject();
         ois.close();
         return result;
 

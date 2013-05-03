@@ -88,12 +88,11 @@ public class SignHandler {
                     if (plugin.ListenerShop.getPrice(event.getLine(3), event.getPlayer(), false) < plugin.getConfig().getDouble("BookBaseCost")) {
                         if (!event.getLine(1).equalsIgnoreCase(plugin.SHOP_configuration.getString("AdminShop")) || !event.getLine(1).equalsIgnoreCase(plugin.SHOP_configuration.getString("Newspapers"))) {
                             boolean a = false;
-                            String[] c = new String[2];
                             try {
-                                double b = Double.parseDouble(event.getLine(3));
+                                Double.parseDouble(event.getLine(3));
                                 a = true;
                             } catch (Exception e) {
-                                c = event.getLine(3).split(":");
+                                event.getLine(3).split(":");
                             }
                             if (plugin.getConfig().getBoolean("useBookandQuill")) {
                                 if (!a) {
@@ -108,14 +107,14 @@ public class SignHandler {
                 }
                 if (line[1].equalsIgnoreCase(plugin.SHOP_configuration.getString("AdminShop"))) {
                     MTLocation loc = MTLocation.getMTLocationFromLocation(event.getBlock().getLocation());
-                    if (!plugin.metricshandler.AdminShop.containsKey(loc)) {
-                        plugin.metricshandler.AdminShop.put(loc, event.getPlayer().getName());
+                    if (!MetricsHandler.AdminShop.containsKey(loc)) {
+                        MetricsHandler.AdminShop.put(loc, event.getPlayer().getName());
                         plugin.Logger("Added AdminShop to list!", "Debug");
                     }
                 } else {
                     MTLocation loc = MTLocation.getMTLocationFromLocation(event.getBlock().getLocation());
-                    if (!plugin.metricshandler.Shop.containsKey(loc)) {
-                        plugin.metricshandler.Shop.put(loc, event.getPlayer().getName());
+                    if (!MetricsHandler.Shop.containsKey(loc)) {
+                        MetricsHandler.Shop.put(loc, event.getPlayer().getName());
                         plugin.Logger("Added Shop to list!", "Debug");
                     }
                 }
@@ -162,13 +161,13 @@ public class SignHandler {
                 Player player = event.getPlayer();
                 MTLocation loc = MTLocation.getMTLocationFromLocation(event.getClickedBlock().getLocation());
                 if (line[1].equalsIgnoreCase(plugin.SHOP_configuration.getString("AdminShop"))) {
-                    if (!plugin.metricshandler.AdminShop.containsKey(loc)) {
-                        plugin.metricshandler.AdminShop.put(loc, event.getPlayer().getName());
+                    if (!MetricsHandler.AdminShop.containsKey(loc)) {
+                        MetricsHandler.AdminShop.put(loc, event.getPlayer().getName());
                         plugin.Logger("Added AdminShop to list!", "Debug");
                     }
                 } else {
-                    if (!plugin.metricshandler.Shop.containsKey(loc)) {
-                        plugin.metricshandler.Shop.put(loc, event.getPlayer().getName());
+                    if (!MetricsHandler.Shop.containsKey(loc)) {
+                        MetricsHandler.Shop.put(loc, event.getPlayer().getName());
                         plugin.Logger("Added Shop to list!", "Debug");
                     }
                 }
@@ -205,10 +204,6 @@ public class SignHandler {
                                 price = plugin.ListenerShop.getPrice(s, player, false);
                                 if (price >= 0) {
                                     if ((plugin.MoneyHandler.getBalance(player) - price) >= 0) {
-                                        if (item == null) {
-                                            plugin.PlayerLogger(player, "An unknown error occurred!", "Error");
-                                            return;
-                                        }
                                         plugin.MoneyHandler.substract(price, player);
                                         player.getInventory().addItem(item.clone());
                                         BookLoader.save(plugin, item);
@@ -221,6 +216,9 @@ public class SignHandler {
                                 } else {
                                     plugin.PlayerLogger(player, plugin.getConfig().getString("Shop.error.wrongPrice." + plugin.config.language), "Error");
                                 }
+                            } else {
+                            	plugin.PlayerLogger(player, "An unknown error occurred!", "Error");
+								return;
                             }
                         } else {
                             plugin.PlayerLogger(player, plugin.getConfig().getString("Shop.error.nobook." + plugin.config.language), "Error");
@@ -323,10 +321,6 @@ public class SignHandler {
                                         plugin.MoneyHandler.addmoney(amount, realname);
                                         plugin.PlayerLogger(player, String.format(plugin.config.Shopsuccessbuy, s.getLine(2), realname, price), "");
                                         player.saveData();
-                                        if (item == null) {
-                                            plugin.PlayerLogger(player, "An unknown error occurred!", "Error");
-                                            return;
-                                        }
                                         plugin.metricshandler.BookShopSignBuy++;
                                         if (plugin.getServer().getPlayer(realname) != null) {
                                             plugin.PlayerLogger(plugin.getServer().getPlayer(line[1]), String.format(plugin.config.Shopsuccesssellerbuy, s.getLine(2), realname, price), "");

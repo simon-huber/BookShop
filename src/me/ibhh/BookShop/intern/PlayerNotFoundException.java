@@ -2,7 +2,12 @@ package me.ibhh.BookShop.intern;
 
 public class PlayerNotFoundException extends Exception {
 
-    public PlayerNotFoundException(String message) {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public PlayerNotFoundException(String message) {
         super(message);
     }
 }

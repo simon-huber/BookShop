@@ -120,10 +120,6 @@ public class InteractHandler {
                         int Slot = chest.getInventory().first(Material.WRITTEN_BOOK);
                         ItemStack item = chest.getInventory().getItem(Slot);
                         if (item != null) {
-                            if (item == null) {
-                                plugin.getLoggerUtility().log(p, "An unknown error occurred!", LoggerUtility.Level.ERROR);
-                                return;
-                            }
                             BookMeta bm = (BookMeta) item.getItemMeta();
                             ItemStack loadedBook = BookLoader.load(plugin, bm.getAuthor(), bm.getTitle());
                             if (loadedBook != null) {
@@ -134,6 +130,9 @@ public class InteractHandler {
                             }
                             plugin.PlayerLogger(p, String.format(plugin.getConfig().getString("Shop.success.bookselled." + plugin.config.language), bm.getTitle(), bm.getAuthor()), "");
                             plugin.PlayerLogger(p, String.format(plugin.getConfig().getString("Shop.success.bookselled3." + plugin.config.language), bm.getPages().size()), "");
+                        } else {
+                        	plugin.getLoggerUtility().log(p, "An unknown error occurred!", LoggerUtility.Level.ERROR);
+                            return;
                         }
                     }
                 }

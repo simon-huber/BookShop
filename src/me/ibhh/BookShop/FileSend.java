@@ -21,7 +21,7 @@ public class FileSend {
     }
 
     public void sendDebugFile(final String errorid) throws IOException {
-        this.plugin.getServer().getScheduler().scheduleAsyncDelayedTask(this.plugin, new Runnable() {
+        this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, new Runnable() {
             @Override
             public void run() {
                 try {
@@ -33,7 +33,8 @@ public class FileSend {
                     if (file.exists()) {
                         // Construct data
                         String data = URLEncoder.encode("file", "UTF-8") + "=";
-                        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+                        @SuppressWarnings("resource")
+						BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
                         try {
                             String line = null;
                             while ((line = reader.readLine()) != null) {
@@ -64,6 +65,6 @@ public class FileSend {
                     plugin.Logger("May you used /reload and therefore it doesnt work.", "Error");
                 }
             }
-        }, 0L);
+        });
     }
 }

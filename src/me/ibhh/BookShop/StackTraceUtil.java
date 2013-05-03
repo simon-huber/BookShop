@@ -14,7 +14,7 @@ public class StackTraceUtil {
         return result.toString();
     }
 
-    public static String getStackTrace(Exception stack) {
+    public String getStackTrace(Exception stack) {
         StringWriter sw = new StringWriter();
         stack.printStackTrace(new PrintWriter(sw));
         return sw.toString();

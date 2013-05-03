@@ -163,7 +163,8 @@ public class Utilities {
     }
 
     // Usage Command
-    public void usageCommand(CommandSender sender, String[] args) {
+    @SuppressWarnings("rawtypes")
+	public void usageCommand(CommandSender sender, String[] args) {
 
         if (args.length == 1) {
             sender.sendMessage(pre + red + specifyPlugin);
@@ -289,7 +290,8 @@ public class Utilities {
     }
 
     // Unload Command
-    public void unloadPlugin(CommandSender sender, String args) throws NoSuchFieldException, IllegalAccessException {
+    @SuppressWarnings("unchecked")
+	public void unloadPlugin(CommandSender sender, String args) throws NoSuchFieldException, IllegalAccessException {
 
         if (getPlugin(args) == null) {
             sender.sendMessage(red + pluginNotFound);

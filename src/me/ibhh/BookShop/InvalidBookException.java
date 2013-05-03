@@ -10,7 +10,12 @@ package me.ibhh.BookShop;
  */
 public class InvalidBookException extends Exception {
 
-    public InvalidBookException(String msg) {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public InvalidBookException(String msg) {
         super(msg);
     }
 }

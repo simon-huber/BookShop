@@ -2,7 +2,12 @@ package me.ibhh.BookShop.intern;
 
 public class BukkitBuildNOTSupportedException extends Exception {
 
-    public BukkitBuildNOTSupportedException(String message) {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public BukkitBuildNOTSupportedException(String message) {
         super(message);
     }
 }

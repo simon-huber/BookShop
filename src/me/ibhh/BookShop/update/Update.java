@@ -21,7 +21,6 @@ public class Update {
      *
      */
     public static final long serialVersionUID = 1L;
-    private String s; // stored
     transient int i; // transient: not stored
     public String search = "version";
     private BookShop plugin;
@@ -246,7 +245,7 @@ public class Update {
         }
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "unused" })
     private void unloadPlugin(final String pluginName) throws NoSuchFieldException, IllegalAccessException {
         PluginManager manager = plugin.getServer().getPluginManager();
         SimplePluginManager spm = (SimplePluginManager) manager;

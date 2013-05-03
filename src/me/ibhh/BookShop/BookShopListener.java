@@ -1,7 +1,7 @@
 package me.ibhh.BookShop;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -11,8 +11,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPistonExtendEvent;
-import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -296,7 +294,8 @@ public class BookShopListener
         return sign.getBlock().getRelative(((org.bukkit.material.Sign) sign.getData()).getAttachedFace());
     }
     
-    private static boolean isCorrectSign(org.bukkit.block.Sign sign, Block block) {
+    @SuppressWarnings("unused")
+	private static boolean isCorrectSign(org.bukkit.block.Sign sign, Block block) {
         return (sign != null) && ((sign.getBlock().equals(block)) || (getAttachedFace(sign).equals(block)));
     }
     
