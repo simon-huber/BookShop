@@ -248,13 +248,12 @@ public class BookShopListener
                     }
                 }
                 if (plugin.getGivebook_list().containsKey(event.getPlayer().getName())) {
-                    ArrayList<BookFile> list = plugin.getGivebook_list().get(event.getPlayer().getName());
-                    for (BookFile file : list) {
+                    for (BookFile file : plugin.getGivebook_list().get(event.getPlayer().getName())) {
                         if (event.getPlayer().getInventory().firstEmpty() != -1) {
                             event.getPlayer().getInventory().addItem(BookLoader.BookFileToBookHandler(file));
                             plugin.PlayerLogger(event.getPlayer(), "You were given a book by an admin!", "");
-                            list.remove(file);
-                            if (list.isEmpty()) {
+                            plugin.getGivebook_list().get(event.getPlayer().getName()).remove(file);
+                            if (plugin.getGivebook_list().get(event.getPlayer().getName()).isEmpty()) {
                                 plugin.getGivebook_list().remove(event.getPlayer().getName());
                             }
                         }
