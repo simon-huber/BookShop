@@ -46,7 +46,7 @@ public class MetricsHandler {
             ObjectManager.save(Shop, plugin.getDataFolder() + File.separator + "metrics" + File.separator + "Shop.statistics");
             plugin.Logger("Shops stats file contains " + calculateShopQuantity() + " values!", "Debug");
         } catch (Exception e) {
-            plugin.Logger("Cannot save Shop statistics!", "Error");
+            plugin.Logger("Cannot save Shop statistics!", "Warning");
             if (plugin.config.debug) {
                 e.printStackTrace();
             }
@@ -55,7 +55,7 @@ public class MetricsHandler {
             ObjectManager.save(Shop, plugin.getDataFolder() + File.separator + "metrics" + File.separator + "AdminShop.statistics");
             plugin.Logger("AdminShops stats file contains " + calculateShopQuantity() + " values!", "Debug");
         } catch (Exception e) {
-            plugin.Logger("Cannot save AdminShop statistics!", "Error");
+            plugin.Logger("Cannot save AdminShop statistics!", "Warning");
             if (plugin.config.debug) {
                 e.printStackTrace();
             }
