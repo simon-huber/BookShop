@@ -71,7 +71,7 @@ Shop:
       en: Info for the book '%1$s' by '%2$s'
     bookselled2:
       de: Verkauft %1$d mal.
-      en: Was selled %1$d times.
+      en: Was sold %1$d times.
     bookselled3:
       de: Es hat %1$d Seiten.
       en: It has %1$d pages.

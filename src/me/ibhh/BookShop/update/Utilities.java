@@ -607,7 +607,7 @@ public class Utilities {
     public void loadPlugin(final String pluginName)
             throws InvalidPluginException, InvalidDescriptionException {
         PluginManager manager = plugin.getServer().getPluginManager();
-        String path = plugin.getDataFolder().toPath().getParent().toString();
+        String path = plugin.getDataFolder().getParent().toString();
         Plugin plugin = manager.loadPlugin(new File(path, pluginName + ".jar"));
         if (plugin == null) {
             return;

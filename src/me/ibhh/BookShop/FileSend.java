@@ -22,7 +22,8 @@ public class FileSend {
 
     public void sendDebugFile(final String errorid) throws IOException {
         this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, new Runnable() {
-            @Override
+            @SuppressWarnings("resource")
+			@Override
             public void run() {
                 try {
                     URL url = new URL("http://report.ibhh.de/logs/send.php?plugin=" + FileSend.this.plugin.getName() + "&ID=" + errorid);
@@ -33,8 +34,7 @@ public class FileSend {
                     if (file.exists()) {
                         // Construct data
                         String data = URLEncoder.encode("file", "UTF-8") + "=";
-                        @SuppressWarnings("resource")
-						BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
                         try {
                             String line = null;
                             while ((line = reader.readLine()) != null) {

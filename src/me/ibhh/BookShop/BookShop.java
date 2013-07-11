@@ -42,6 +42,7 @@ public class BookShop extends JavaPlugin {
     private static String SHOP_CONFIG_FILE;
     public YamlConfiguration SHOP_configuration;
     private File configurationFile;
+    public HashMap<Integer, Integer> soldbooks = new HashMap<Integer, Integer>();
     public HashMap<Player, Boolean> commandexec = new HashMap<Player, Boolean>();
     public HashMap<String, Boolean> DebugMsg = new HashMap<String, Boolean>();
     private HashMap<Player, String> Config = new HashMap<Player, String>();
@@ -74,6 +75,15 @@ public class BookShop extends JavaPlugin {
                 java.util.logging.Logger.getLogger(BookShop.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+        if (!soldbooks.isEmpty()) {
+            try {
+                File path = new File(getDataFolder() + File.separator + "temp" + File.separator);
+                path.mkdirs();
+                ObjectManager.save(soldbooks, getDataFolder() + File.separator + "temp" + File.separator + "Sold.books");
+            } catch (Exception ex) {
+                java.util.logging.Logger.getLogger(BookShop.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
         timetemp = System.currentTimeMillis() - timetemp;
         Logger("disabled in " + timetemp + " ms", "");
     }
@@ -89,6 +99,10 @@ public class BookShop extends JavaPlugin {
                 this.config.loadConfigonStart();
                 try {
                     givebook_list = ObjectManager.load(getDataFolder() + File.separator + "temp" + File.separator + "GiveAll.books");
+                } catch (Exception e) {
+                }
+                try {
+                    soldbooks = ObjectManager.load(getDataFolder() + File.separator + "temp" + File.separator + "Sold.books");
                 } catch (Exception e) {
                 }
             } catch (Exception e1) {

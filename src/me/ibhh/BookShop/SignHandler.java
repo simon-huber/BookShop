@@ -206,6 +206,14 @@ public class SignHandler {
                                     if ((plugin.MoneyHandler.getBalance(player) - price) >= 0) {
                                         plugin.MoneyHandler.substract(price, player);
                                         player.getInventory().addItem(item.clone());
+                                        int i = item.hashCode();
+                                        if(!plugin.soldbooks.containsKey(i)) {
+                                        	plugin.soldbooks.put(i, 1);
+                                        } else {
+                                        	int iz = plugin.soldbooks.get(i);
+                                        	plugin.soldbooks.remove(i);
+                                        	plugin.soldbooks.put(i, ++iz);
+                                        }
                                         BookLoader.save(plugin, item);
                                         plugin.PlayerLogger(player, String.format(plugin.config.Shopsuccessbuy, s.getLine(2), s.getLine(1), price), "");
                                         player.saveData();
@@ -243,6 +251,14 @@ public class SignHandler {
                                             if (item.getType().equals(Material.WRITTEN_BOOK)) {
                                                 BookMeta itemMeta = (BookMeta) item.getItemMeta();
                                                 player.getInventory().addItem(item.clone());
+                                                int i = item.hashCode();
+                                                if(!plugin.soldbooks.containsKey(i)) {
+                                                	plugin.soldbooks.put(i, 1);
+                                                } else {
+                                                	int iz = plugin.soldbooks.get(i);
+                                                	plugin.soldbooks.remove(i);
+                                                	plugin.soldbooks.put(i, ++iz);
+                                                }
                                                 BookLoader.save(plugin, item);
                                                 plugin.PlayerLogger(player, String.format(plugin.config.Shopsuccessbuy, itemMeta.getTitle(), itemMeta.getAuthor(), 0), "");
                                             }
@@ -303,6 +319,14 @@ public class SignHandler {
                                                 chest.getInventory().clear(Slotbook);
                                             }
                                             player.getInventory().addItem(item.clone());
+                                            int i = item.hashCode();
+                                            if(!plugin.soldbooks.containsKey(i)) {
+                                            	plugin.soldbooks.put(i, 1);
+                                            } else {
+                                            	int iz = plugin.soldbooks.get(i);
+                                            	plugin.soldbooks.remove(i);
+                                            	plugin.soldbooks.put(i, ++iz);
+                                            }
                                             BookLoader.save(plugin, item);
                                         } else {
                                             if (!plugin.getConfig().getBoolean("useBookandQuill")) {

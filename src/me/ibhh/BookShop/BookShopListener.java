@@ -371,6 +371,11 @@ public class BookShopListener
     @EventHandler(priority = EventPriority.HIGH)
     public void onInteract(PlayerInteractEvent event) {
         try {
+        	if(plugin.getConfig().getBoolean("debug")) {
+        		if(event.getClickedBlock() != null && event.getClickedBlock().getType() != null) {
+        		System.out.println("[BookShop] BlockType: " + event.getClickedBlock().getType().name() + " State: " + event.getClickedBlock().getState());
+        		}
+        	}
             this.interactHandler.InteracteventHandler(event);
         } catch (Exception e) {
             e.printStackTrace();
