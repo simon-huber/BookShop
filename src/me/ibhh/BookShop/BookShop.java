@@ -48,7 +48,7 @@ public class BookShop extends JavaPlugin {
     private HashMap<Player, String> Config = new HashMap<Player, String>();
     private HashMap<Player, String> Set = new HashMap<Player, String>();
     private HashMap<String, ArrayList<BookFile>> givebook_list = new HashMap<String, ArrayList<BookFile>>();
-    public String[] commands = {"help", "showdebug", "debugfile", "internet", "version", "reload", "toggle", "language", "report", "backupbook", "loadbook", "giveall", "give", "setwelcomebook", "removewelcomebook"};
+    public String[] commands = {"help", "showdebug", "debugfile", "internet", "version", "toggle", "language", "report", "backupbook", "loadbook", "giveall", "give", "setwelcomebook", "removewelcomebook"};
 
     public boolean isBukkitVersionCompatible() {
         return Tools.packagesExists("org.bukkit.inventory.meta.BookMeta");
@@ -263,15 +263,15 @@ public class BookShop extends JavaPlugin {
                                     }
                                     this.Help.help(sender, args);
                                 } else {
-                                    if (args[0].equalsIgnoreCase("reload")) {
-                                        if (this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
-                                            PlayerLogger(player, "Please wait: Reloading this plugin!", "Warning");
-                                            getPluginManager().unloadPlugin("BookShop");
-                                            getPluginManager().loadPlugin("BookShop");
-                                            PlayerLogger(player, "Reloaded!", "");
-                                        }
-                                        return true;
-                                    }
+//                                    if (args[0].equalsIgnoreCase("reload")) {
+//                                        if (this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
+//                                            PlayerLogger(player, "Please wait: Reloading this plugin!", "Warning");
+//                                            getPluginManager().unloadPlugin("BookShop");
+//                                            getPluginManager().loadPlugin("BookShop");
+//                                            PlayerLogger(player, "Reloaded!", "");
+//                                        }
+//                                        return true;
+//                                    }
                                     if (args[0].equalsIgnoreCase("setwelcomebook")) {
                                         if (this.PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + this.ActionBookShop.toLowerCase() + ".permission"))) {
                                             if (player.getItemInHand().getType().equals(Material.WRITTEN_BOOK)) {
@@ -723,20 +723,20 @@ public class BookShop extends JavaPlugin {
                     }
                 } else if (cmd.getName().equalsIgnoreCase("BookShop")) {
                     if (args.length == 1) {
-//                        if (args[0].equalsIgnoreCase("download")) {
-//                            String path = "plugins" + File.separator;
-//                            this.upd.download(path);
-//                            Logger("Downloaded new Version!", "Warning");
-//                            Logger("BookShop will be updated on the next restart!", "Warning");
-//                            return true;
-//                        }
-                        if (args[0].equalsIgnoreCase("reload")) {
-                            Logger("Please wait: Reloading this plugin!", "Warning");
-                            getPluginManager().unloadPlugin("BookShop");
-                            getPluginManager().loadPlugin("BookShop");
-                            Logger("Reloaded!", "");
+                        if (args[0].equalsIgnoreCase("download")) {
+                            String path = "plugins" + File.separator;
+                            this.update.download(path);
+                            Logger("Downloaded new Version!", "Warning");
+                            Logger("BookShop will be updated on the next restart!", "Warning");
                             return true;
                         }
+//                        if (args[0].equalsIgnoreCase("reload")) {
+//                            Logger("Please wait: Reloading this plugin!", "Warning");
+//                            getPluginManager().unloadPlugin("BookShop");
+//                            getPluginManager().loadPlugin("BookShop");
+//                            Logger("Reloaded!", "");
+//                            return true;
+//                        }
                         if (args[0].equalsIgnoreCase("debug")) {
                             getConfig().set("debug", Boolean.valueOf(!getConfig().getBoolean("debug")));
                             Logger("debug set to: " + getConfig().getBoolean("debug"), "");

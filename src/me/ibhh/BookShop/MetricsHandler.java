@@ -38,6 +38,10 @@ public class MetricsHandler {
     }
 
     public void saveStatsFiles() {
+    	File file = new File(plugin.getDataFolder() + File.separator + "metrics");
+    	if(!file.exists()) {
+    		file.mkdirs();
+    	}
         try {
             ObjectManager.save(Shop, plugin.getDataFolder() + File.separator + "metrics" + File.separator + "Shop.statistics");
             plugin.Logger("Shops stats file contains " + calculateShopQuantity() + " values!", "Debug");
